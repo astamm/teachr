@@ -20,3 +20,5 @@ Imports:
     testwhat (>= 4.11.1)
 Remotes: 
     datacamp/testwhat
+URL: https://github.com/astamm/teachr
+BugReports: https://github.com/astamm/teachr/issues
