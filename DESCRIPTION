@@ -7,7 +7,9 @@ Authors@R:
            role = c("aut", "cre"),
            email = "aymeric.stamm@math.cnrs.fr",
            comment = c(ORCID = "0000-0002-8725-3654"))
-Description: What the package does (one paragraph).
+Description: The goal of teachr is to provide a set of 
+  introductory tutorials for teaching / learning R 
+  following the philosophy of the tidyverse.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
