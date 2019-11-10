@@ -3,3 +3,5 @@
 ^LICENSE\.md$
 ^inst/tutorials/01_Introduction/01_Introduction\.Rmd$
 ^inst/tutorials/02_DataTypes/02_DataTypes\.Rmd$
+^inst/tutorials/03_DataWrangling/03_DataWrangling\.Rmd$
+^inst/tutorials/04_DataVisualization/04_DataVisualization\.Rmd$

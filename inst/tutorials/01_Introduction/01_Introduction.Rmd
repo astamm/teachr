@@ -1,5 +1,5 @@
 ---
-title: "Introduction to the R programming language"
+title: "Introduction to R"
 tutorial:
   id: "c332c5f8-644f-44ab-99e9-a42088854e42"
   version: 1.0
