@@ -1,5 +1,5 @@
 Package: teachr
-Title: What the Package Does (One Line, Title Case)
+Title: Tutorials for Teaching Tidyverse-Based R Basics
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Aymeric",
@@ -8,6 +8,13 @@ Authors@R:
            email = "aymeric.stamm@math.cnrs.fr",
            comment = c(ORCID = "0000-0002-8725-3654"))
 Description: What the package does (one paragraph).
-License: What license it uses
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Suggests: 
+    learnr
+RoxygenNote: 6.1.1
+Imports: 
+    testwhat (>= 4.11.1)
+Remotes: 
+    datacamp/testwhat

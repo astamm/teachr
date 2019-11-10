@@ -1,0 +1,359 @@
+---
+title: "Introduction to the R programming language"
+tutorial:
+  id: "c332c5f8-644f-44ab-99e9-a42088854e42"
+  version: 1.0
+output: learnr::tutorial
+runtime: shiny_prerendered
+author: Aymeric Stamm
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(testwhat)
+
+tutorial_options(
+  exercise.timelimit = 60,
+  exercise.checker = testwhat::testwhat_learnr
+)
+knitr::opts_chunk$set(comment = NA)
+```
+
+## Material for this course {data-progressive=TRUE}
+
+### Softwares
+
+In order to get the best experience of this course, you are kindly asked to bring your own personal laptop with the lastest versions of [R](https://cloud.r-project.org) and [RStudio Preview](https://rstudio.com/products/rstudio/download/preview/) installed and ready for use. You will also need a decent internet wireless connection.
+
+R (and RStudio) can be customized using external code bundled into so-called *packages* (we will come back to that in a few minutes).
+
+**Your turn.** Take a minute to:
+
+- go on the webpage of the course to download the file `package_setup.R`;
+- open it with RStudio;
+- execute all the code inside the file: click on the `Source button` in the top-right corner of the top-left panel.
+
+### Material format
+
+The material that we provide for this course is called a *tutorial*. A tutorial comes as a standalone file with extension `.Rmd` that you can open in RStudio in two ways:
+
+1. Navigate in `File/Open File...`; or,
+1. **[Recommended]** Go to the folder where you have an `.Rmd`, right click on the file and ask for opening it using RStudio.
+
+When you open an `Rmd` file within RStudio, a new window appears with some content. You can then start the tutorial by clicking on the `Run Document` button; the tutorial should appear either in a new window or in the viewer pane on the bottom-right panel. You can then click on the third icon in this panel above the tutorial to view it in your browser for simplicity. In this course, we provide for each tutorial the `.Rmd` and `.html` associated file.
+
+**Your turn:**
+
+- Save the `.Rmd` and `.html` files to a **same** folder on your computer;
+- Open the `.Rmd` file with RStudio;
+- Make sure the current working directory in RStudio is the folder where you saved the files (`?setwd`);
+- Click on the `Run Document` button above the space where the file shows up (top-left panel);
+- Click on the third icon above the space where the tutorial shows up (bottom-right panel) to view it in your browser.
+
+This manipulation will be necessary for each tutorial.
+
+By now, you should have reached the page we are on. We can now click together on `Continue` to proceed.
+
+### Exercises {data-allow-skip=TRUE}
+
+You will be provided the opportunity to carry out a number of exercises by yourself whenever you see an editable code box that looks like this:
+```{r code-box-example, exercise=TRUE}
+
+```
+
+<div id="code-box-example-hint">
+**Hint:** You just clicked on the `Hint` button. Come on, you could have given some more thoughts before asking for help...
+</div>
+
+```{r code-box-example-solution}
+```
+
+```{r code-box-example-check}
+ex()
+```
+
+- The `Start Over` button gives you a clean slate so you can restart the exercise from scratch.
+- The `Hint` button provides clues for solving some exercises.
+- The `Run Code` button allows you to experiment by running the current code you produced and see its result.
+- The `Submit Answer` button confronts your provided solution with the expected one and, tentatively, give you feedback.
+
+When writing code in the provided boxes, code completion is enabled, meaning that, as you type, R will propose a list of functions or other objects that match the sequence of letters you are typing.
+
+## R and its package system
+
+### R as a modular software
+
+The [R programming language](https://cloud.r-project.org) comes as an installable software. This is a language tailored for statistics. R is made of:
+
+- a core which is not intended to perform any kind of statistical analysis;
+- a number of satellite packages that implement tools for various statistical purposes.
+
+Upon installation, R comes with a following list of pre-installed packages:
+```{r base-packages, echo=FALSE}
+installed.packages() %>% 
+  tibble::as_tibble() %>% 
+  dplyr::filter(Priority == "base") %>% 
+  dplyr::select(Package, Version)
+```
+
+Here is a brief description of some fundamental pre-installed packages:
+
+- Basic data structures and their operations are defined in the **base** package;
+- A number of datasets are available through the **datasets** package for testing code;
+- Basic visualization capabilities are provided by the packages **graphics**, **grDevices** and **grid**;
+- Parallel computing comes as part of the **parallel** package;
+- Spline interpolation functions have been considered a fundamental tool for many statistical analyses and, as such, are available by default though the **splines**;
+- Statistical distributions, basic parametric procedure for confidence intervals and hypothesis tests are available through the **stats** and **stats4** packages;
+- Many utility functions we use in a daily basis without paying much attention come from the **utils** package; this is for example the case of the `install.packages()` function which allow the user to install other packages.
+
+### Customizing your R experience
+
+The user can then custom his/her R environment by installing additional packages. To that end, the function `install.packages()` is available through the **utils** package.
+
+The basic fundamental packages listed in the previous section, which **utils** is a part of, are by default *loaded* into your R environment. This means that all the functions inside these packages are readily available for use with no additional code required from your part. Hence, for instance, the function `install.packages()` is available. The following line of code shows you how you can install for instance the [**tidyverse**](https://tidyverse.tidyverse.org) package, of which we will make extensive use during this class:
+```{r install-tidyverse, eval=FALSE}
+install.packages("tidyverse")
+```
+
+There are two ways to call a function from a new custom package installed by the user. The first, **not recommended**, way is to *load* the package inside your R environment so as to make all of its functions available for use. This is achieved via the function `library()` from the **base** package. For example, we can use the function `as_tibble()` from the **tibble** package included in the **tidyverse** package we just installed to print the `iris` dataset as a `tibble`, which is an R object suited for storing datasets:
+```{r function-call-nr, exercise=TRUE}
+library(tibble)
+as_tibble(iris)
+```
+
+The second more appropriate and thus **recommended** way is to simply write the name of the package followed by two colons before the name of the function, so that R knows in which package it should look for the required function. In the following box, visualize the `iris` dataset as a `tibble` using the `as_tibble()` function from the **tibble** package without loading the entire package into the R environment.
+```{r function-call, exercise=TRUE}
+
+```
+
+<div id="function-call-hint">
+**Hint:** Just transform the previous code box using the new proposed syntax.
+</div>
+
+```{r function-call-solution}
+tibble::as_tibble(iris)
+```
+
+```{r function-call-check}
+ex() %>% 
+  check_code("tibble::as_tibble")
+```
+
+You can also install development versions of existing packages if these versions are hosted either on [GitHub](https://github.com) or on [GitLab](https://about.gitlab.com). To do so, first install the [**remotes**](https://remotes.r-lib.org) package and then use `remotes::install_github()` or `remotes::install_gitlab()`. For example, we can install the development version of the `testwhat()` package hosted on GitHub at the following [URL](https://github.com/datacamp/testwhat) with the following line of code:
+```{r remotes-install, eval=FALSE}
+# First make sure remotes is installed
+install.packages("remotes")
+# Then install testwhat from GitHub using remotes::install_github()
+remotes::install_github("datacamp/testwhat")
+```
+
+If you want to get your hands on RStudio at home outside from these tutorials, a good initial list of packages to install is:
+
+- With `install.packages()`: rmarkdown, knitr, shiny, learnr, rlang, tidyverse, remotes;
+- With `remotes::install_github()` (once you installed **remotes**): testwhat.
+
+This will at least allow you to reproduce the content of the tutorials in your RStudio session.
+    
+
+## The [RStudio](https://rstudio.com/products/rstudio/download/preview/) API
+
+The code boxes are nothing but an R script interpreted by [RStudio](https://rstudio.com/products/rstudio/download/preview/). The aim of the tutorials is to give you the basis for programming with the R language inside RStudio to be able to analyze data. Outside from the tutorials, it is therefore important to master the RStudio API and the resources that the [RStudio website](https://rstudio.com) puts at our disposal.
+
+Let us leave for a moment the tutorial and click back on the main RStudio window. Below, we report, for your convenience, a description of what we deem to be the most useful options available in the 5 main blocks of the RStudio API.
+
+### The Menu Bar
+
+#### The File Tab
+
+**RStudio projects.** An RStudio project is a nice way to structure your R code into projects. Fundamentally, it is nothing but a folder living on your computer (and, optionally also on [GitHub](https://github.com) or [Gitlab](https://about.gitlab.com)). Inside the folder, you can find a file named after your project's name with extension `.Rproj`. When you setup an RStudio project, RStudio automatically sets the working directory as the root folder where the `.Rproj` file lives. The relative path thus starts at this position in the folder tree. We recommend to structure an RStudio project with the following subfolders:
+
+- `data`: this is where you put the external data related to your project
+- `scripts`: this is where you save you scripts, be them R, Python or C++.
+- `results`: most of the time, you will execute the scripts in the `script` folder on parts of the data stored in the `data` folder; we recommend you put the outputs of your analysis in this folder;
+- `reports`: this is where you put files pertaining to your R markdown (`.Rmd`) reports, be them HTML, PDF, Word or PowerPoint; this folder can be eventually merged with the `scripts` and `results` folders in case you only produce analyses inside an `.Rmd` report.
+
+When you close RStudio and then need to work again on this project, you only have to navigate to your project's folder and double-click on the `project.Rproj` file to have RStudio with the proper current directory ready for your next analyses on the project.
+
+**Import datasets.** Statistics is all about analyzing real-world external data sets. Hence, it is important to learn how to import this data into your RStudio session. You have several options depending on the format of your external data. You can forget the option `From Text (base)` which uses old deprecated functions from the **base** package. This leaves us with:
+
+- *From Text (readr).* This uses the function `read_delim()` of the **[readr](https://readr.tidyverse.org)** package, which is part of the [**tidyverse**](https://www.tidyverse.org) package, for importing data stored in text files and separated by a specific delimiter (e.g. a comma for `.csv` or a tabulation for `.tsv`, etc.).
+
+- *From Excel.* This uses the function `read_excel()` of the **[readxl](https://readxl.tidyverse.org)** package, which is part of the [**tidyverse**](https://www.tidyverse.org) package, for importing data stored in Excel files (either the new `.xlsx` format or the older `.xls`).
+
+- *From SPSS*, *From SAS* and *From STATA.* This uses the functions of the **[haven](https://haven.tidyverse.org)** package, which is part of the [**tidyverse**](https://www.tidyverse.org) package, for importing SPSS-processed data via the function `read_sav()`, SAS-processed data via the function `read_sas()` or STATA-processed data via the function `read_stata()`.
+
+#### The Code Tab
+
+- *Go to function definition.* This is particularly useful when you are working on a project for which you programmed many different functions in a nested fashion, i.e. when some functions call other functions which, in turn, call other functions. You might not always remember how one particular function was structured or in which file it is written, even if you are the one who wrote it in the first place. The `Go to function definition` allows you to open the file where the function stands and position the cursor right where the function is defined.
+
+- *Run selected lines.* There is a particularly time-saving shortcut for running selected lines in a script which is `CMD+ENTER` (macOS) or `CTRL+ENTER` (Windows, Linux) after selecting the piece of code you are interested in running. What this substantially does for you is that it copy-pastes the code you selected and sends it to the R console for evaluation This saves you the trouble of copying, going to the console, pasting the code in the console and hitting `ENTER` for its evaluation.
+
+- *Run selection as local job.*
+
+#### The Session Tab
+
+In the Session tab, you can find useful shortcuts:
+
+- *Restart R.* You can always restart R without quitting RStudio via `CMD+SHIFT+F10` (macOS) or `CTRL+SHIFT+F10` (Windows, Linux).
+
+- *Set working directory.* You can set the working directory manually if you ever decide not to use the RStudio project feature.
+
+- *Save workspace as...* At any time, you can save the whole set (or a part) of R objects you generated during your coding session in a file with extension `.RData` which is a particularly well compressed format.
+
+- *Load workspace.* This allows you to import back that whole set of R objects you generated last time you worked on your project if you saved them in a `.Rdata` file.
+
+#### The Profile Tab
+
+Using the functionalities available in the Profile tab requires the installation of the **[profvis](https://rstudio.github.io/profvis/)** package. Once installed, you can select a piece of code and profile it to understand which parts of the code are time-consuming so you can later optimize them. Once you have selected the code you want to profile, you can also use the keyboard shortcut `CMD+OPTION+SHIFT+P` (macOS) or `CTRL+ALT+SHIFT+P` (Windows, Linux) to start profiling it.
+
+#### The Tools Tab
+
+- *Install packages...* This is an API alternative to calling the function `utils::install.packages()`.
+
+- *Check for package updates.* Prior to any coding session, it is <span style="color:red">**highly recommended**</span> to always keep R, RStudio and all the installed packages up to date. It might sometimes break some of your code but, in the long run, you spend much less time making small fixes regularly than rewriting your whole code because of major changes in other packages on which your code rely made it completely obsolete.
+
+- *Jobs.* You can run several jobs in the background with RStudio so that you can keep working on your code while running analyses or testing other pieces of already written code. Note that, to be effective, you should not run simultaneously more jobs than the number of cores your laptop possesses minus one. This ensures that you will keep at least one core for continuing developing your code without being slowed down because of hardware limits.
+
+- *Keyboard shortcuts help.* This opens up a table that summarizes the available keyboard shortcuts in your RStudio session. There is also a keyboard shortcut for toggling this table which is `OPTION+SHIFT+K`.
+
+#### The Help Tab
+
+There are some particularly helpful resources in the Help tab:
+
+- *Cheatsheets.* This are single A4 sheets focusing on a single topic (usually a package) giving an overview as detailed as possible in this format. These cheatsheets are **extremely useful** as they can be printed and kept close to your desktop for constant access while you are coding. The full [list of available cheatsheets](https://rstudio.com/resources/cheatsheets/) goes beyond those presented in this tab.
+
+- *Markdown quick reference.* This is a quick access to a web page that provides a quick tour of **[rmarkdown](https://rmarkdown.rstudio.com)** syntax, which is used for report generation in RStudio.
+
+- *Roxygen quick reference.* This is a quick access to a web page that provides a quick tour of roxygen syntax, which is used by the **[roxygen2](https://roxygen2.r-lib.org)** package for providing package documentation.
+
+### The Top-Left Panel
+
+The top-left panel is dedicated to the **source editor**. This is where all source document will appear with customized action button for each source. In RStudio, you can author:
+
+#### R code
+
+Of course, RStudio, as the name suggests, allows users to author R code through R scripts which are files with extension `.R`.
+
+#### Python and C++ code
+
+The use of Python code and scripts requires the additional [**reticulate**](https://rstudio.github.io/reticulate/) package while the use of C/C++ code requires the additional [**Rcpp**](http://www.rcpp.org) package. Going deeper into these topics is beyond the scope of this class but it is worth mentioning that RStudio is not limited to R but can in fact **combine very easily R with Python and C++**.
+
+#### SQL
+
+In the era of *big data*, it is not uncommon that the data you need to analyze is stored into databases that you can access via SQL queries. RStudio understands SQL language and even allows you to author SQL code. This feature requires the additional [**RSQLite**](https://db.rstudio.com/databases/sqlite/) package.
+
+#### STAN
+
+> The [Stan](https://mc-stan.org) C++ library is a state-of-the-art platform for statistical modeling and high-performance statistical computation. Users specify log density functions in Stan’s probabilistic programming language and get:
+>
+> - full Bayesian statistical inference with MCMC sampling (NUTS, HMC)
+> - approximate Bayesian inference with variational inference (ADVI)
+> - penalized maximum likelihood estimation with optimization (L-BFGS)
+
+RStudio understands STAN language and allows you to author STAN (C++) code. This feature requires the additional [**rstan**](https://mc-stan.org/users/interfaces/rstan) package.
+
+#### [D3.js](https://d3js.org) scripts:
+
+> [D3.js](https://d3js.org) is a JavaScript library for manipulating documents based on data. D3 helps you bring data to life using HTML, SVG, and CSS. D3’s emphasis on web standards gives you the full capabilities of modern browsers without tying yourself to a proprietary framework, combining powerful visualization components and a data-driven approach to Document Object Model (DOM) manipulation.
+
+RStudio understands D3 language and allows you to author D3 (JavaScript) code. This feature requires the additional **[r2d3](https://rstudio.github.io/r2d3)** package.
+
+#### Interactive reports, presentations and web applications
+
+RStudio allows you to generate reports and/or presentations in which you can mix text, LaTeX equations or other math symbols and R, Python or C++ code chunks. These features require the additional [**rmarkdown**](https://rmarkdown.rstudio.com) package. The interactive report or presentation is created via a single `.Rmd` file which can then be converted into HTML, PDF, Word (for reports) or PowerPoint (for presentation) formats.
+
+RStudio also allows you to author interactive Web applications, called *Shiny apps*. This feature requires the additional [**shiny**](https://shiny.rstudio.com) package.
+
+### The Bottom-Left Panel
+
+The bottom-left panel is made of 4 tabs: console, terminal, R markdown and jobs:
+
+- *The Console Tab.* This is essentially the R console where code is evaluated and outputs are shown.
+- *The Terminal Tab.* This is an easy access to the terminal which is set at the position of your working directory.
+- *The R Markdown Tab.* This shows information about R Markdown report compilation.
+- *The Jobs Tab.* It summarizes information about the current running jobs and the jobs that finished running as well.
+
+### The Top-Right Panel
+
+It is primarily composed of 3 tabs: environment, history and connections:
+
+- *The Environment Tab.* It displays all R objects created and available in the current R environment. By clicking on the `Global Environment` button, it is also possible to see the list of all packages that have been loaded into the current environment.
+- *The History Tab.* It is simply the sequential history of all the lines of code that have been evaluated in the R console from the begining of your coding session. An important note is that you can select a group of code lines you are interested in and directly copy-paste them either back in the console or in an R script for saving satisfying pieces of code.
+- *The Connections Tab.* This allows you to establish connections between your R session within RStudio and external databases such as provided by SQL services for example. This is beyond the scope of this class.
+
+Note that RStudio capabilities are increased and enhanced by a number of independent R packages. As a result, your RStudio experience is dependent from the list of installed packages. In particular, other tabs could be automatically added by RStudio in this panel when you install some specific 
+
+### The Bottom-Right Panel
+
+It is composed of 5 tabs: files, plots, packages, help and viewer:
+
+- *The Files Tab.* This is where you can navigate through the files and open scripts without opening an external file browser.
+- *The Plot Tab.* This is where all your static plots will appear. When a plot is displayed in this tab, you can export it via the `Export` button and choose between PDF format, several image formats or a low-quality snapshot of your plot copied to clipboard for fast sharing.
+- *The Packages Tab.* This is where you can see the complete list of all the packages you have installed. You can use here the `Install` button to install additional packages without resorting to R commands. You can also use the `Update` button to make sure all your packages are up to date.
+- *The Help Tab.* Whenever you call the `help()` function on an R object or the `?` operator to see more help on a given object, the corresponding information will be displayed here. Note that you can also use code completion when producing code by tapping `TAB` after at least one letter you have typed.
+- *The Viewer Tab.* This is where all interactive plots or other interactive components will be displayed.
+
+### Quiz
+
+```{r quiz-rstudio-api, echo=FALSE}
+quiz(
+  question(
+    "How can I keep all my installed packages up to date?",
+    answer(
+      "Using `Update` in the *Packages Tab* of the bottom-right panel", 
+      correct = TRUE
+    ),
+    answer(
+      "Using `Install packages...` in the *Tools Tab* of the menu bar",
+    ),
+    answer(
+      "Using `Check for package updates` in the *Connections Tab* of the top-right panel"
+    ),
+    answer(
+      "Using `Check for package updates` in the *Tools Tab* of the menu bar", 
+      correct = TRUE
+    ),
+    random_answer_order = TRUE
+  ),
+  question(
+    "Which programming language can be used in RStudio?",
+    answer("Only R"),
+    answer("R, Python and C++", correct = TRUE),
+    answer("R, Python"),
+    answer("R, C++"), 
+    random_answer_order = TRUE
+  ),
+  question(
+    "Which of the following packages are tailored for data import?",
+    answer("haven", correct = TRUE),
+    answer("readr", correct = TRUE),
+    answer("readxl", correct = TRUE),
+    answer("tidyverse"), 
+    random_answer_order = TRUE
+  ),
+  question(
+    "Which package is required to use C++ in RStudio?", 
+    answer("Rcpp", correct = TRUE),
+    answer("CPP"),
+    answer("cppRouting"),
+    answer("No package is required"), 
+    random_answer_order = TRUE
+  ),
+  question(
+    "What is the keyboard shortcut for running a piece of code?",
+    answer("`CMD+ENTER` / `CTRL+ENTER`", correct = TRUE),
+    answer("`CMD+OPTION+ENTER` / `CTRL+ALT+ENTER`"),
+    answer("`OPTION+ENTER` / `ALT+ENTER`"),
+    answer("`CMD+SPACE` / `CTRL+SPACE`"), 
+    random_answer_order = TRUE
+  ),
+  question(
+    "How can we access package cheatsheets?",
+    answer("Via the *Help Tab* in the menu bar", correct = TRUE),
+    answer("Via RStudio website", correct = TRUE),
+    answer("Via the *Help Tab* in the bottom-right panel"),
+    answer("Via the function `load_cheatsheet()`"), 
+    random_answer_order = TRUE
+  )
+)
+```

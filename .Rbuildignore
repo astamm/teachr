@@ -1,2 +1,4 @@
 ^teachr\.Rproj$
 ^\.Rproj\.user$
+^inst/tutorials/01_Introduction\.Rmd$
+^LICENSE\.md$
