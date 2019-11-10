@@ -4,7 +4,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of **teachr** is to provide a set of introductory tutorials for teaching / learning R following the philosophy of the [tidyverse]().
+The goal of **teachr** is to provide a set of introductory tutorials for teaching / learning R following the philosophy of the [tidyverse](https://www.tidyverse.org).
 
 ## Installation
 
