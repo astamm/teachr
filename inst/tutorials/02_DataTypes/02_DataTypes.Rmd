@@ -751,12 +751,13 @@ A <- t(X) %*% X
 ```
 
 When we will learn about regression analysis, we will make extensive use of solving linear systems of the form $A x = b$. This is handled in an algorithmic efficient way by `solve(A, b)`, which is a far better solution than the intuitive $x = A^{-1} b$. If the `b` argument is not specified, the function provides the inverse of $A$ (which needs to be squared and invertible):
-```{r solve, exercise=TRUE, exercise.setup="def-A", exercise.lines=5}
+
+```{r solve, exercise=TRUE, exercise.setup="def-A", exercise.lines=6}
+A <- t(X) %*% X
 # Solve Ax = b
 solve(A, rep(1, 4))
 # Find inverse of A
 solve(A)
-
 ```
 
 To perform matrix exponential, logarithm or powering, use the **expm** package. It provides the functions `expm()`, `logm()` and the operator `%^%` for matrix powering.
