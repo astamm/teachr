@@ -717,43 +717,35 @@ To subset a matrix, the same subset operator `[` can be used with two arguments:
 - the first specifies the subset of rows;
 - the second specifies the subset of columns.
 
-To create a matrix from a data set made of numerical variables, use `as.matrix()`. For example, the first $4$ variables in the `iris` data set are numeric. We can therefore coerce them into a matrix as follows:
-```{r as-matrix}
-tbl <- tibble::as_tibble(iris[, -5])
-X <- as.matrix(tbl)
-X[1:5, ]
+To create a matrix from a data set made of numerical variables, use `as.matrix()`. For example, the first $4$ variables in the `iris` data set are numeric. Coerce them into a matrix called $X$:
+```{r as-matrix, exercise=TRUE}
+
 ```
 
-```{r def-X}
+```{r defs-matrix, echo=FALSE}
 tbl <- tibble::as_tibble(iris[, -5])
 X <- as.matrix(tbl)
+A <- t(X) %*% X
 ```
 
 To know the dimensions of the matrix (number of rows and columns), use `dim()`:
-```{r dim, exercise=TRUE, exercise.setup="def-X"}
+```{r dim, exercise=TRUE, exercise.setup="defs-matrix"}
 
 ```
 
 To transpose a matrix, use `t()`:
-```{r transpose, exercise=TRUE, exercise.setup="def-X"}
+```{r transpose, exercise=TRUE, exercise.setup="defs-matrix"}
 
 ```
 
-Universal mathematical functions and operators `+`, `-`, `*` and `/` can be used without any problem. They just apply the function or the operator element-wise. For operations, matrix dimensions should match. An error will be thrown if it is not the case. The element-wise multiplication is not the usual matrix multiplication. The latter can be performed using the operator `%*%`:
-```{r matrix-product, exercise=TRUE, exercise.setup="def-X"}
-# t(X) * X
-A <- t(X) %*% X
-A
-```
+Universal mathematical functions and operators `+`, `-`, `*` and `/` can be used without any problem. They just apply the function or the operator element-wise. For operations, matrix dimensions should match. An error will be thrown if it is not the case. The element-wise multiplication is not the usual matrix multiplication. The latter can be performed using the operator `%*%`. For example, compute $X^\top X$ and store it in matrix $A$:
+```{r matrix-product, exercise=TRUE, exercise.setup="defs-matrix"}
 
-```{r def-A}
-A <- t(X) %*% X
 ```
 
 When we will learn about regression analysis, we will make extensive use of solving linear systems of the form $A x = b$. This is handled in an algorithmic efficient way by `solve(A, b)`, which is a far better solution than the intuitive $x = A^{-1} b$. If the `b` argument is not specified, the function provides the inverse of $A$ (which needs to be squared and invertible):
 
-```{r solve, exercise=TRUE, exercise.setup="def-A", exercise.lines=6}
-A <- t(X) %*% X
+```{r solve, exercise=TRUE, exercise.setup="defs-matrix", exercise.lines=5}
 # Solve Ax = b
 solve(A, rep(1, 4))
 # Find inverse of A
@@ -765,7 +757,7 @@ To perform matrix exponential, logarithm or powering, use the **expm** package. 
 To perform the spectral decomposition of a square matrix, use `eigen()`.
 
 In statistics, a data set of $p$ numerical variables of which we observed $n$ realizations is often represented as an $n \times p$ matrix $X$ where variables are in columns and observations in rows. We can get easily the *sample mean* using `colMeans(X)` and the sample covariance matrix using `cov(X)`:
-```{r mat-stat, exercise=TRUE, exercise.setup="def-A"}
+```{r mat-stat, exercise=TRUE, exercise.setup="defs-matrix"}
 colMeans(A)
 cov(A)
 
