@@ -37,15 +37,13 @@ This tutorial is in many parts built from tutorials published on GitHub by RStud
 - `readxl::read_excel()` - reads `.xls` and `.xlsx` files;
 - ...
 
-### Reading and summarizing data - The [**skimr**]() package
+### Reading and summarizing data - The [**skimr**](https://docs.ropensci.org/skimr) package
 <img src="https://github.com/ropensci/skimr/raw/master/man/figures/logo.png" alt="skimr logo" width="64" style="float: right; margin-left: 10px; margin-right: 10px;"/>
 
 
 ```{r read-csv}
 nobel <- readr::read_csv(file = "www/nobel.csv")
 ```
-
-TO DO: `problems()` ?
 
 ```{r skim}
 nobel %>%
@@ -57,12 +55,7 @@ The [**skimr**](https://docs.ropensci.org/skimr/) package provides a frictionles
 
 ### Writing data
 
-```{r clean-www, include=FALSE}
-if (file.exists("www/df.csv"))
-  file.remove("www/df.csv")
-```
-
-```{r write-csv}
+```{r write-csv, exercise=TRUE}
 df <- tibble::tribble(
   ~x, ~y,
   1,  "a",
@@ -70,15 +63,23 @@ df <- tibble::tribble(
   3,  "c"
 )
 
-list.files("www/")
-readr::write_csv(df, path = "www/df.csv")
-list.files("www/")
-writeLines(system("cat www/df.csv", intern = TRUE))
+list.files()
+readr::write_csv(df, path = "df.csv")
+list.files()
+# For Unix systems:
+# writeLines(system("head -n 3 df.csv", intern = TRUE))
+# For Windows:
+# writeLines(system("gc df.csv | select -first 3", intern = TRUE))
+```
+
+```{r write-csv-setup}
+if (file.exists("df.csv"))
+  file.remove("df.csv")
 ```
 
 ### Exercise
 
-- Import the `nobel.csv` data from the URL (https://github.com/astamm/teachr/tree/master/inst/tutorials/03_DataImport/www/nobel.csv);
+- Import the data stored at path `www/nobel.csv`;
 - Create a new tibble, `nobel_stem`, that filters for the STEM fields (Physics, Medicine, Chemistry, and Economics);
 - Create another tibble, `nobel_nonstem`, that filters for the remaining fields;
 - Write out the two data frames to `nobel-stem.csv` and `nobel-nonstem.csv`;
@@ -88,6 +89,11 @@ writeLines(system("cat www/df.csv", intern = TRUE))
 
 ```
 
+```{r ex-csv-setup}
+dir.create("www")
+download.file("https://raw.githubusercontent.com/astamm/teachr/master/inst/tutorials/03_DataImport/www/nobel.csv", "www/nobel.csv")
+```
+
 <div id=ex-csv-hint>
 **Hint:** Use the `%in%` operator when filtering.
 </div>
@@ -95,7 +101,7 @@ writeLines(system("cat www/df.csv", intern = TRUE))
 ## Variable names
 
 ```{r variable-names}
-edi_airbnb <- readr::read_csv("www/edi-airbnb.csv")
+edi_airbnb <- readr::read_csv(file = "www/edi-airbnb.csv")
 names(edi_airbnb)
 ```
 
@@ -114,10 +120,15 @@ edi_airbnb$`Number of bathrooms`
 ### Option 2 - Define column names
 
 ```{r names-o2}
-edi_airbnb_col_names <- readr::read_csv("www/edi-airbnb.csv",
-  col_names = c("id", "price", "neighbourhood", "accommodates",
-                "bathroom", "bedroom", "bed", 
-                "review_scores_rating", "n_reviews", "url"))
+edi_airbnb_col_names <- readr::read_csv(
+  file = "www/edi-airbnb.csv", 
+  col_names = c(
+    "id", "price", "neighbourhood", 
+    "accommodates", "bathroom", "bedroom", 
+    "bed", "review_scores_rating", 
+    "n_reviews", "url"
+  )
+)
 
 names(edi_airbnb_col_names)
 ```
@@ -197,14 +208,19 @@ readr::read_csv(
 
 ### Exercise 1
 
-- Read in the Excel file called `favourite-food.xlsx` from the `data-raw/` folder;
+- Read in the Excel file at path `www/favourite-food.xlsx`;
 - Clean up `NA`s and make sure you're happy with variable types;
 - Convert SES (socio economic status) to a factor variables with levels in the following order: `Low`, `Middle`, `High`;
-- Write out the resulting data frame to `favourite-food.csv` in the `data/` folder;
-- Finally, read `favourite-food.csv` back in from the `data/` folder and observe the variable types. Are they as you left them?
+- Write out the resulting data frame to the path `favourite-food.csv`;
+- Finally, read `favourite-food.csv` back in and observe the variable types. Are they as you left them?
 
-```{r fav-food, exercise=TRUE}
+```{r fav-food-csv, exercise=TRUE}
 
+```
+
+```{r fav-food-csv-setup}
+dir.create("www")
+download.file("https://github.com/astamm/teachr/raw/master/inst/tutorials/03_DataImport/www/favourite-food.xlsx", "www/favourite-food.xlsx")
 ```
 
 ### `read_rds()` and `write_rds()`
@@ -220,14 +236,29 @@ readr::write_rds(x, path)
 ### Exercise 2
 
 - Repeat the first three steps from Exercise 1;
-- Write out the resulting data frame to `favourite-food.rds` in the `data/` folder;
-- Read `favourite-food.rds` back in from  the `data/` folder and observe the variable types.  Are they as you left them?
+- Write out the resulting tibble to `favourite-food.rds`;
+- Read `favourite-food.rds` back in and observe the variable types.  Are they as you left them?
+
+```{r fav-food-rds, exercise=TRUE}
+
+```
+
+```{r fav-food-rds-setup}
+dir.create("www")
+download.file("https://github.com/astamm/teachr/raw/master/inst/tutorials/03_DataImport/www/favourite-food.xlsx", "www/favourite-food.xlsx")
+```
 
 ### Exercise 3
 
-Load the `sales.xlsx` file from the `data-raw/` folder, using appropriate arguments for the `read_excel()` function such that it looks like the following.
+The `sales` data set (located at `www/sales.xlsx`) looks like this:
 
 ```{r sales, echo=FALSE}
+readxl::read_excel("www/sales.xlsx")
+```
+
+Read it using appropriate arguments for the `readxl::read_excel()` function such that it looks like the following:
+
+```{r sales-format, echo=FALSE}
 sales <- readxl::read_excel(
   path = "www/sales.xlsx", 
   skip = 3, 
@@ -238,6 +269,11 @@ sales
 
 ```{r sales-exo, exercise=TRUE}
 
+```
+
+```{r sales-exo-setup}
+dir.create("www")
+download.file("https://github.com/astamm/teachr/raw/master/inst/tutorials/03_DataImport/www/sales.xlsx", "www/sales.xlsx")
 ```
 
 ## Other types of data
