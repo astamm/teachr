@@ -313,5 +313,3 @@ The [**miceFast**](https://github.com/Polkas/miceFast) package has a slightly mo
 It is therefore recommended for those who do not like many dependencies to be installed on their computer or for those who need to perform multiple imputation on big data sets.
 
 Note finally that there are many other packages for handling [missing values](https://cran.r-project.org/web/views/MissingData.html).
-
-### Exercices
