@@ -14,12 +14,18 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Suggests: 
-    learnr,
-    knitr,
     rmarkdown
 RoxygenNote: 7.0.0
 Imports: 
-    testwhat (>= 4.11.1)
+    testwhat (>= 4.11.1),
+    readr,
+    readxl,
+    magrittr,
+    skimr,
+    janitor,
+    knitr,
+    learnr,
+    naniar
 Remotes: 
     datacamp/testwhat
 URL: https://astamm.github.io/teachr/, https://github.com/astamm/teachr
