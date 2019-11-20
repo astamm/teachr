@@ -1,0 +1,293 @@
+---
+title: "Transforming data with R"
+tutorial:
+  id: "e0c77158-ee64-4891-b52a-1308d604cf84"
+  version: 1.0
+output: learnr::tutorial
+runtime: shiny_prerendered
+author: Aymeric Stamm
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(testwhat)
+library(magrittr)
+
+tutorial_options(
+  exercise.timelimit = 60,
+  exercise.checker = testwhat::testwhat_learnr
+)
+knitr::opts_chunk$set(comment = NA)
+```
+
+## Disclaimer
+
+This tutorial is in many parts built from tutorials published on GitHub by RStudio and its Education team, mainly from their [2-day internal R bootcamp](https://github.com/rstudio-education/bootcamper) and from the [RStudio Cloud primers](https://github.com/rstudio-education/primers).
+
+## The [**dplyr**](https://dplyr.tidyverse.org) package
+<img src="https://github.com/tidyverse/dplyr/raw/master/man/figures/logo.png" alt="dplyr logo" width="64" style="float: right; margin-left: 10px; margin-right: 10px;"/>
+
+A grammar of data wrangling based on the concepts of functions as verbs that manipulate tibbles
+
+- `select`: pick columns by name
+- `arrange`: reorder rows
+- `slice`: pick rows using index(es)
+- `filter`: pick rows matching criteria
+- `distinct`: filter for unique rows
+- `mutate`: add new variables
+- `summarise`: reduce variables to values
+- `pull`: grab a column as a vector
+- ... (many more)
+
+### Rules of [**dplyr**](https://dplyr.tidyverse.org) functions
+
+- First argument is *always* a tibble
+- Subsequent arguments say what to do with that tibble
+- Always return a tibble
+- Don't modify in place
+
+### Bike crashes in NC 2007 - 2014
+
+```{r ncbikecrash-glimpse}
+ncbikecrash <- readr::read_csv("www/ncbikecrash.csv")
+dplyr::glimpse(ncbikecrash)
+```
+
+### Variables
+
+```{r ncbikecrash-variables}
+names(ncbikecrash)
+```
+
+### Select columns
+
+```{r ncbikecrash-select}
+dplyr::select(ncbikecrash, county, bike_age)
+```
+
+**Question:** What if we wanted to select these columns, and then arrange the data in ascending order of biker age?
+
+### Data wrangling, step-by-step
+
+Select, then arrange:
+```{r ncbikecrash-selarr}
+ncbikecrash %>%
+  dplyr::select(county, bike_age) %>%
+  dplyr::arrange(bike_age)
+```
+
+## Pipes
+
+### What is a pipe?
+
+In programming, a pipe is a technique for passing information from one process to another.
+
+```{r ncbikecrash-selarr-explained-1, eval=FALSE}
+ncbikecrash %>%
+  dplyr::select(county, bike_age) %>%
+  dplyr::arrange(bike_age)
+```
+
+- Start with the tibble `ncbikecrash`,
+- Pass it to the `select()` function for selecting `county` and `bike_age` variables only,
+- Arrange the resulting two-column tibble by ascending order of the values of the variable `bike_age`.
+
+```{r ncbikecrash-selarr-explained-2, echo=FALSE}
+ncbikecrash %>%
+  dplyr::select(county, bike_age) %>%
+  dplyr::arrange(bike_age)
+```
+
+### How does a pipe work?
+
+- You can think about the following sequence of actions - find key, unlock car, start car, drive to school, park.
+- Expressed as a set of nested functions in R pseudocode this would look like:
+```{r pipe-explained-1, eval=FALSE}
+park(drive(start_car(find("keys")), to = "work"))
+```
+- Writing it out using pipes give it a more natural (and easier to read) structure:
+```{r pipe-explained-2, eval=FALSE}
+find("keys") %>%
+  start_car() %>%
+  drive(to = "work") %>%
+  park()
+```
+
+### What about other arguments?
+
+Use the dot `.` to
+
+- send results to a function argument other than first one; or, 
+- use the previous result for multiple arguments
+
+```{r pipe-dot}
+dplyr::starwars %>%
+  dplyr::filter(species == "Human") %>%
+  lm(mass ~ height, data = .)
+```
+
+**Your turn**
+
+- Does the above code work? 
+- Did you expect it to work? 
+- Why does it work? 
+- Modify it to make it less error-prone:
+
+```{r pipe-dot-ex, exercise=TRUE}
+dplyr::starwars %>%
+  dplyr::filter(species == "Human") %>%
+  lm(mass ~ height, data = .)
+```
+
+### Code styling
+
+- always a space before the pipe
+- always a line break after (for pipelines with more than 2 lines)
+
+#### None of this...
+
+```{r code-styling-1, eval=FALSE}
+dplyr::starwars%>%dplyr::filter(species == "Human")%>%lm(mass ~ height, data = .)
+```
+
+#### More of this...
+
+```{r code-styling-2, exercise=TRUE}
+dplyr::starwars %>% 
+  dplyr::filter(species == "Human") %>% 
+  lm(mass ~ height, data = .)
+```
+
+## Data wrangling with dplyr
+
+### `select` to keep variables
+
+```{r select-keep}
+ncbikecrash %>%
+  dplyr::select(locality, speed_limit)
+```
+
+### `select` to exclude variables
+
+```{r select-exclude}
+ncbikecrash %>%
+  dplyr::select(-object_id)
+```
+
+### `select` a range of variables
+
+```{r select-range}
+ncbikecrash %>%
+  dplyr::select(city:locality)
+```
+
+### `select` variables with certain characteristics
+
+```{r select-sw}
+ncbikecrash %>%
+  dplyr::select(dplyr::starts_with("bike_"))
+```
+
+```{r select-ew}
+ncbikecrash %>%
+  dplyr::select(dplyr::ends_with("age"))
+```
+
+### Variable selection helpers for `select()`
+
+- `starts_with()`: Starts with a prefix
+- `ends_with()`: Ends with a suffix
+- `contains()`: Contains a literal string
+- `num_range()`: Matches a numerical range like x01, x02, x03
+- `one_of()`: Matches variable names in a character vector
+- `everything()`: Matches all variables
+- `last_col()`: Select last variable, possibly with an offset
+- `matches()`: Matches a regular expression (a sequence of symbols/characters expressing a string/pattern to be searched for within text)
+
+### `arrange` in ascending / descending order
+
+```{r arrange-ascending}
+ncbikecrash %>%
+  dplyr::select(dplyr::ends_with("age")) %>%
+  dplyr::arrange(bike_age)
+```
+
+```{r arrange-descending}
+ncbikecrash %>%
+  dplyr::select(dplyr::ends_with("age")) %>%
+  dplyr::arrange(dplyr::desc(bike_age))
+```
+
+### `slice` for certain row numbers
+
+- First five
+
+```{r slice-first}
+ncbikecrash %>%
+  dplyr::slice(1:5)
+```
+
+- Last five
+ 
+```{r slice-last}
+last_row <- nrow(ncbikecrash)
+ncbikecrash %>%
+  dplyr::slice((last_row - 4):last_row)
+```
+
+### `filter` to select a subset of rows
+
+- Crashes in Durham County
+
+```{r filter-single}
+ncbikecrash %>%
+  dplyr::filter(county == "Durham")
+```
+
+- Crashes in Durham County where biker is 0-5 years old
+
+```{r filter-multiple}
+ncbikecrash %>%
+  dplyr::filter(
+    county == "Durham",  
+    bike_age_group == "0-5"
+  )
+```
+
+*Note that passing multiple conditions separated by a comma is interpreted by `filter()` as the `AND` logical operator.*
+
+### Logical operators in R
+
+operator      | definition                   
+--------------|---------------------------
+`<`           | less than
+`<=`          |	less than or equal to
+`>`           | greater than
+`>=`          |	greater than or equal to
+`==`          |	exactly equal to
+`!=`          |	not equal to
+`x & y`       | `x` AND `y`
+`x | y`       | `x` OR `y`
+`is.na(x)`    | test if `x` is `NA`
+`!is.na(x)`   | test if `x` is not `NA`
+`x %in% y`    | test if `x` is in `y`
+`!(x %in% y)` | test if `x` is not in `y`
+`!x`          | not `x`
+
+### Exercise
+
+Fill in the blanks for filtering for crashes **not** in Durham County where crash 
+year is after 2014 and `bike_position` is not missing.
+
+```{r filter-ex, exercise=TRUE}
+ncbikecrash %>%
+  dplyr::filter(
+    county ____ "Durham", 
+    crash_year ____ 2014,
+    ____
+  )
+```
+
+```{r filter-ex-setup}
+ncbikecrash <- readr::read_csv("https://raw.githubusercontent.com/astamm/teachr/master/inst/tutorials/04_TransformingData/www/ncbikecrash.csv")
+```
