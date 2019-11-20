@@ -301,7 +301,7 @@ ncbikecrash %>%
 
 Fill in the blanks for filtering the data set `ncbikecrash` for crashes **not** in Durham County where crash year is after 2012 and `bike_position` is not missing.
 
-```{r exo1, exercise=TRUE}
+```{r exo1, exercise=TRUE, exercise.lines=10}
 ncbikecrash <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/ncbikecrash.csv")
 ncbikecrash %>%
   dplyr::filter(
@@ -316,7 +316,7 @@ ncbikecrash %>%
 How many bike crashes occurred in residential development areas where the 
 driver was between 0 and 19 years old?
 
-```{r exo2, exercise=TRUE}
+```{r exo2, exercise=TRUE, exercise.lines=10}
 ncbikecrash <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/ncbikecrash.csv")
 
 ```
@@ -327,7 +327,7 @@ ncbikecrash <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst
 involved in the crash using the `janitor::tabyl()` function (don't hesitate to see `?janitor::tabyl()` for help on how the function works;
 - What is the most common estimated speed range in the data set (use `dplyr::arrange()` wisely) ?
 
-```{r exo3, exercise=TRUE}
+```{r exo3, exercise=TRUE, exercise.lines=10}
 ncbikecrash <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/ncbikecrash.csv")
 
 ```
@@ -603,7 +603,7 @@ fisheries %>%
 for countries in the `fisheries` data using the `summarise()` function in **dplyr**. 
 Note that the function for calculating the mean is `mean()` in R.
 
-```{r fisheries-mean, exercise=TRUE}
+```{r fisheries-mean, exercise=TRUE, exercise.lines=25}
 fisheries <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/fisheries.csv")
 continents <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/continents.csv")
 fisheries <- fisheries %>%
@@ -628,7 +628,7 @@ aquaculture percentage for countries in the `fisheries` data. Note that the
 functions for calculating minimum and maximum in R are `min()` and `max()`
 respectively.
 
-```{r fisheries-summary, exercise=TRUE}
+```{r fisheries-summary, exercise=TRUE, exercise.lines=25}
 fisheries <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/fisheries.csv")
 continents <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/continents.csv")
 fisheries <- fisheries %>%
@@ -654,7 +654,7 @@ fisheries %>%                  # start with the fisheries tibble
 
 3. Now modify your calculations to calculate  minimum, mean, and maximum aquaculture percentage for each continent in the fisheries data. 
 
-```{r fisheries-summary-continent, exercise=TRUE}
+```{r fisheries-summary-continent, exercise=TRUE, exercise.lines=25}
 fisheries <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/fisheries.csv")
 continents <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/continents.csv")
 fisheries <- fisheries %>%
@@ -682,7 +682,7 @@ fisheries %>%
 4. Finally modify the previous calculations to order the results in descending 
 order of mean aquaculture percentage.
 
-```{r fisheries-summary-continent-sorted, exercise=TRUE}
+```{r fisheries-summary-continent-sorted, exercise=TRUE, exercise.lines=25}
 fisheries <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/fisheries.csv")
 continents <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/continents.csv")
 fisheries <- fisheries %>%
