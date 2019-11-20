@@ -91,7 +91,11 @@ if (file.exists("df.csv"))
 
 ```{r ex-csv-setup}
 dir.create("www")
-download.file("https://raw.githubusercontent.com/astamm/teachr/master/inst/tutorials/03_DataImport/www/nobel.csv", "www/nobel.csv")
+download.file(
+  url = "https://github.com/astamm/teachr/raw/master/inst/tutorials/03_DataImport/www/nobel.csv", 
+  destfile = "www/nobel.csv", 
+  mode = "wb"
+)
 ```
 
 <div id=ex-csv-hint>
@@ -220,7 +224,11 @@ readr::read_csv(
 
 ```{r fav-food-csv-setup}
 dir.create("www")
-download.file("https://github.com/astamm/teachr/raw/master/inst/tutorials/03_DataImport/www/favourite-food.xlsx", "www/favourite-food.xlsx")
+download.file(
+  url = "https://github.com/astamm/teachr/raw/master/inst/tutorials/03_DataImport/www/favourite-food.xlsx", 
+  destfile = "www/favourite-food.xlsx", 
+  mode = "wb"
+)
 ```
 
 ### `read_rds()` and `write_rds()`
@@ -245,7 +253,11 @@ readr::write_rds(x, path)
 
 ```{r fav-food-rds-setup}
 dir.create("www")
-download.file("https://github.com/astamm/teachr/raw/master/inst/tutorials/03_DataImport/www/favourite-food.xlsx", "www/favourite-food.xlsx")
+download.file(
+  url = "https://github.com/astamm/teachr/raw/master/inst/tutorials/03_DataImport/www/favourite-food.xlsx", 
+  destfile = "www/favourite-food.xlsx", 
+  mode = "wb"
+)
 ```
 
 ### Exercise 3
@@ -273,7 +285,11 @@ sales
 
 ```{r sales-exo-setup}
 dir.create("www")
-download.file("https://github.com/astamm/teachr/raw/master/inst/tutorials/03_DataImport/www/sales.xlsx", "www/sales.xlsx")
+download.file(
+  url = "https://github.com/astamm/teachr/raw/master/inst/tutorials/03_DataImport/www/sales.xlsx", 
+  destfile = "www/sales.xlsx", 
+  mode = "wb"
+)
 ```
 
 ## Other types of data

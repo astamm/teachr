@@ -156,7 +156,7 @@ cols(
  n obs: 935 
  n variables: 26 
 
-── Variable type:character ───────────────────────────────────────
+── Variable type:character ────────────────────────────────────────────────────────────────────
               variable missing complete   n min max empty n_unique
            affiliation     250      685 935   4 110     0      303
              born_city      28      907 935   3  29     0      613
@@ -180,12 +180,12 @@ cols(
     overall_motivation     918       17 935  55 114     0        7
                surname      29      906 935   2  26     0      851
 
-── Variable type:Date ────────────────────────────────────────────
+── Variable type:Date ─────────────────────────────────────────────────────────────────────────
   variable missing complete   n        min        max     median n_unique
  born_date      33      902 935 1817-11-30 1997-07-12 1916-06-28      885
  died_date     308      627 935 1903-11-01 2019-08-07 1983-03-09      616
 
-── Variable type:numeric ─────────────────────────────────────────
+── Variable type:numeric ──────────────────────────────────────────────────────────────────────
  variable missing complete   n    mean     sd   p0    p25  p50    p75 p100
        id       0      935 935  475.12 277.83    1  234.5  470  716.5  969
     share       0      935 935    1.99   0.94    1    1      2    3      4
@@ -234,7 +234,11 @@ list.files()
 </div>
 <div class="tutorial-exercise-support" data-label="ex-csv-setup" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <pre class="text"><code>dir.create(&quot;www&quot;)
-download.file(&quot;https://raw.githubusercontent.com/astamm/teachr/master/inst/tutorials/03_DataImport/www/nobel.csv&quot;, &quot;www/nobel.csv&quot;)</code></pre>
+download.file(
+  url = &quot;https://github.com/astamm/teachr/raw/master/inst/tutorials/03_DataImport/www/nobel.csv&quot;, 
+  destfile = &quot;www/nobel.csv&quot;, 
+  mode = &quot;wb&quot;
+)</code></pre>
 </div>
 <div id="section-ex-csv-hint">
 <p><strong>Hint:</strong> Use the <code>%in%</code> operator when filtering.</p>
@@ -451,7 +455,11 @@ row col expected actual            file
 </div>
 <div class="tutorial-exercise-support" data-label="fav-food-csv-setup" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <pre class="text"><code>dir.create(&quot;www&quot;)
-download.file(&quot;https://github.com/astamm/teachr/raw/master/inst/tutorials/03_DataImport/www/favourite-food.xlsx&quot;, &quot;www/favourite-food.xlsx&quot;)</code></pre>
+download.file(
+  url = &quot;https://github.com/astamm/teachr/raw/master/inst/tutorials/03_DataImport/www/favourite-food.xlsx&quot;, 
+  destfile = &quot;www/favourite-food.xlsx&quot;, 
+  mode = &quot;wb&quot;
+)</code></pre>
 </div>
 </div>
 <div id="section-read_rds-and-write_rds" class="section level3">
@@ -475,7 +483,11 @@ readr::write_rds(x, path)</code></pre>
 </div>
 <div class="tutorial-exercise-support" data-label="fav-food-rds-setup" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <pre class="text"><code>dir.create(&quot;www&quot;)
-download.file(&quot;https://github.com/astamm/teachr/raw/master/inst/tutorials/03_DataImport/www/favourite-food.xlsx&quot;, &quot;www/favourite-food.xlsx&quot;)</code></pre>
+download.file(
+  url = &quot;https://github.com/astamm/teachr/raw/master/inst/tutorials/03_DataImport/www/favourite-food.xlsx&quot;, 
+  destfile = &quot;www/favourite-food.xlsx&quot;, 
+  mode = &quot;wb&quot;
+)</code></pre>
 </div>
 </div>
 <div id="section-exercise-3" class="section level3">
@@ -499,7 +511,11 @@ download.file(&quot;https://github.com/astamm/teachr/raw/master/inst/tutorials/0
 </div>
 <div class="tutorial-exercise-support" data-label="sales-exo-setup" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <pre class="text"><code>dir.create(&quot;www&quot;)
-download.file(&quot;https://github.com/astamm/teachr/raw/master/inst/tutorials/03_DataImport/www/sales.xlsx&quot;, &quot;www/sales.xlsx&quot;)</code></pre>
+download.file(
+  url = &quot;https://github.com/astamm/teachr/raw/master/inst/tutorials/03_DataImport/www/sales.xlsx&quot;, 
+  destfile = &quot;www/sales.xlsx&quot;, 
+  mode = &quot;wb&quot;
+)</code></pre>
 </div>
 </div>
 </div>
@@ -522,13 +538,11 @@ download.file(&quot;https://github.com/astamm/teachr/raw/master/inst/tutorials/0
 <div id="section-visualizing-missing-values" class="section level3">
 <h3>Visualizing missing values</h3>
 <p>The <a href="http://naniar.njtierney.com"><strong>naniar</strong></a> package provides data structures and functions that facilitate the plotting of missing values and examination of imputations. This allows missing data dependencies to be explored with minimal deviation from the common work patterns of ‘ggplot2’ and tidy data.</p>
-<p>TO DO: ADD EXAMPLES</p>
 <p>You can always decide to discard any observation that would contain a missing value, but this strategy is often not optimal as you might reduce drastically your sample size and come to weak statistical conclusions. A better strategy pertains to doing imputation.</p>
 </div>
 <div id="section-imputing-missing-values" class="section level3">
 <h3>Imputing missing values</h3>
 <p>Imputation means replacing missing values by actual values using the available non-missing data. For imputation, we recommend the packages <a href="https://gking.harvard.edu/amelia"><strong>Amelia</strong></a>, <a href="https://stefvanbuuren.name/mice/"><strong>mice</strong></a> and <a href="https://github.com/Polkas/miceFast"><strong>miceFast</strong></a>. In particular, the <code>Amelia::amelia()</code> and <code>mice::mice()</code> functions provide a very easy way to perform multiple imputation on a data set.</p>
-<p>TO DO: ADD EXAMPLES</p>
 <p>The <a href="https://github.com/Polkas/miceFast"><strong>miceFast</strong></a> package has a slightly more complex syntax to achieve the same results provided by the <a href="https://stefvanbuuren.name/mice/"><strong>mice</strong></a> package. However, it is a complete re-implementation of the <a href="https://stefvanbuuren.name/mice/"><strong>mice</strong></a> package from scratch using C++, which comes with <span class="math inline">\(2\)</span> big advantages:</p>
 <ol style="list-style-type: decimal">
 <li>it has very few package dependencies;</li>
