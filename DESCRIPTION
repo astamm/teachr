@@ -25,7 +25,9 @@ Imports:
     janitor,
     knitr,
     learnr,
-    naniar
+    naniar,
+    dplyr,
+    tibble
 Remotes: 
     datacamp/testwhat
 URL: https://astamm.github.io/teachr/, https://github.com/astamm/teachr
