@@ -295,15 +295,11 @@ As stated in the description of the [**naniar**](http://naniar.njtierney.com) pa
 
 The [**naniar**](http://naniar.njtierney.com) package provides data structures and functions that facilitate the plotting of missing values and examination of imputations. This allows missing data dependencies to be explored with minimal deviation from the common work patterns of 'ggplot2' and tidy data.
 
-TO DO: ADD EXAMPLES
-
 You can always decide to discard any observation that would contain a missing value, but this strategy is often not optimal as you might reduce drastically your sample size and come to weak statistical conclusions. A better strategy pertains to doing imputation.
 
 ### Imputing missing values
 
 Imputation means replacing missing values by actual values using the available non-missing data. For imputation, we recommend the packages [**Amelia**](https://gking.harvard.edu/amelia), [**mice**](https://stefvanbuuren.name/mice/) and [**miceFast**](https://github.com/Polkas/miceFast). In particular, the `Amelia::amelia()` and `mice::mice()` functions provide a very easy way to perform multiple imputation on a data set.
-
-TO DO: ADD EXAMPLES
 
 The [**miceFast**](https://github.com/Polkas/miceFast) package has a slightly more complex syntax to achieve the same results provided by the [**mice**](https://stefvanbuuren.name/mice/) package. However, it is a complete re-implementation of the [**mice**](https://stefvanbuuren.name/mice/) package from scratch using C++, which comes with $2$ big advantages:
 
