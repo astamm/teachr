@@ -278,11 +278,15 @@ operator      | definition
 
 ... and `arrange` to order alphabetically:
 
+- If you explictly give variable names to `distinct()`, it filters out duplicates only for this/these variables
+
 ```{r distinct-single}
 ncbikecrash %>% 
   dplyr::distinct(county) %>%
   dplyr::arrange(county)
 ```
+
+- If you use `distinct()` without explicit variable names, it filters out row duplicates on all variables jointly
 
 ```{r distinct-tibble}
 ncbikecrash %>% 
@@ -293,15 +297,15 @@ ncbikecrash %>%
 
 ### Exercises
 
-```{r prepare-ncbikecrash}
-ncbikecrash <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/ncbikecrash.csv")
+```{r crash-ex-setup, include=FALSE}
+ncbikecrash <- readr::read_csv("www/ncbikecrash.csv")
 ```
 
 #### Exercise 1
 
 Fill in the blanks for filtering the data set `ncbikecrash` for crashes **not** in Durham County where crash year is after 2012 and `bike_position` is not missing.
 
-```{r exo1, exercise=TRUE, exercise.setup="prepare-ncbikecrash"}
+```{r exo1, exercise=TRUE, exercise.setup="crash-ex-setup"}
 ncbikecrash %>%
   dplyr::filter(
     county ____ "Durham", 
@@ -315,7 +319,7 @@ ncbikecrash %>%
 How many bike crashes occurred in residential development areas where the 
 driver was between 0 and 19 years old?
 
-```{r exo2, exercise=TRUE, exercise.setup="prepare-ncbikecrash"}
+```{r exo2, exercise=TRUE, exercise.setup="crash-ex-setup"}
 
 ```
 
@@ -325,7 +329,7 @@ driver was between 0 and 19 years old?
 involved in the crash using the `janitor::tabyl()` function (don't hesitate to see `?janitor::tabyl()` for help on how the function works;
 - What is the most common estimated speed range in the data set (use `dplyr::arrange()` wisely) ?
 
-```{r exo3, exercise=TRUE, exercise.setup="prepare-ncbikecrash"}
+```{r exo3, exercise=TRUE, exercise.setup="crash-ex-setup"}
 
 ```
 
