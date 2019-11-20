@@ -297,15 +297,12 @@ ncbikecrash %>%
 
 ### Exercises
 
-```{r crash-ex-setup, include=FALSE}
-ncbikecrash <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/ncbikecrash.csv")
-```
-
 #### Exercise 1
 
 Fill in the blanks for filtering the data set `ncbikecrash` for crashes **not** in Durham County where crash year is after 2012 and `bike_position` is not missing.
 
-```{r exo1, exercise=TRUE, exercise.setup="crash-ex-setup"}
+```{r exo1, exercise=TRUE}
+ncbikecrash <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/ncbikecrash.csv")
 ncbikecrash %>%
   dplyr::filter(
     county ____ "Durham", 
@@ -314,16 +311,13 @@ ncbikecrash %>%
   )
 ```
 
-```{r exo1-setup}
-ncbikecrash <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/ncbikecrash.csv")
-```
-
 #### Exercise 2.
 
 How many bike crashes occurred in residential development areas where the 
 driver was between 0 and 19 years old?
 
-```{r exo2, exercise=TRUE, exercise.setup="crash-ex-setup"}
+```{r exo2, exercise=TRUE}
+ncbikecrash <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/ncbikecrash.csv")
 
 ```
 
@@ -333,7 +327,8 @@ driver was between 0 and 19 years old?
 involved in the crash using the `janitor::tabyl()` function (don't hesitate to see `?janitor::tabyl()` for help on how the function works;
 - What is the most common estimated speed range in the data set (use `dplyr::arrange()` wisely) ?
 
-```{r exo3, exercise=TRUE, exercise.setup="crash-ex-setup"}
+```{r exo3, exercise=TRUE}
+ncbikecrash <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/ncbikecrash.csv")
 
 ```
 
@@ -604,7 +599,11 @@ fisheries %>%
 
 ### Exercise
 
-```{r fish-exercise-setup, include=FALSE}
+1. Calculate the mean aquaculture (we'll call it `mean_ac` for short) percentage 
+for countries in the `fisheries` data using the `summarise()` function in **dplyr**. 
+Note that the function for calculating the mean is `mean()` in R.
+
+```{r fisheries-mean, exercise=TRUE}
 fisheries <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/fisheries.csv")
 continents <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/continents.csv")
 fisheries <- fisheries %>%
@@ -619,13 +618,7 @@ fisheries <- fisheries %>%
     ),
     aquaculture_perc = aquaculture / total
   )
-```
 
-1. Calculate the mean aquaculture (we'll call it `mean_ac` for short) percentage 
-for countries in the `fisheries` data using the `summarise()` function in **dplyr**. 
-Note that the function for calculating the mean is `mean()` in R.
-
-```{r fisheries-mean, exercise=TRUE, exercise.setup="fish-exercise-setup"}
 fisheries %>%                  # start with the fisheries tibble
   ___(mean_ac = ___)           # calculate mean aquaculture
 ```
@@ -635,7 +628,22 @@ aquaculture percentage for countries in the `fisheries` data. Note that the
 functions for calculating minimum and maximum in R are `min()` and `max()`
 respectively.
 
-```{r fisheries-summary, exercise=TRUE, exercise.setup="fish-exercise-setup"}
+```{r fisheries-summary, exercise=TRUE}
+fisheries <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/fisheries.csv")
+continents <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/continents.csv")
+fisheries <- fisheries %>%
+  dplyr::filter(total > 100000) %>%
+  dplyr::left_join(continents) %>%
+  dplyr::mutate(
+    continent = dplyr::case_when(
+      country == "Democratic Republic of the Congo" ~ "Africa",
+      country == "Hong Kong"                        ~ "Asia",
+      country == "Myanmar"                          ~ "Asia",
+      TRUE                                          ~ continent
+    ),
+    aquaculture_perc = aquaculture / total
+  )
+
 fisheries %>%                  # start with the fisheries tibble
   ___(
     mean_ac = ___,             # calculate mean aquaculture
@@ -646,7 +654,22 @@ fisheries %>%                  # start with the fisheries tibble
 
 3. Now modify your calculations to calculate  minimum, mean, and maximum aquaculture percentage for each continent in the fisheries data. 
 
-```{r fisheries-summary-continent, exercise=TRUE, exercise.setup="fish-exercise-setup"}
+```{r fisheries-summary-continent, exercise=TRUE}
+fisheries <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/fisheries.csv")
+continents <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/continents.csv")
+fisheries <- fisheries %>%
+  dplyr::filter(total > 100000) %>%
+  dplyr::left_join(continents) %>%
+  dplyr::mutate(
+    continent = dplyr::case_when(
+      country == "Democratic Republic of the Congo" ~ "Africa",
+      country == "Hong Kong"                        ~ "Asia",
+      country == "Myanmar"                          ~ "Asia",
+      TRUE                                          ~ continent
+    ),
+    aquaculture_perc = aquaculture / total
+  )
+
 fisheries %>%
   ___ %>%                      # ensure calculations are done per continent
   ___(
@@ -659,7 +682,22 @@ fisheries %>%
 4. Finally modify the previous calculations to order the results in descending 
 order of mean aquaculture percentage.
 
-```{r fisheries-summary-continent-sorted, exercise=TRUE, exercise.setup="fish-exercise-setup"}
+```{r fisheries-summary-continent-sorted, exercise=TRUE}
+fisheries <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/fisheries.csv")
+continents <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/continents.csv")
+fisheries <- fisheries %>%
+  dplyr::filter(total > 100000) %>%
+  dplyr::left_join(continents) %>%
+  dplyr::mutate(
+    continent = dplyr::case_when(
+      country == "Democratic Republic of the Congo" ~ "Africa",
+      country == "Hong Kong"                        ~ "Asia",
+      country == "Myanmar"                          ~ "Asia",
+      TRUE                                          ~ continent
+    ),
+    aquaculture_perc = aquaculture / total
+  )
+
 fisheries %>%
   ___ %>%                      # ensure calculations are done per continent
   ___(
