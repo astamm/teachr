@@ -314,6 +314,10 @@ ncbikecrash %>%
   )
 ```
 
+```{r exo1-setup}
+ncbikecrash <- readr::read_csv("https://github.com/astamm/teachr/raw/master/inst/tutorials/04_TransformingData/www/ncbikecrash.csv")
+```
+
 #### Exercise 2.
 
 How many bike crashes occurred in residential development areas where the 
