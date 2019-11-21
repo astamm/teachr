@@ -22,7 +22,7 @@ knitr::opts_chunk$set(comment = NA)
 
 ## Disclaimer
 
-This tutorial is in many parts built from tutorials published on GitHub by RStudio and its Education team, mainly from their [2-day internal R bootcamp](https://github.com/rstudio-education/bootcamper) and from the [RStudio Cloud primers](https://github.com/rstudio-education/primers).
+This tutorial is in many parts built from tutorials published on GitHub by RStudio and its Education team, mainly from their [2-day internal R bootcamp](https://github.com/rstudio-education/bootcamper) and from the [RStudio Cloud primers](https://github.com/rstudio-education/primers) and the following [blog](http://varianceexplained.org/r/tidy-genomics/) from David Robinson.
 
 ## Tidy data
 
@@ -134,7 +134,7 @@ list(t1, t2, t3, t4, t5) %>%
 The tidy format is extremely handy because:
 
 1. You can filter into smaller tibbles by values of a given categorical variable and subsequently focus your analysis on a subset of observations that all share the same value for that categorical variable;
-1. The manual splitting operated through `dplyr::filter()` can actually be performed behind the scene by `dplyr::group_by()`; it can nicely be combined with `dplyr::summarise()` to get summaries or analysis results based on the individual subsets of observations created by splitting the original tibble by value of a categorical variable.
+1. The manual splitting operated through `dplyr::filter()` can actually be performed behind the scene by `dplyr::group_by()`; it can nicely be combined with `dplyr::summarise()` to get summaries, visualisations (see next tutorial) or analysis results based on the individual subsets of observations created by splitting the original tibble by value of a categorical variable.
 
 For instance, back to the `starwars` data set, it is straightforward from the tibble in tidy format to get the average height of characters by `gender`:
 
@@ -203,4 +203,96 @@ pivot_longer(data, cols, names_to = "name", values_to = "value")
 - The third argument, `names_to`, is a string specifying the name of the column to create from the data stored in the column names of data -- in this case `year`;
 - The fourth argument, `values_to`, is a string specifying the name of the column to create from the data stored in cell values, in this case `percentage`.
 
-## Exercises
+### `separate()`
+
+`separate()` pulls apart one column into multiple columns, by splitting wherever a separator character appears. Take `table3`:
+
+```{r tbl3, echo=FALSE}
+tidyr::table3
+```
+
+The `rate` column contains both `cases` and `population` variables, and we need to split it into two variables. `separate()` takes the name of the column to separate, and the names of the columns to separate into:
+
+```{r tbl3-separate}
+tidyr::table3 %>% 
+  tidyr::separate(
+    col = rate, 
+    into = c("cases", "population"), 
+    sep = "/", 
+    convert = TRUE
+  ) %>% 
+  tidyr::separate(
+    col = year, 
+    into = c("century", "year"), 
+    sep = 2, 
+    convert = FALSE
+  )
+```
+
+```{r separate-fig, fig.align='center', echo=FALSE}
+knitr::include_graphics("images/tidy-17.png")
+```
+
+`unite()` is the inverse of `separate()`: it combines multiple columns into a single column. You’ll need it much less frequently than `separate()`, but it’s still a useful tool to have in your back pocket.
+
+## Exercise
+
+### Background: gene expression in starvation
+
+Through the process of gene regulation, a cell can control which genes are transcribed from DNA to RNA -- what we call being *expressed* (if a gene is never turned into RNA, it may as well not be there at all). This provides a sort of *cellular switchboard* that can activate some systems and deactivate others, which can speed up or slow down growth, switch what nutrients are transported into or out of the cell, and respond to other stimuli. A gene expression microarray lets us measure how much of each gene is expressed in a particular condition. We can use this to figure out the function of a specific gene (based on when it turns on and off), or to get an overall picture of the cell’s activity.
+
+[Brauer et al, 2008](http://www.molbiolcell.org/content/19/1/352.abstract) used microarrays to test the effect of starvation and growth rate on baker’s yeast (a popular model organism for studying molecular genomics because of its simplicity). Basically, if you give yeast plenty of nutrients (a rich media), except that you sharply restrict its supply of one nutrient, you can control the growth rate to whatever level you desire (we do this with a tool called a chemostat). For example, you could limit the yeast’s supply of glucose (sugar, which the cell metabolizes to get energy and carbon), of leucine (an essential amino acid), or of ammonium (a source of nitrogen).
+
+*Starving* the yeast of these nutrients lets us find genes that:
+
+- **Raise or lower their activity in response to growth rate.** Growth-rate dependent expression patterns can tell us a lot about cell cycle control, and how the cell responds to stress.
+- **Respond differently when different nutrients are being limited.** These genes may be involved in the transport or metabolism of those nutrients.
+
+### The original gene expression data set
+
+Let us look at the original gene expression data set:
+```{r gene-data, echo=FALSE, message=FALSE}
+readr::read_delim(
+  file = "http://varianceexplained.org/files/Brauer2008_DataSet1.tds", 
+  delim = "\t"
+)
+```
+
+Each of those columns like `G0.05`, `N0.3` and so on represents gene expression values for that sample, as measured by the microarray. The column titles show the condition: `G0.05`, for instance, means the limiting nutrient was *glucose* and the growth rate was *.05*. A higher value means the gene was more expressed in that sample, lower means the gene was less expressed. In total the yeast was grown with 6 limiting nutrients and 6 growth rates, which makes 36 samples, and therefore 36 columns, of gene expression data.
+
+What is *untidy* about this dataset?
+
+- **Column headers are values, not variable names.** Our column names contain the values of two variables: nutrient (G, N, P, etc) and growth rate (0.05-0.3). For this reason, we end up with not one observation per row, but 36! This is a very common issue in biological datasets: you often see one-row-per-gene and one-column-per-sample, rather than one-row-per-gene-per-sample.
+- **Multiple variables are stored in one column.** The `NAME` column contains lots of information, split up by `||`’s. If we examine one of the names, it looks like:
+
+> SFB2 || ER to Golgi transport || molecular function unknown || YNL049C || 1082129
+
+which have both some systematic IDs and some biological information about the gene. The details of each of these fields isn’t annotated in the paper, but we can figure out most of it. It contains:
+
+- **Gene name** e.g. SFB2. Note that not all genes have a name;
+- **Biological process** e.g. *proteolysis and peptidolysis*;
+- **Molecular function** e.g. *metalloendopeptidase activity*;
+- **Systematic ID** e.g. YNL049C. Unlike a gene name, every gene in this dataset has a systematic ID;
+- **Another ID number** e.g. 1082129.
+
+### Your turn
+
+Tidy the data to end up with the following 7 variables:
+
+- `name`: Gene name.
+- `bp`: Biological process.
+- `mf`: Molecular function.
+- `systematic_name`: Systematic ID.
+- `nutrient`: Limiting nutrient; this has six possible values: glucose (G), ammonium (N), sulfate (S), phosphate (P), uracil (U) or leucine (L).
+- `rate`: Growth rate; a number, ranging from .05 to .3. .05 means slow growth (the yeast were being starved hard of that nutrient) while .3 means fast growth.
+- `expression`: Expression level; these are the values currently stored in those columns, as measured by the microarray.
+
+```{r gene-data-exo, exercise=TRUE, exercise.lines = 20}
+original_data <- readr::read_delim(
+  file = "http://varianceexplained.org/files/Brauer2008_DataSet1.tds", 
+  delim = "\t"
+)
+
+clean_data <- original_data %>% 
+
+```
