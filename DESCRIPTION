@@ -27,7 +27,8 @@ Imports:
     dplyr,
     tibble,
     shiny,
-    rmarkdown
+    rmarkdown,
+    kableExtra
 Remotes: 
     datacamp/testwhat
 URL: https://astamm.github.io/teachr/, https://github.com/astamm/teachr

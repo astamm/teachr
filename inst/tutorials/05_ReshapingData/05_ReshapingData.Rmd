@@ -1,0 +1,206 @@
+---
+title: "Reshaping Data with R"
+tutorial:
+  id: "d156d33d-5517-4fc8-90f1-e47cb5702a7b"
+  version: 1.0
+output: learnr::tutorial
+runtime: shiny_prerendered
+author: Aymeric Stamm
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(testwhat)
+library(magrittr)
+
+tutorial_options(
+  exercise.timelimit = 60,
+  exercise.checker = testwhat::testwhat_learnr
+)
+knitr::opts_chunk$set(comment = NA)
+```
+
+## Disclaimer
+
+This tutorial is in many parts built from tutorials published on GitHub by RStudio and its Education team, mainly from their [2-day internal R bootcamp](https://github.com/rstudio-education/bootcamper) and from the [RStudio Cloud primers](https://github.com/rstudio-education/primers).
+
+## Tidy data
+
+Data can come in many different shapes. Here are some ways of structuring the exact same information content. The $6$ following tables all display the number of tuberculosis cases documented by the World Health Organization in Afghanistan, Brazil, and China between 1999 and 2000. The data contains values associated with four variables (`country`, `year`, `cases`, and `population`), but each table organizes the values in a different layout. The data is a subset of the data contained in the [World Health Organization Global Tuberculosis Report](https://www.who.int/tb/country/data/download/en/).
+
+```{r shape-examples}
+tidyr::table1
+tidyr::table2
+tidyr::table3
+tidyr::table4a
+tidyr::table4b
+tidyr::table5
+```
+
+R prefers just one format called **tidy data**. A data set is in tidy format if:
+
+1. Every column is a variable;
+1. Every row is an observation;
+1. Every cell is a single value.
+
+```{r tidy-quiz, echo=FALSE}
+quiz(
+  caption = "Tidy Data Quiz", 
+  question(
+    "Among the previous tables, which one(s) is/are tidy?", 
+    answer("`table1`", correct = TRUE), 
+    answer("`table2`"), 
+    answer("`table3`"), 
+    answer("`table4a`"), 
+    answer("`table4b`"), 
+    answer("`table5`"), 
+    random_answer_order = TRUE
+  )
+)
+```
+
+## Why tidy data ?
+
+Let us take a look at a funny data set, called `starwars`, which lists characters from the StarWars movies and some information about them. This package is part of the [**dplyr**](https://dplyr.tidyverse.org) package and can be accessed through:
+
+```{r starwars}
+dplyr::starwars
+```
+
+Suppose we want to focus on the height of the characters and calculate the mean height per gender. Let us look at a reduced data set with this focus in mind:
+
+```{r starwars-kable}
+dplyr::starwars %>% 
+  dplyr::select(name, height, gender) %>% 
+  dplyr::arrange(gender, name, height) %>% 
+  dplyr::mutate(gender = kableExtra::cell_spec(
+    x = gender, 
+    color = "white", 
+    bold = TRUE, 
+    background = kableExtra::spec_color(
+      x = gender %>% 
+        forcats::as_factor() %>% 
+        as.numeric(), 
+      option = "E", 
+      direction = -1
+    )
+  )) %>% 
+  kableExtra::kable(escape = FALSE, align = "c") %>%
+  kableExtra::kable_styling(
+    bootstrap_options = c("striped", "condensed"), 
+    full_width = FALSE
+  )
+```
+
+Thanks to the tidy format, [**dplyr**](https://dplyr.tidyverse.org) can effectively operates a splitting of the original tibble into several smaller tibbles, one for each level of the `gender` categorical variable:
+
+```{r starwars-split}
+starwars <- dplyr::starwars %>% 
+  dplyr::select(name, height, gender) %>% 
+  dplyr::arrange(gender, name, height) %>% 
+  dplyr::mutate(gender = kableExtra::cell_spec(
+    x = gender, 
+    color = "white", 
+    bold = TRUE, 
+    background = kableExtra::spec_color(
+      x = gender %>% 
+        forcats::as_factor() %>% 
+        as.numeric(), 
+      option = "E", 
+      direction = -1
+    )
+  ))
+t1 <- starwars %>% 
+  dplyr::filter(stringr::str_detect(gender, "\\bfemale\\b"))
+t2 <- starwars %>% 
+  dplyr::filter(stringr::str_detect(gender, "\\bhermaphrodite\\b"))
+t3 <- starwars %>% 
+  dplyr::filter(stringr::str_detect(gender, "\\bmale\\b"))
+t4 <- starwars %>% 
+  dplyr::filter(stringr::str_detect(gender, "\\bnone\\b"))
+t5 <- starwars %>% 
+  dplyr::filter(stringr::str_detect(gender, "\\bNA\\b"))
+list(t1, t2, t3, t4, t5) %>% 
+  kableExtra::kable(
+    escape = FALSE, 
+    align = "c"
+  ) %>%
+  kableExtra::kable_styling(
+    bootstrap_options = c("striped", "condensed"), 
+    full_width = FALSE
+  )
+```
+
+The tidy format is extremely handy because:
+
+1. You can filter into smaller tibbles by values of a given categorical variable and subsequently focus your analysis on a subset of observations that all share the same value for that categorical variable;
+1. The manual splitting operated through `dplyr::filter()` can actually be performed behind the scene by `dplyr::group_by()`; it can nicely be combined with `dplyr::summarise()` to get summaries or analysis results based on the individual subsets of observations created by splitting the original tibble by value of a categorical variable.
+
+For instance, back to the `starwars` data set, it is straightforward from the tibble in tidy format to get the average height of characters by `gender`:
+
+```{r starwars-group-by-summary}
+starwars %>% 
+  dplyr::group_by(gender) %>% 
+  dplyr::summarise(height = mean(height, na.rm = TRUE)) %>% 
+  kableExtra::kable(
+    escape = FALSE, 
+    align = "c"
+  ) %>%
+  kableExtra::kable_styling(
+    bootstrap_options = c("striped", "condensed"), 
+    full_width = FALSE
+  )
+```
+
+## The [**tidyr**](https://tidyr.tidyverse.org) package
+
+### General presentation of the features
+<img src="https://github.com/tidyverse/tidyr/raw/master/man/figures/logo.png" alt="tidyr logo" width="64" style="float: right; margin-left: 10px; margin-right: 10px;"/>
+
+The [**tidyr**](https://tidyr.tidyverse.org) package is designed to help users easily reshape their imported data into tidy format but not only. Quoting from the website, [**tidyr**](https://tidyr.tidyverse.org) functions fall into five main categories:
+
+- *Pivotting.* It converts between long and wide forms. See `pivot_longer()`, `pivot_wider()`, and `vignette("pivot", package = "tidyr")` for more details.
+- *Rectangling.* It turns deeply nested lists (as from JSON) into tidy tibbles. See `unnest_longer()`, `unnest_wider()`, `hoist()` and `vignette("rectangle", package = "tidyr")` for more details.
+- *Nesting*. It converts grouped data to a form where each group becomes a single row containing a nested tibble, and *unnesting* does the opposite. See `nest()`, `unnest()` and `vignette("nest", package = "tidyr")` for more details.
+- *Splitting and combining character columns.* Use `separate()` and `extract()` to pull a single character column into multiple columns; use `unite()` to combine multiple columns into a single character column.
+- *Handling missing values.* Make implicit missing values explicit with `complete()`; make explicit missing values implicit with `drop_na()`; replace missing values with next/previous value with `fill()` or a known value with `replace_na()`.
+
+### Making data tidy
+
+The following animation illustrates how we can use the `pivot_*()` functions from the [**tidyr**](https://tidyr.tidyverse.org) package to alternate between long and wide representation of the data:
+
+```{r tidy-gif, fig.align='center', echo=FALSE}
+knitr::include_graphics("images/tidyr-longer-wider.gif")
+```
+
+Now, let us go a little deeper into the syntax of the `pivot_longer()` function, which is the function you should have to use for making data tidy. To that effect, let us look at the `staff` data set, which is an extraction from a report of the American Association of University Professors (AAUP) (nonprofit membership association of faculty and other academic professionals). It reports the distribution of instructional staff employees for some years between 1975 and 2011:
+
+```{r load-data-staff, message=FALSE}
+staff <- readr::read_csv("www/instructional-staff.csv")
+staff
+```
+
+There are in fact there 3 variables in this data set: faculty, year and percentage. However, the `.csv` file does not explicitly report these as variables. In other words, the data has not been collected in a tidy format. Instead, each row in the CSV represents a faculty type, and the columns are the years for which we have the precentage data. The values are percentage of hires of that type of faculty for each year. We can use [**tidyr**](https://tidyr.tidyverse.org) to reshape the imported data into tidy format using only one function call:
+
+```{r pivot-longer-use}
+staff_long <- staff %>%
+  tidyr::pivot_longer(
+    cols = -faculty_type, 
+    names_to = "year", 
+    values_to = "percentage"
+  )
+staff_long
+```
+
+The function to bring data into tidy format is `tidyr::pivot_longer()`. Let us comment its syntax:
+
+```{r pivot-longer-syntax, eval=FALSE}
+pivot_longer(data, cols, names_to = "name", values_to = "value")
+```
+
+- The first argument is `data` as usual;
+- The second argument, `cols`, is where you specify which columns to pivot into longer format -- in this case all columns except for the `faculty_type`;
+- The third argument, `names_to`, is a string specifying the name of the column to create from the data stored in the column names of data -- in this case `year`;
+- The fourth argument, `values_to`, is a string specifying the name of the column to create from the data stored in cell values, in this case `percentage`.
+
+## Exercises
