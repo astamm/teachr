@@ -149,51 +149,372 @@ cols(
   share = col_double()
 )</code></pre>
 <pre><code>See spec(...) for full column specifications.</code></pre>
-<pre class="r"><code>nobel %&gt;%
-  skimr::skim() %&gt;% 
-  print()</code></pre>
-<pre><code>Skim summary statistics
- n obs: 935 
- n variables: 26 
-
-── Variable type:character ────────────────────────────────────────────────────────────────────
-              variable missing complete   n min max empty n_unique
-           affiliation     250      685 935   4 110     0      303
-             born_city      28      907 935   3  29     0      613
-    born_city_original      28      907 935   3  36     0      616
-          born_country      28      907 935   3  28     0       80
-     born_country_code      28      907 935   2   2     0       77
- born_country_original      28      907 935   3  52     0      122
-              category       0      935 935   5  10     0        6
-                  city     255      680 935   4  27     0      185
-         city_original     255      680 935   4  27     0      185
-               country     254      681 935   3  14     0       27
-      country_original     254      681 935   3  35     0       29
-             died_city     327      608 935   4  29     0      303
-    died_city_original     327      608 935   4  29     0      303
-          died_country     321      614 935   3  16     0       48
-     died_country_code     321      614 935   2   2     0       46
- died_country_original     321      614 935   3  35     0       52
-             firstname       0      935 935   2  59     0      720
-                gender       0      935 935   3   6     0        3
-            motivation       0      935 935  24 337     0      656
-    overall_motivation     918       17 935  55 114     0        7
-               surname      29      906 935   2  26     0      851
-
-── Variable type:Date ─────────────────────────────────────────────────────────────────────────
-  variable missing complete   n        min        max     median n_unique
- born_date      33      902 935 1817-11-30 1997-07-12 1916-06-28      885
- died_date     308      627 935 1903-11-01 2019-08-07 1983-03-09      616
-
-── Variable type:numeric ──────────────────────────────────────────────────────────────────────
- variable missing complete   n    mean     sd   p0    p25  p50    p75 p100
-       id       0      935 935  475.12 277.83    1  234.5  470  716.5  969
-    share       0      935 935    1.99   0.94    1    1      2    3      4
-     year       0      935 935 1970.44  33.3  1901 1947   1976 1999   2018
-     hist
- ▇▇▇▇▇▇▇▇
- ▇▁▇▁▁▅▁▂
- ▃▃▃▅▆▆▇▇</code></pre>
+<pre class="r"><code>skimr::skim(nobel)</code></pre>
+<table>
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td align="left">Name</td>
+<td align="left">nobel</td>
+</tr>
+<tr class="even">
+<td align="left">Number of rows</td>
+<td align="left">935</td>
+</tr>
+<tr class="odd">
+<td align="left">Number of columns</td>
+<td align="left">26</td>
+</tr>
+<tr class="even">
+<td align="left">_______________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Column type frequency:</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">character</td>
+<td align="left">21</td>
+</tr>
+<tr class="odd">
+<td align="left">Date</td>
+<td align="left">2</td>
+</tr>
+<tr class="even">
+<td align="left">numeric</td>
+<td align="left">3</td>
+</tr>
+<tr class="odd">
+<td align="left">________________________</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Group variables</td>
+<td align="left">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">min</th>
+<th align="right">max</th>
+<th align="right">empty</th>
+<th align="right">n_unique</th>
+<th align="right">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">firstname</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">2</td>
+<td align="right">59</td>
+<td align="right">0</td>
+<td align="right">720</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">surname</td>
+<td align="right">29</td>
+<td align="right">0.97</td>
+<td align="right">2</td>
+<td align="right">26</td>
+<td align="right">0</td>
+<td align="right">851</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">category</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">5</td>
+<td align="right">10</td>
+<td align="right">0</td>
+<td align="right">6</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">affiliation</td>
+<td align="right">250</td>
+<td align="right">0.73</td>
+<td align="right">4</td>
+<td align="right">110</td>
+<td align="right">0</td>
+<td align="right">303</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">city</td>
+<td align="right">255</td>
+<td align="right">0.73</td>
+<td align="right">4</td>
+<td align="right">27</td>
+<td align="right">0</td>
+<td align="right">185</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">country</td>
+<td align="right">254</td>
+<td align="right">0.73</td>
+<td align="right">3</td>
+<td align="right">14</td>
+<td align="right">0</td>
+<td align="right">27</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">gender</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">3</td>
+<td align="right">6</td>
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">born_city</td>
+<td align="right">28</td>
+<td align="right">0.97</td>
+<td align="right">3</td>
+<td align="right">29</td>
+<td align="right">0</td>
+<td align="right">613</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">born_country</td>
+<td align="right">28</td>
+<td align="right">0.97</td>
+<td align="right">3</td>
+<td align="right">28</td>
+<td align="right">0</td>
+<td align="right">80</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">born_country_code</td>
+<td align="right">28</td>
+<td align="right">0.97</td>
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">77</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">died_city</td>
+<td align="right">327</td>
+<td align="right">0.65</td>
+<td align="right">4</td>
+<td align="right">29</td>
+<td align="right">0</td>
+<td align="right">303</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">died_country</td>
+<td align="right">321</td>
+<td align="right">0.66</td>
+<td align="right">3</td>
+<td align="right">16</td>
+<td align="right">0</td>
+<td align="right">48</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">died_country_code</td>
+<td align="right">321</td>
+<td align="right">0.66</td>
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">46</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">overall_motivation</td>
+<td align="right">918</td>
+<td align="right">0.02</td>
+<td align="right">55</td>
+<td align="right">114</td>
+<td align="right">0</td>
+<td align="right">7</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">motivation</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">24</td>
+<td align="right">337</td>
+<td align="right">0</td>
+<td align="right">656</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">born_country_original</td>
+<td align="right">28</td>
+<td align="right">0.97</td>
+<td align="right">3</td>
+<td align="right">52</td>
+<td align="right">0</td>
+<td align="right">122</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">born_city_original</td>
+<td align="right">28</td>
+<td align="right">0.97</td>
+<td align="right">3</td>
+<td align="right">36</td>
+<td align="right">0</td>
+<td align="right">616</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">died_country_original</td>
+<td align="right">321</td>
+<td align="right">0.66</td>
+<td align="right">3</td>
+<td align="right">35</td>
+<td align="right">0</td>
+<td align="right">52</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">died_city_original</td>
+<td align="right">327</td>
+<td align="right">0.65</td>
+<td align="right">4</td>
+<td align="right">29</td>
+<td align="right">0</td>
+<td align="right">303</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">city_original</td>
+<td align="right">255</td>
+<td align="right">0.73</td>
+<td align="right">4</td>
+<td align="right">27</td>
+<td align="right">0</td>
+<td align="right">185</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">country_original</td>
+<td align="right">254</td>
+<td align="right">0.73</td>
+<td align="right">3</td>
+<td align="right">35</td>
+<td align="right">0</td>
+<td align="right">29</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: Date</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="left">min</th>
+<th align="left">max</th>
+<th align="left">median</th>
+<th align="right">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">born_date</td>
+<td align="right">33</td>
+<td align="right">0.96</td>
+<td align="left">1817-11-30</td>
+<td align="left">1997-07-12</td>
+<td align="left">1916-06-28</td>
+<td align="right">885</td>
+</tr>
+<tr class="even">
+<td align="left">died_date</td>
+<td align="right">308</td>
+<td align="right">0.67</td>
+<td align="left">1903-11-01</td>
+<td align="left">2019-08-07</td>
+<td align="left">1983-03-09</td>
+<td align="right">616</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">mean</th>
+<th align="right">sd</th>
+<th align="right">p0</th>
+<th align="right">p25</th>
+<th align="right">p50</th>
+<th align="right">p75</th>
+<th align="right">p100</th>
+<th align="left">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">id</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">475.12</td>
+<td align="right">277.83</td>
+<td align="right">1</td>
+<td align="right">234.5</td>
+<td align="right">470</td>
+<td align="right">716.5</td>
+<td align="right">969</td>
+<td align="left">▇▇▇▇▇</td>
+</tr>
+<tr class="even">
+<td align="left">year</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1970.44</td>
+<td align="right">33.30</td>
+<td align="right">1901</td>
+<td align="right">1947.0</td>
+<td align="right">1976</td>
+<td align="right">1999.0</td>
+<td align="right">2018</td>
+<td align="left">▃▃▅▆▇</td>
+</tr>
+<tr class="odd">
+<td align="left">share</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1.99</td>
+<td align="right">0.94</td>
+<td align="right">1</td>
+<td align="right">1.0</td>
+<td align="right">2</td>
+<td align="right">3.0</td>
+<td align="right">4</td>
+<td align="left">▇▇▁▅▂</td>
+</tr>
+</tbody>
+</table>
 <p>The <a href="https://docs.ropensci.org/skimr/"><strong>skimr</strong></a> package provides a frictionless approach to summary statistics which conforms to the principle of least surprise, displaying summary statistics the user can skim quickly to understand their data. It handles different data types and returns a skim_df object which can be included in a pipeline or displayed nicely for the human reader.</p>
 </div>
 <div id="section-writing-data" class="section level3">
@@ -607,7 +928,7 @@ output$`tutorial-exercise-sales-exo-output` <- renderUI({
 <!--/html_preserve-->
 <!--html_preserve-->
 <script type="application/shiny-prerendered" data-context="execution_dependencies">
-{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62]}},"value":[{"type":"character","attributes":{},"value":["assertthat","backports","base","cellranger","cli","compiler","crayon","datasets","digest","dplyr","evaluate","fastmap","glue","graphics","grDevices","hms","htmltools","htmlwidgets","httpuv","janitor","jsonlite","knitr","later","learnr","lifecycle","magrittr","markdown","methods","mime","parallel","pillar","pkgconfig","png","praise","promises","purrr","R6","Rcpp","readr","readxl","rlang","rmarkdown","rprojroot","shiny","skimr","snakecase","stats","stringdist","stringi","stringr","testwhat","tibble","tidyr","tidyselect","tools","utils","vctrs","withr","xfun","xtable","yaml","zeallot"]},{"type":"character","attributes":{},"value":["0.2.1","1.1.5","3.6.1","1.1.0","1.1.0","3.6.1","1.3.4","3.6.1","0.6.22","0.8.3","0.14","1.0.1","1.3.1","3.6.1","3.6.1","0.5.2","0.4.0","1.5.1","1.5.2","1.2.0","1.6","1.26","1.0.0","0.10.0","0.1.0","1.5","1.1","3.6.1","0.7","3.6.1","1.4.2","2.0.3","0.1-8","1.0.0","1.1.0","0.3.3","2.4.1","1.0.3","1.3.1","1.3.1","0.4.1","1.17","1.3-2","1.4.0","1.0.7","0.11.0","3.6.1","0.9.5.5","1.4.3","1.4.0","4.11.1","2.1.3","1.0.0","0.2.5","3.6.1","3.6.1","0.2.0","2.1.2","0.11","1.8-4","2.2.0","0.1.0"]}]}]}
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64]}},"value":[{"type":"character","attributes":{},"value":["assertthat","backports","base","base64enc","cellranger","compiler","crayon","datasets","digest","dplyr","evaluate","fastmap","glue","graphics","grDevices","highr","hms","htmltools","htmlwidgets","httpuv","janitor","jsonlite","knitr","later","learnr","lifecycle","magrittr","markdown","methods","mime","parallel","pillar","pkgconfig","png","praise","promises","purrr","R6","Rcpp","readr","readxl","repr","rlang","rmarkdown","rprojroot","shiny","skimr","snakecase","stats","stringdist","stringi","stringr","testwhat","tibble","tidyr","tidyselect","tools","utils","vctrs","withr","xfun","xtable","yaml","zeallot"]},{"type":"character","attributes":{},"value":["0.2.1","1.1.5","3.6.1","0.1-3","1.1.0","3.6.1","1.3.4","3.6.1","0.6.22","0.8.3","0.14","1.0.1","1.3.1","3.6.1","3.6.1","0.8","0.5.2","0.4.0","1.5.1","1.5.2","1.2.0","1.6","1.26","1.0.0","0.10.0","0.1.0","1.5","1.1","3.6.1","0.7","3.6.1","1.4.2","2.0.3","0.1-8","1.0.0","1.1.0","0.3.3","2.4.1","1.0.3","1.3.1","1.3.1","1.0.1","0.4.1","1.17","1.3-2","1.4.0","2.0","0.11.0","3.6.1","0.9.5.5","1.4.3","1.4.0","4.11.1","2.1.3","1.0.0","0.2.5","3.6.1","3.6.1","0.2.0","2.1.2","0.11","1.8-4","2.2.0","0.1.0"]}]}]}
 </script>
 <!--/html_preserve-->
 </div>

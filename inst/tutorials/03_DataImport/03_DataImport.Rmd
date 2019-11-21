@@ -46,9 +46,7 @@ nobel <- readr::read_csv(file = "www/nobel.csv")
 ```
 
 ```{r skim}
-nobel %>%
-  skimr::skim() %>% 
-  print()
+skimr::skim(nobel)
 ```
 
 The [**skimr**](https://docs.ropensci.org/skimr/) package provides a frictionless approach to summary statistics which conforms to the principle of least surprise, displaying summary statistics the user can skim quickly to understand their data. It handles different data types and returns a skim_df object which can be included in a pipeline or displayed nicely for the human reader.
