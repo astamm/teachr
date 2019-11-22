@@ -293,6 +293,4 @@ original_data <- readr::read_delim(
   delim = "\t"
 )
 
-clean_data <- original_data %>% 
-
 ```
