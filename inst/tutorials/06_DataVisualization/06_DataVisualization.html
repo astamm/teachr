@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="author" content="Aymeric Stamm" />
+
+
+<meta name="progressive" content="false" />
+<meta name="allow-skip" content="false" />
+
+<title>Data Visualization with R</title>
+
+
+<!-- highlightjs -->
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+<!-- taken from https://github.com/rstudio/rmarkdown/blob/67b7f5fc779e4cfdfd0f021d3d7745b6b6e17149/inst/rmd/h/default.html#L296-L362 -->
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("section-TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+<!-- end tabsets -->
+
+
+
+</head>
+
+<body>
+
+
+
+<div class="pageContent band">
+<div class="bandContent page">
+
+<div class="topics">
+
+<div id="section-purpose" class="section level2">
+<h2>Purpose</h2>
+<div id="section-disclaimer" class="section level3">
+<h3>Disclaimer</h3>
+<p>This tutorial is in parts built from RStudio <a href="https://github.com/rstudio-education/bootcamper">2-day internal R bootcamp</a>.</p>
+</div>
+<div id="section-visualisation" class="section level3">
+<h3>Visualisation</h3>
+<blockquote>
+<p><em>The simple graph has brought more information to the data analyst’s mind than any other device.</em> — John Tukey</p>
+</blockquote>
+<ul>
+<li>Data visualization is the creation and study of the visual representation of data.</li>
+<li>There are many tools for visualizing data (R is one of them), and many approaches/systems within R for making data visualizations (<a href="https://ggplot2.tidyverse.org"><strong>ggplot2</strong></a> is one of them, and that is what we are going to use).</li>
+</ul>
+</div>
+</div>
+<div id="section-the-ggplot2-package" class="section level2">
+<h2>The <a href="https://ggplot2.tidyverse.org"><strong>ggplot2</strong></a> package</h2>
+<p><img src="https://github.com/tidyverse/ggplot2/raw/master/man/figures/logo.png" alt="ggplot2 logo" width="64" style="float: right; margin-left: 10px; margin-right: 10px;"/></p>
+<div id="section-introduction" class="section level3">
+<h3>Introduction</h3>
+<p>Powerful and complex data visualisations can be achieved in a systematic fashion using the <a href="https://ggplot2.tidyverse.org"><strong>ggplot2</strong></a> package, which implements a <strong>grammar of graphics</strong> that enables us to concisely describe the components of a graphic.</p>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>Contrary to what we prescribed, we will deliberately import all functions from <a href="https://ggplot2.tidyverse.org"><strong>ggplot2</strong></a> into our R session so that we do not have to repeatedly write <code>ggplot2::</code> in front of each function from <a href="https://ggplot2.tidyverse.org"><strong>ggplot2</strong></a> that we call. This is because, when it comes to plotting, an enormous quantity of <a href="https://ggplot2.tidyverse.org"><strong>ggplot2</strong></a> functions are used so the code would become unnecessarily complex if we decided not to import <a href="https://ggplot2.tidyverse.org"><strong>ggplot2</strong></a>;</li>
+<li>Similarly, we will illsutrate the features of <a href="https://ggplot2.tidyverse.org"><strong>ggplot2</strong></a> using the <code>dplyr::starwars</code>, so we will extract it from <a href="https://dplyr.tidyverse.org"><strong>dplyr</strong></a> to be able to access it by simply calling <code>starwars</code>.</li>
+</ul>
+<p>Both of these tasks are performed by the following lines of code:</p>
+<pre class="r"><code>library(ggplot2)
+starwars &lt;- dplyr::starwars</code></pre>
+<p>Let us start by looking at this grammar syntax from an example. We first plot the mass of each character against their height:</p>
+<pre class="r"><code>ggplot(data = starwars, mapping = aes(x = height, y = mass)) +
+  geom_point()</code></pre>
+<pre><code>Warning: Removed 28 rows containing missing values (geom_point).</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/ggplot-first-1.png" width="624" style="display: block; margin: auto;" /></p>
+<p>What does the following modification achieve?</p>
+<div class="tutorial-exercise" data-label="ggplot-second" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>ggplot(data = starwars, mapping = aes(x = height, y = mass)) +
+  geom_point() +
+  geom_smooth()</code></pre>
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"center","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.timelimit":60,"exercise.checker":["function (label = NULL, solution_code = NULL, user_code = NULL, ","    check_code = NULL, envir_result = NULL, evaluate_result = NULL, ","    ...) ","{","    if (is.null(user_code)) {","        return(list(message = \"I didn't receive your code. Did you write any?\", ","            correct = FALSE, type = \"error\", location = \"append\"))","    }","    if (is.null(solution_code)) {","        return(list(message = \"No solution is provided for this exercise.\", ","            correct = TRUE, type = \"info\", location = \"append\"))","    }","    setup_state(sol_code = solution_code, stu_code = user_code, ","        sol_env = NULL, stu_env = envir_result, stu_result = evaluate_result)","    res <- run_until_fail(parse(text = check_code))","    return(list(message = res$message, correct = res$correct, ","        location = \"append\", type = if (res$correct) \"success\" else \"error\"))","}"]}</script>
+</div>
+<p><strong>Note:</strong> When constructing a plot, you do not apply consectutive processes to an original data set. Rather, you want to <strong>add</strong> layers for plotting different data representations. The operator to <strong>add</strong> layers is therefore the natural <code>+</code> addition operator and <strong>not</strong> the <code>%&gt;%</code> pipe operator.</p>
+</div>
+<div id="section-visual-identification-of-outliers" class="section level3">
+<h3>Visual identification of outliers</h3>
+<p>Look at the list of available <code>geom_*()</code> functions <a href="https://ggplot2.tidyverse.org/reference/index.html">here</a> to find a function that allows you to add labels to each point in order to visually spot who is the fattest character who seems on their own on the top of the plot. Modify the following code accordingly:</p>
+<div class="tutorial-exercise" data-label="spot-jabba-labels" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>ggplot(data = starwars, mapping = aes(x = height, y = mass)) +
+  geom_point()</code></pre>
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.timelimit":60,"exercise.checker":["function (label = NULL, solution_code = NULL, user_code = NULL, ","    check_code = NULL, envir_result = NULL, evaluate_result = NULL, ","    ...) ","{","    if (is.null(user_code)) {","        return(list(message = \"I didn't receive your code. Did you write any?\", ","            correct = FALSE, type = \"error\", location = \"append\"))","    }","    if (is.null(solution_code)) {","        return(list(message = \"No solution is provided for this exercise.\", ","            correct = TRUE, type = \"info\", location = \"append\"))","    }","    setup_state(sol_code = solution_code, stu_code = user_code, ","        sol_env = NULL, stu_env = envir_result, stu_result = evaluate_result)","    res <- run_until_fail(parse(text = check_code))","    return(list(message = res$message, correct = res$correct, ","        location = \"append\", type = if (res$correct) \"success\" else \"error\"))","}"]}</script>
+</div>
+<p>Are you satisfied with the way names are added to the plot? Investigate the package <a href="https://ggrepel.slowkow.com"><strong>ggrepel</strong></a> to see if you can find functions that might help obtaining a better visual representation. Again, modify the following code accordingly:</p>
+<div class="tutorial-exercise" data-label="spot-jabba-repel" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>ggplot(data = starwars, mapping = aes(x = height, y = mass)) +
+  geom_point()</code></pre>
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.timelimit":60,"exercise.checker":["function (label = NULL, solution_code = NULL, user_code = NULL, ","    check_code = NULL, envir_result = NULL, evaluate_result = NULL, ","    ...) ","{","    if (is.null(user_code)) {","        return(list(message = \"I didn't receive your code. Did you write any?\", ","            correct = FALSE, type = \"error\", location = \"append\"))","    }","    if (is.null(solution_code)) {","        return(list(message = \"No solution is provided for this exercise.\", ","            correct = TRUE, type = \"info\", location = \"append\"))","    }","    setup_state(sol_code = solution_code, stu_code = user_code, ","        sol_env = NULL, stu_env = envir_result, stu_result = evaluate_result)","    res <- run_until_fail(parse(text = check_code))","    return(list(message = res$message, correct = res$correct, ","        location = \"append\", type = if (res$correct) \"success\" else \"error\"))","}"]}</script>
+</div>
+<p>Is it enough? How about adding just the name of the fattest character then? Again, modify the following code accordingly:</p>
+<div class="tutorial-exercise" data-label="spot-jabba-label" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>ggplot(data = starwars, mapping = aes(x = height, y = mass)) +
+  geom_point()</code></pre>
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.timelimit":60,"exercise.checker":["function (label = NULL, solution_code = NULL, user_code = NULL, ","    check_code = NULL, envir_result = NULL, evaluate_result = NULL, ","    ...) ","{","    if (is.null(user_code)) {","        return(list(message = \"I didn't receive your code. Did you write any?\", ","            correct = FALSE, type = \"error\", location = \"append\"))","    }","    if (is.null(solution_code)) {","        return(list(message = \"No solution is provided for this exercise.\", ","            correct = TRUE, type = \"info\", location = \"append\"))","    }","    setup_state(sol_code = solution_code, stu_code = user_code, ","        sol_env = NULL, stu_env = envir_result, stu_result = evaluate_result)","    res <- run_until_fail(parse(text = check_code))","    return(list(message = res$message, correct = res$correct, ","        location = \"append\", type = if (res$correct) \"success\" else \"error\"))","}"]}</script>
+</div>
+</div>
+<div id="section-the-ggplot2-structure" class="section level3">
+<h3>The <code>ggplot2</code> structure</h3>
+<ul>
+<li><code>ggplot()</code> is the main function in <a href="https://ggplot2.tidyverse.org"><strong>ggplot2</strong></a></li>
+<li>Plots are constructed in layers</li>
+<li>Structure of the code for plots can be summarized by the following scheme:</li>
+</ul>
+<p><img src="images/ggplot-structure.png" width="384" style="display: block; margin: auto;" /></p>
+</div>
+<div id="section-visualising-star-wars" class="section level3">
+<h3>Visualising Star Wars</h3>
+<p>Let us use what we learnt so far to take a look at the summary of the data:</p>
+<pre class="r"><code>skimr::skim(starwars)</code></pre>
+<table>
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td align="left">Name</td>
+<td align="left">starwars</td>
+</tr>
+<tr class="even">
+<td align="left">Number of rows</td>
+<td align="left">87</td>
+</tr>
+<tr class="odd">
+<td align="left">Number of columns</td>
+<td align="left">13</td>
+</tr>
+<tr class="even">
+<td align="left">_______________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Column type frequency:</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">character</td>
+<td align="left">7</td>
+</tr>
+<tr class="odd">
+<td align="left">list</td>
+<td align="left">3</td>
+</tr>
+<tr class="even">
+<td align="left">numeric</td>
+<td align="left">3</td>
+</tr>
+<tr class="odd">
+<td align="left">________________________</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Group variables</td>
+<td align="left">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">min</th>
+<th align="right">max</th>
+<th align="right">empty</th>
+<th align="right">n_unique</th>
+<th align="right">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">name</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">3</td>
+<td align="right">21</td>
+<td align="right">0</td>
+<td align="right">87</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">hair_color</td>
+<td align="right">5</td>
+<td align="right">0.94</td>
+<td align="right">4</td>
+<td align="right">13</td>
+<td align="right">0</td>
+<td align="right">12</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">skin_color</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">3</td>
+<td align="right">19</td>
+<td align="right">0</td>
+<td align="right">31</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">eye_color</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">3</td>
+<td align="right">13</td>
+<td align="right">0</td>
+<td align="right">15</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">gender</td>
+<td align="right">3</td>
+<td align="right">0.97</td>
+<td align="right">4</td>
+<td align="right">13</td>
+<td align="right">0</td>
+<td align="right">4</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">homeworld</td>
+<td align="right">10</td>
+<td align="right">0.89</td>
+<td align="right">4</td>
+<td align="right">14</td>
+<td align="right">0</td>
+<td align="right">48</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">species</td>
+<td align="right">5</td>
+<td align="right">0.94</td>
+<td align="right">3</td>
+<td align="right">14</td>
+<td align="right">0</td>
+<td align="right">37</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: list</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">n_unique</th>
+<th align="right">min_length</th>
+<th align="right">max_length</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">films</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">24</td>
+<td align="right">1</td>
+<td align="right">7</td>
+</tr>
+<tr class="even">
+<td align="left">vehicles</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">11</td>
+<td align="right">0</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="left">starships</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">17</td>
+<td align="right">0</td>
+<td align="right">5</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">mean</th>
+<th align="right">sd</th>
+<th align="right">p0</th>
+<th align="right">p25</th>
+<th align="right">p50</th>
+<th align="right">p75</th>
+<th align="right">p100</th>
+<th align="left">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">height</td>
+<td align="right">6</td>
+<td align="right">0.93</td>
+<td align="right">174.36</td>
+<td align="right">34.77</td>
+<td align="right">66</td>
+<td align="right">167.0</td>
+<td align="right">180</td>
+<td align="right">191.0</td>
+<td align="right">264</td>
+<td align="left">▁▁▇▅▁</td>
+</tr>
+<tr class="even">
+<td align="left">mass</td>
+<td align="right">28</td>
+<td align="right">0.68</td>
+<td align="right">97.31</td>
+<td align="right">169.46</td>
+<td align="right">15</td>
+<td align="right">55.6</td>
+<td align="right">79</td>
+<td align="right">84.5</td>
+<td align="right">1358</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">birth_year</td>
+<td align="right">44</td>
+<td align="right">0.49</td>
+<td align="right">87.57</td>
+<td align="right">154.69</td>
+<td align="right">8</td>
+<td align="right">35.0</td>
+<td align="right">52</td>
+<td align="right">72.0</td>
+<td align="right">896</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+</tbody>
+</table>
+<p>Substantially, a number of features are reported for each character appearing in the Star Wars movies. The following image illustrates on Luke Skywalker the measured variables:</p>
+<p><img src="images/luke-skywalker.png" width="360" style="display: block; margin: auto;" /></p>
+<p><strong>Note:</strong> Data sets are also documented in R packages. This means that you can also invoke the help function on data sets and not only on functions. You can thus have information about a package data set using, e.g., <code>?dplyr::starwars</code>.</p>
+<p><strong>Your turn:</strong> The following code plots the mass against the height. Change the variables assigned to the <code>x</code> and <code>y</code> axes to see the distributions of other variables and see what happens:</p>
+<div class="tutorial-exercise" data-label="ggplot-first-experience" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="10">
+<pre class="text"><code>ggplot(data = starwars, mapping = aes(x = height, y = mass)) +
+  geom_point()</code></pre>
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"center","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.timelimit":60,"exercise.checker":["function (label = NULL, solution_code = NULL, user_code = NULL, ","    check_code = NULL, envir_result = NULL, evaluate_result = NULL, ","    ...) ","{","    if (is.null(user_code)) {","        return(list(message = \"I didn't receive your code. Did you write any?\", ","            correct = FALSE, type = \"error\", location = \"append\"))","    }","    if (is.null(solution_code)) {","        return(list(message = \"No solution is provided for this exercise.\", ","            correct = TRUE, type = \"info\", location = \"append\"))","    }","    setup_state(sol_code = solution_code, stu_code = user_code, ","        sol_env = NULL, stu_env = envir_result, stu_result = evaluate_result)","    res <- run_until_fail(parse(text = check_code))","    return(list(message = res$message, correct = res$correct, ","        location = \"append\", type = if (res$correct) \"success\" else \"error\"))","}"]}</script>
+</div>
+</div>
+<div id="section-specifying-labels" class="section level3">
+<h3>Specifying labels</h3>
+<p>You can give your plot a proper title and subtitle, specify axis labels and rename the variables mapped to aesthetics with more human-readable names. This is the job of the <code>labs()</code> function:</p>
+<pre class="r"><code>ggplot(data = starwars, mapping = aes(x = height, y = mass)) +
+  geom_point() +
+  labs(
+    title = &quot;Mass vs. height of Starwars characters&quot;, 
+    x = &quot;Height (cm)&quot;, 
+    y = &quot;Weight (kg)&quot;
+  )</code></pre>
+<pre><code>Warning: Removed 28 rows containing missing values (geom_point).</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/ggplot-labs-1.png" width="624" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="section-aesthetics" class="section level2">
+<h2>Aesthetics</h2>
+<p>Visual characteristics of plotting characters that can be mapped to a specific variable in the data are:</p>
+<ul>
+<li>label</li>
+<li>shape</li>
+<li>colour</li>
+<li>fill</li>
+<li>size</li>
+<li>alpha (transparency)</li>
+</ul>
+<p>There are two types of variables:</p>
+<ul>
+<li>Continuous variable are measured on a continuous scale</li>
+<li>Discrete variables are measured (or often counted) on a discrete scale</li>
+</ul>
+<p>Mapping continuous or discrete variables to the previous aesthetics will behave differently:</p>
+<table>
+<thead>
+<tr class="header">
+<th>aesthetics</th>
+<th>discrete</th>
+<th>continuous</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>label</td>
+<td>value for each (converted to text)</td>
+<td><em>shouldn’t be used</em></td>
+</tr>
+<tr class="even">
+<td>shape</td>
+<td>different shape for each</td>
+<td><em>shouldn’t (and doesn’t) work</em></td>
+</tr>
+<tr class="odd">
+<td>color</td>
+<td>rainbow of colors</td>
+<td>gradient</td>
+</tr>
+<tr class="even">
+<td>fill</td>
+<td>rainbow of colors</td>
+<td>gradient</td>
+</tr>
+<tr class="odd">
+<td>size</td>
+<td>discrete steps</td>
+<td>linear mapping between radius and value</td>
+</tr>
+<tr class="even">
+<td>alpha</td>
+<td><em>shoudn’t be used</em></td>
+<td>linear mapping between radius and value</td>
+</tr>
+</tbody>
+</table>
+<p>You might also want to set these features to fixed values, <strong>not</strong> depending on a variable:</p>
+<ul>
+<li>Use aesthetics for mapping features of a plot to a variable;</li>
+<li>Define the features directly in the <code>geom_*()</code> function for customization <strong>not</strong> mapped to a variable.</li>
+</ul>
+<div id="section-color" class="section level3">
+<h3>Color</h3>
+<pre class="r"><code>ggplot(
+  data = starwars, 
+  mapping = aes(
+    x = height, 
+    y = mass, 
+    color = gender
+  )
+) +
+  geom_point()</code></pre>
+<pre><code>Warning: Removed 28 rows containing missing values (geom_point).</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/aes-version1-1.png" width="624" style="display: block; margin: auto;" /></p>
+</div>
+<div id="section-color-size" class="section level3">
+<h3>Color + Size</h3>
+<ul>
+<li>Using a fixed point size:</li>
+</ul>
+<pre class="r"><code>ggplot(
+  data = starwars, 
+  mapping = aes(
+    x = height, 
+    y = mass, 
+    color = gender
+  )
+) +
+  geom_point(size = 2)</code></pre>
+<pre><code>Warning: Removed 28 rows containing missing values (geom_point).</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/aes-version2-1.png" width="624" style="display: block; margin: auto;" /></p>
+<ul>
+<li>Using the variable <code>birth_year</code> mapped to the<code>size</code> aesthetic:</li>
+</ul>
+<pre class="r"><code>ggplot(
+  data = starwars, 
+  mapping = aes(
+    x = height, 
+    y = mass, 
+    color = gender, 
+    size = birth_year
+  )
+) +
+  geom_point()</code></pre>
+<pre><code>Warning: Removed 51 rows containing missing values (geom_point).</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/aes-version3-1.png" width="624" style="display: block; margin: auto;" /></p>
+<p>Let us prep this last plot for reporting using a more complex piece of code:</p>
+<pre class="r"><code>ggplot(
+  data = starwars, 
+  mapping = aes(
+    x = height, 
+    y = mass, 
+    color = gender, 
+    size = birth_year
+  )
+) +
+  geom_point(alpha = 0.7) +
+  labs(
+    title = &quot;Mass vs. height of Starwars characters&quot;,
+    subtitle = &quot;by gender and birth year&quot;,
+    x = &quot;Height (cm)&quot;, 
+    y = &quot;Weight (kg)&quot;,
+    color = &quot;Gender&quot;,
+    size = &quot;Birth year&quot;
+  ) +
+  theme_minimal() +
+  theme(
+    legend.direction = &quot;horizontal&quot;, 
+    legend.position = &quot;bottom&quot;, 
+    legend.box = &quot;vertical&quot;
+  )</code></pre>
+<pre><code>Warning: Removed 51 rows containing missing values (geom_point).</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/aes-version4-1.png" width="624" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="section-faceting" class="section level2">
+<h2>Faceting</h2>
+<ul>
+<li>Smaller plots that display different subsets of the data</li>
+<li>Useful for exploring conditional relationships and large data</li>
+</ul>
+<p>You have two functions in <a href="https://ggplot2.tidyverse.org/index.html"><strong>ggplot2</strong></a> to do that:</p>
+<ul>
+<li><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html"><code>facet_grid()</code></a>: Lay out panels in a grid;</li>
+<li><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html"><code>facet_wrap()</code></a>: Wrap a 1d ribbon of panels into 2d.</li>
+</ul>
+<pre class="r"><code>ggplot(data = starwars, mapping = aes(x = height, y = mass)) +
+  facet_grid(cols = vars(gender)) +
+  geom_point() +
+  labs(
+    title = &quot;Mass vs. height of Starwars characters&quot;, 
+    subtitle = &quot;Faceted by gender&quot;
+  ) + 
+  theme(aspect.ratio = 1)</code></pre>
+<pre><code>Warning: Removed 28 rows containing missing values (geom_point).</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/faceting-1.png" width="624" style="display: block; margin: auto;" /></p>
+<p><strong>Important:</strong> Take a close look at the syntax to specify the facetting variables. They need to be specified within a call to the function <code>vars()</code>. This is how <a href="https://ggplot2.tidyverse.org/index.html"><strong>ggplot2</strong></a> knows that it should find the variables in the data set associated with the current plot.</p>
+<p><strong>Your turn.</strong> Now check out the online help of the <a href="https://ggplot2.tidyverse.org/reference/facet_grid.html">facet_grid()</a> and <a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap()</a> functions to solve the following exercises.</p>
+<p><strong>Exercise 1.</strong> Modify the code to have each subplot with its own x-axis scale:</p>
+<div class="tutorial-exercise" data-label="faceting-exo1" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>ggplot(data = starwars, mapping = aes(x = height, y = mass)) +
+  facet_grid(cols = dplyr::vars(gender)) +
+  geom_point() +
+  labs(
+    title = &quot;Mass vs. height of Starwars characters&quot;, 
+    subtitle = &quot;Faceted by gender&quot;
+  ) + 
+  theme(aspect.ratio = 1)</code></pre>
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"center","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.timelimit":60,"exercise.checker":["function (label = NULL, solution_code = NULL, user_code = NULL, ","    check_code = NULL, envir_result = NULL, evaluate_result = NULL, ","    ...) ","{","    if (is.null(user_code)) {","        return(list(message = \"I didn't receive your code. Did you write any?\", ","            correct = FALSE, type = \"error\", location = \"append\"))","    }","    if (is.null(solution_code)) {","        return(list(message = \"No solution is provided for this exercise.\", ","            correct = TRUE, type = \"info\", location = \"append\"))","    }","    setup_state(sol_code = solution_code, stu_code = user_code, ","        sol_env = NULL, stu_env = envir_result, stu_result = evaluate_result)","    res <- run_until_fail(parse(text = check_code))","    return(list(message = res$message, correct = res$correct, ","        location = \"append\", type = if (res$correct) \"success\" else \"error\"))","}"]}</script>
+</div>
+<p><strong>Exercise 2.</strong> Modify the code to have each subplot displayed in a single column rather than in a single row:</p>
+<div class="tutorial-exercise" data-label="faceting-exo2" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>ggplot(data = starwars, mapping = aes(x = height, y = mass)) +
+  facet_grid(cols = dplyr::vars(gender)) +
+  geom_point() +
+  labs(
+    title = &quot;Mass vs. height of Starwars characters&quot;, 
+    subtitle = &quot;Faceted by gender&quot;
+  ) + 
+  theme(aspect.ratio = 1)</code></pre>
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"center","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.timelimit":60,"exercise.checker":["function (label = NULL, solution_code = NULL, user_code = NULL, ","    check_code = NULL, envir_result = NULL, evaluate_result = NULL, ","    ...) ","{","    if (is.null(user_code)) {","        return(list(message = \"I didn't receive your code. Did you write any?\", ","            correct = FALSE, type = \"error\", location = \"append\"))","    }","    if (is.null(solution_code)) {","        return(list(message = \"No solution is provided for this exercise.\", ","            correct = TRUE, type = \"info\", location = \"append\"))","    }","    setup_state(sol_code = solution_code, stu_code = user_code, ","        sol_env = NULL, stu_env = envir_result, stu_result = evaluate_result)","    res <- run_until_fail(parse(text = check_code))","    return(list(message = res$message, correct = res$correct, ","        location = \"append\", type = if (res$correct) \"success\" else \"error\"))","}"]}</script>
+</div>
+<p><strong>Exercise 3.</strong> Modify the code to use <code>eye_color</code> instead of <code>gender</code> for facetting. What is the difference between <code>facet_grid</code> and <code>facet_wrap</code>? Which one is it better to use in this case?</p>
+<div class="tutorial-exercise" data-label="faceting-exo3" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>ggplot(data = starwars, mapping = aes(x = height, y = mass)) +
+  facet_grid(cols = dplyr::vars(gender)) +
+  geom_point() +
+  labs(
+    title = &quot;Mass vs. height of Starwars characters&quot;, 
+    subtitle = &quot;Faceted by gender&quot;
+  ) + 
+  theme(aspect.ratio = 1)</code></pre>
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"center","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.timelimit":60,"exercise.checker":["function (label = NULL, solution_code = NULL, user_code = NULL, ","    check_code = NULL, envir_result = NULL, evaluate_result = NULL, ","    ...) ","{","    if (is.null(user_code)) {","        return(list(message = \"I didn't receive your code. Did you write any?\", ","            correct = FALSE, type = \"error\", location = \"append\"))","    }","    if (is.null(solution_code)) {","        return(list(message = \"No solution is provided for this exercise.\", ","            correct = TRUE, type = \"info\", location = \"append\"))","    }","    setup_state(sol_code = solution_code, stu_code = user_code, ","        sol_env = NULL, stu_env = envir_result, stu_result = evaluate_result)","    res <- run_until_fail(parse(text = check_code))","    return(list(message = res$message, correct = res$correct, ","        location = \"append\", type = if (res$correct) \"success\" else \"error\"))","}"]}</script>
+</div>
+<p><strong>Exercise 4.</strong> Modify the code to use <code>hair_color</code> <strong>and</strong> <code>gender</code> for facetting.</p>
+<div class="tutorial-exercise" data-label="faceting-exo4" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>ggplot(data = starwars, mapping = aes(x = height, y = mass)) +
+  facet_grid(cols = dplyr::vars(gender)) +
+  geom_point() +
+  labs(
+    title = &quot;Mass vs. height of Starwars characters&quot;, 
+    subtitle = &quot;Faceted by gender&quot;
+  ) + 
+  theme(aspect.ratio = 1)</code></pre>
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"center","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.timelimit":60,"exercise.checker":["function (label = NULL, solution_code = NULL, user_code = NULL, ","    check_code = NULL, envir_result = NULL, evaluate_result = NULL, ","    ...) ","{","    if (is.null(user_code)) {","        return(list(message = \"I didn't receive your code. Did you write any?\", ","            correct = FALSE, type = \"error\", location = \"append\"))","    }","    if (is.null(solution_code)) {","        return(list(message = \"No solution is provided for this exercise.\", ","            correct = TRUE, type = \"info\", location = \"append\"))","    }","    setup_state(sol_code = solution_code, stu_code = user_code, ","        sol_env = NULL, stu_env = envir_result, stu_result = evaluate_result)","    res <- run_until_fail(parse(text = check_code))","    return(list(message = res$message, correct = res$correct, ","        location = \"append\", type = if (res$correct) \"success\" else \"error\"))","}"]}</script>
+</div>
+</div>
+<div id="section-visualizing-variation" class="section level2">
+<h2>Visualizing variation</h2>
+<div id="section-numerical-data" class="section level3">
+<h3>Numerical data</h3>
+<div id="section-histogram" class="section level4">
+<h4>Histogram</h4>
+<pre class="r"><code>ggplot(data = starwars, mapping = aes(x = height)) + 
+  geom_histogram(binwidth = 10)</code></pre>
+<pre><code>Warning: Removed 6 rows containing non-finite values (stat_bin).</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/histogram-1.png" width="624" style="display: block; margin: auto;" /></p>
+</div>
+<div id="section-density-plot" class="section level4">
+<h4>Density plot</h4>
+<pre class="r"><code>ggplot(data = starwars, mapping = aes(x = height)) +
+  geom_density()</code></pre>
+<pre><code>Warning: Removed 6 rows containing non-finite values (stat_density).</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/density-1.png" width="624" style="display: block; margin: auto;" /></p>
+</div>
+<div id="section-box-plot" class="section level4">
+<h4>Box plot</h4>
+<pre class="r"><code>ggplot(data = starwars, mapping = aes(y = height)) +
+  geom_boxplot()</code></pre>
+<pre><code>Warning: Removed 6 rows containing non-finite values (stat_boxplot).</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/boxplot-1.png" width="624" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="section-categorical-data-the-bar-plot" class="section level3">
+<h3>Categorical data: the bar plot</h3>
+<pre class="r"><code>ggplot(data = starwars, mapping = aes(x = gender)) +
+  geom_bar()</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/barplot-1.png" width="624" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="section-visualizing-co-variation" class="section level2">
+<h2>Visualizing co-variation</h2>
+<div id="section-numerical-and-categorical-data" class="section level3">
+<h3>Numerical and categorical data</h3>
+<div id="section-color-filled-histograms" class="section level4">
+<h4>Color-filled histograms?</h4>
+<pre class="r"><code>ggplot(data = starwars, mapping = aes(x = height, fill = gender)) +
+  geom_histogram(
+    binwidth = 10, 
+    position = position_dodge2(), 
+    color = &quot;black&quot;
+  )</code></pre>
+<pre><code>Warning: Removed 6 rows containing non-finite values (stat_bin).</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/histogram-mix-1.png" width="624" style="display: block; margin: auto;" /></p>
+<p>This representation is not really helpful because adjusting a unique binning parameter appropriate for all histograms is rarely possible.</p>
+</div>
+<div id="section-color-filled-densities" class="section level4">
+<h4>Color-filled densities</h4>
+<pre class="r"><code>ggplot(data = starwars, mapping = aes(x = height, fill = gender)) +
+  geom_density(color = &quot;black&quot;, alpha = 0.3)</code></pre>
+<pre><code>Warning: Removed 6 rows containing non-finite values (stat_density).</code></pre>
+<pre><code>Warning: Groups with fewer than two data points have been dropped.
+
+Warning: Groups with fewer than two data points have been dropped.</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/density-mix-1.png" width="624" style="display: block; margin: auto;" /></p>
+</div>
+<div id="section-side-by-side-box-plots" class="section level4">
+<h4>Side-by-side box plots</h4>
+<pre class="r"><code>ggplot(data = starwars, mapping = aes(y = height, x = gender)) +
+  geom_boxplot()</code></pre>
+<pre><code>Warning: Removed 6 rows containing non-finite values (stat_boxplot).</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/boxplot-mix-1.png" width="624" style="display: block; margin: auto;" /></p>
+</div>
+<div id="section-scatter-plot" class="section level4">
+<h4>Scatter plot?</h4>
+<pre class="r"><code>ggplot(data = starwars, mapping = aes(y = height, x = gender)) +
+  geom_point()</code></pre>
+<pre><code>Warning: Removed 6 rows containing missing values (geom_point).</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/scatter-1.png" width="624" style="display: block; margin: auto;" /></p>
+<p>This is not a great representation of these data.</p>
+</div>
+<div id="section-violin-plots" class="section level4">
+<h4>Violin plots</h4>
+<pre class="r"><code>ggplot(data = starwars, mapping = aes(y = height, x = gender)) +
+  geom_violin()</code></pre>
+<pre><code>Warning: Removed 6 rows containing non-finite values (stat_ydensity).</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/violon-1.png" width="624" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="section-both-categorical-data" class="section level3">
+<h3>Both categorical data</h3>
+<div id="section-segmented-bar-plots-counts" class="section level4">
+<h4>Segmented bar plots, counts</h4>
+<pre class="r"><code>ggplot(
+  data = starwars, 
+  mapping = aes(x = gender, fill = hair_color)
+) +
+  geom_bar(position = position_stack())</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/barplot-seg1-1.png" width="624" style="display: block; margin: auto;" /></p>
+</div>
+<div id="section-recode-hair-color" class="section level4">
+<h4>Recode hair color</h4>
+<p>Using the <code>fct_other()</code> function from the <strong>forcats</strong> package, which is also part of the <strong>tidyverse</strong>.</p>
+<pre class="r"><code>starwars &lt;- starwars %&gt;%
+  dplyr::mutate(
+    hair_color2 = forcats::fct_other(
+      f = hair_color, 
+      keep = c(&quot;black&quot;, &quot;blond&quot;, &quot;brown&quot;, &quot;white&quot;)
+    )
+  )</code></pre>
+</div>
+<div id="section-segmented-bar-plots-counts-1" class="section level4">
+<h4>Segmented bar plots, counts</h4>
+<pre class="r"><code>ggplot(
+  data = starwars, 
+  mapping = aes(x = gender, fill = hair_color2)
+) +
+  geom_bar(position = position_stack()) +
+  coord_flip()</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/barplot-seg2-1.png" width="624" style="display: block; margin: auto;" /></p>
+</div>
+<div id="section-segmented-bar-plots-proportions" class="section level4">
+<h4>Segmented bar plots, proportions</h4>
+<pre class="r"><code>ggplot(
+  data = starwars, 
+  mapping = aes(x = gender, fill = hair_color2)
+) +
+  geom_bar(position = position_fill()) +
+  coord_flip() + 
+  labs(y = &quot;proportion&quot;)</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/barplot-seg3-1.png" width="624" style="display: block; margin: auto;" /></p>
+</div>
+<div id="section-nested-bar-plots" class="section level4">
+<h4>Nested bar plots</h4>
+<p><strong>Version 1:</strong> Explore how the hair color is distributed within each gender category.</p>
+<pre class="r"><code>ggplot(
+  data = starwars, 
+  mapping = aes(x = gender, fill = hair_color2)
+) +
+  geom_bar(position = position_dodge2(preserve = &quot;single&quot;))</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/barplot-nested1-1.png" width="624" style="display: block; margin: auto;" /></p>
+<p><strong>Version 2:</strong> Explore how gender is distributed within each hair color category.</p>
+<pre class="r"><code>ggplot(
+  data = starwars, 
+  mapping = aes(x = hair_color2, fill = gender)
+) +
+  geom_bar(position = position_dodge2(preserve = &quot;single&quot;))</code></pre>
+<p><img src="06_DataVisualization_files/figure-html/barplot-nested2-1.png" width="624" style="display: block; margin: auto;" /></p>
+<p><strong>Your turn:</strong> Why all bar plots do not have the same number of bars? How could you remedy?</p>
+<div class="tutorial-exercise" data-label="barplot-exo" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"center","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.timelimit":60,"exercise.checker":["function (label = NULL, solution_code = NULL, user_code = NULL, ","    check_code = NULL, envir_result = NULL, evaluate_result = NULL, ","    ...) ","{","    if (is.null(user_code)) {","        return(list(message = \"I didn't receive your code. Did you write any?\", ","            correct = FALSE, type = \"error\", location = \"append\"))","    }","    if (is.null(solution_code)) {","        return(list(message = \"No solution is provided for this exercise.\", ","            correct = TRUE, type = \"info\", location = \"append\"))","    }","    setup_state(sol_code = solution_code, stu_code = user_code, ","        sol_env = NULL, stu_env = envir_result, stu_result = evaluate_result)","    res <- run_until_fail(parse(text = check_code))","    return(list(message = res$message, correct = res$correct, ","        location = \"append\", type = if (res$correct) \"success\" else \"error\"))","}"]}</script>
+</div>
+<div id="section-barplot-exo-hint">
+<p><strong>Hint:</strong></p>
+<ol style="list-style-type: decimal">
+<li>Combine <a href="https://dplyr.tidyverse.org/reference/tally.html">dplyr::count()</a> and <a href="https://tidyr.tidyverse.org/reference/complete.html">tidyr::complete()</a> to manually perform the counting and avoid dropping combinations with zero count.</li>
+<li>Use <code>stat = &quot;identity&quot;</code> as an argument to the <code>geom_bar()</code> since you do not need <a href="https://ggplot2.tidyverse.org"><strong>ggplot2</strong></a> to perform the counting behind the scene as you already did it.</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div id="section-visualization-in-higher-dimensions" class="section level2">
+<h2>Visualization in higher dimensions</h2>
+<div id="section-ggplot2-extensions" class="section level3">
+<h3><a href="https://ggplot2.tidyverse.org"><strong>ggplot2</strong></a> extensions</h3>
+<p>The ggplot2 package is now widely used worldwide. As a result, a number of people have been developing extensions to perform all kinds of plots. It is highly probable that, if you do not manage to draw a plot you have on your mind easily with your knowledge of ggplot2, then someone probably has published an extension already that perfectly fits your needs. You can consult at any time the up-to-date list of <a href="https://www.ggplot2-exts.org">ggplot2 extensions</a>.</p>
+</div>
+<div id="section-heatmaps" class="section level3">
+<h3>Heatmaps</h3>
+<p>You can visualize a third dimension by color-coding a 2D plane. This is what does a heatmap. There are several ways to draw heatmaps in R. We recommend the <a href="https://github.com/rstudio/d3heatmap"><strong>d3heatmap</strong></a> package which provides interactive heatmaps.</p>
+</div>
+<div id="section-data-visualization-of-3d-data-in-3d" class="section level3">
+<h3>Data visualization of 3D data in 3D</h3>
+<p>Lots of packages offer 3D visualization tools. We recommend the <a href="https://cran.r-project.org/web/packages/plot3D/index.html"><strong>plot3D</strong></a> package, which is particularly well implemented and easy to use. A nice introductory tutorial can be found <a href="http://www.sthda.com/english/wiki/impressive-package-for-3d-and-4d-graph-r-software-and-data-visualization">here</a>.</p>
+</div>
+<div id="section-visualizing-nd-data" class="section level3">
+<h3>Visualizing nD data</h3>
+<p><img src="https://github.com/ggobi/tourr/raw/master/man/figures/logo.png" alt="tourr logo" width="64" style="float: right; margin-left: 10px; margin-right: 10px;"/></p>
+<p>Visualization of nD data seems impossible on paper. One way to actually do this is to visualize projections of the nD data into <span class="math inline">\(\mathbb{R}\)</span>, <span class="math inline">\(\mathbb{R}^2\)</span> or <span class="math inline">\(\mathbb{R}^3\)</span>. You then create a <em>tour</em> of your data by generating a smooth sequence of projections and display your data as a movie. In R, this is easily achieved by the <a href="http://ggobi.github.io/tourr/"><strong>tourr</strong></a> package.</p>
+<p>To demonstrate this technique we will use a data set in the <a href="http://ggobi.github.io/tourr/"><strong>tourr</strong></a> package called <code>flea</code>, which contain measurements of flea beetle characteristics for 3 different species:</p>
+<pre class="r"><code>skimr::skim(tourr::flea)</code></pre>
+<table>
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td align="left">Name</td>
+<td align="left">tourr::flea</td>
+</tr>
+<tr class="even">
+<td align="left">Number of rows</td>
+<td align="left">74</td>
+</tr>
+<tr class="odd">
+<td align="left">Number of columns</td>
+<td align="left">7</td>
+</tr>
+<tr class="even">
+<td align="left">_______________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Column type frequency:</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">factor</td>
+<td align="left">1</td>
+</tr>
+<tr class="odd">
+<td align="left">numeric</td>
+<td align="left">6</td>
+</tr>
+<tr class="even">
+<td align="left">________________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Group variables</td>
+<td align="left">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: factor</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="left">ordered</th>
+<th align="right">n_unique</th>
+<th align="left">top_counts</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">species</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="left">FALSE</td>
+<td align="right">3</td>
+<td align="left">Hei: 31, Hep: 22, Con: 21</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">mean</th>
+<th align="right">sd</th>
+<th align="right">p0</th>
+<th align="right">p25</th>
+<th align="right">p50</th>
+<th align="right">p75</th>
+<th align="right">p100</th>
+<th align="left">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">tars1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">177.26</td>
+<td align="right">29.41</td>
+<td align="right">122</td>
+<td align="right">148.00</td>
+<td align="right">185.5</td>
+<td align="right">198.25</td>
+<td align="right">242</td>
+<td align="left">▅▂▇▆▁</td>
+</tr>
+<tr class="even">
+<td align="left">tars2</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">123.96</td>
+<td align="right">8.48</td>
+<td align="right">107</td>
+<td align="right">118.25</td>
+<td align="right">123.0</td>
+<td align="right">130.00</td>
+<td align="right">146</td>
+<td align="left">▃▇▇▅▂</td>
+</tr>
+<tr class="odd">
+<td align="left">head</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">50.35</td>
+<td align="right">2.75</td>
+<td align="right">43</td>
+<td align="right">49.00</td>
+<td align="right">50.5</td>
+<td align="right">52.00</td>
+<td align="right">58</td>
+<td align="left">▂▇▇▅▁</td>
+</tr>
+<tr class="even">
+<td align="left">aede1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">134.81</td>
+<td align="right">10.35</td>
+<td align="right">116</td>
+<td align="right">125.50</td>
+<td align="right">136.5</td>
+<td align="right">142.75</td>
+<td align="right">157</td>
+<td align="left">▇▇▇▇▃</td>
+</tr>
+<tr class="odd">
+<td align="left">aede2</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">12.99</td>
+<td align="right">2.14</td>
+<td align="right">8</td>
+<td align="right">11.00</td>
+<td align="right">14.0</td>
+<td align="right">15.00</td>
+<td align="right">16</td>
+<td align="left">▂▃▁▇▅</td>
+</tr>
+<tr class="even">
+<td align="left">aede3</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">95.38</td>
+<td align="right">14.30</td>
+<td align="right">55</td>
+<td align="right">85.25</td>
+<td align="right">98.5</td>
+<td align="right">106.00</td>
+<td align="right">123</td>
+<td align="left">▁▃▆▇▃</td>
+</tr>
+</tbody>
+</table>
+<p>Displaying data as a movie cannot be performed within a tutorial, so let’s open <strong>another RStudio application</strong> to run the following code:</p>
+<pre class="r"><code># macOS and Linux
+quartz()
+# Windows
+# X11()
+tourr::animate_xy(
+  data = tourr::flea[, -7],
+  col = tourr::flea[, 7]
+)</code></pre>
+</div>
+</div>
+<div id="section-exercise" class="section level2">
+<h2>Exercise</h2>
+<p>The values of two numerical variables <code>x</code> and <code>y</code> has been collected in 13 different situations. The data is available for you under the name <code>experiment</code> as a tibble.</p>
+<ol style="list-style-type: decimal">
+<li>Transform the data so as to make it tidy.</li>
+</ol>
+<div class="tutorial-exercise" data-label="experiment-tidy" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.timelimit":60,"exercise.setup":"experiment-setup","exercise.checker":["function (label = NULL, solution_code = NULL, user_code = NULL, ","    check_code = NULL, envir_result = NULL, evaluate_result = NULL, ","    ...) ","{","    if (is.null(user_code)) {","        return(list(message = \"I didn't receive your code. Did you write any?\", ","            correct = FALSE, type = \"error\", location = \"append\"))","    }","    if (is.null(solution_code)) {","        return(list(message = \"No solution is provided for this exercise.\", ","            correct = TRUE, type = \"info\", location = \"append\"))","    }","    setup_state(sol_code = solution_code, stu_code = user_code, ","        sol_env = NULL, stu_env = envir_result, stu_result = evaluate_result)","    res <- run_until_fail(parse(text = check_code))","    return(list(message = res$message, correct = res$correct, ","        location = \"append\", type = if (res$correct) \"success\" else \"error\"))","}"]}</script>
+</div>
+<ol start="2" style="list-style-type: decimal">
+<li>Calculate the mean and standard deviation of both <code>x</code> and <code>y</code> as well as their correlation, for each of the 13 situations.</li>
+</ol>
+<div class="tutorial-exercise" data-label="experiment-summarise" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"default","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.timelimit":60,"exercise.setup":"experiment-setup","exercise.checker":["function (label = NULL, solution_code = NULL, user_code = NULL, ","    check_code = NULL, envir_result = NULL, evaluate_result = NULL, ","    ...) ","{","    if (is.null(user_code)) {","        return(list(message = \"I didn't receive your code. Did you write any?\", ","            correct = FALSE, type = \"error\", location = \"append\"))","    }","    if (is.null(solution_code)) {","        return(list(message = \"No solution is provided for this exercise.\", ","            correct = TRUE, type = \"info\", location = \"append\"))","    }","    setup_state(sol_code = solution_code, stu_code = user_code, ","        sol_env = NULL, stu_env = envir_result, stu_result = evaluate_result)","    res <- run_until_fail(parse(text = check_code))","    return(list(message = res$message, correct = res$correct, ","        location = \"append\", type = if (res$correct) \"success\" else \"error\"))","}"]}</script>
+</div>
+<div id="section-experiment-summarise-hint">
+<p><strong>Hint:</strong> Use <code>mean()</code> to compute the mean, <code>sd()</code> to compute the standard deviation and <code>cor()</code> to compute the correlation.</p>
+</div>
+<ol start="3" style="list-style-type: decimal">
+<li>Create a visualization of <code>y</code> vs. <code>x</code>, for each of the 13 situations. How similar or different are the data collected in the different situations?</li>
+</ol>
+<div class="tutorial-exercise" data-label="experiment-plot" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"center","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.timelimit":60,"exercise.setup":"experiment-setup","exercise.checker":["function (label = NULL, solution_code = NULL, user_code = NULL, ","    check_code = NULL, envir_result = NULL, evaluate_result = NULL, ","    ...) ","{","    if (is.null(user_code)) {","        return(list(message = \"I didn't receive your code. Did you write any?\", ","            correct = FALSE, type = \"error\", location = \"append\"))","    }","    if (is.null(solution_code)) {","        return(list(message = \"No solution is provided for this exercise.\", ","            correct = TRUE, type = \"info\", location = \"append\"))","    }","    setup_state(sol_code = solution_code, stu_code = user_code, ","        sol_env = NULL, stu_env = envir_result, stu_result = evaluate_result)","    res <- run_until_fail(parse(text = check_code))","    return(list(message = res$message, correct = res$correct, ","        location = \"append\", type = if (res$correct) \"success\" else \"error\"))","}"]}</script>
+</div>
+
+<script type="application/shiny-prerendered" data-context="server-start">
+library(learnr)
+library(testwhat)
+library(magrittr)
+library(ggplot2)
+starwars <- dplyr::starwars
+
+options(repos = "https://cloud.r-project.org")
+tutorial_options(
+  exercise.timelimit = 60,
+  exercise.checker = testwhat::testwhat_learnr
+)
+knitr::opts_chunk$set(comment = NA)
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::register_http_handlers(session, metadata = list(id = "75d08c3f-a2b4-4f9c-a9b6-b95918033e38", version = 1))
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-ggplot-second-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-ggplot-second-code-editor`)), session)
+output$`tutorial-exercise-ggplot-second-output` <- renderUI({
+  `tutorial-exercise-ggplot-second-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-spot-jabba-labels-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-spot-jabba-labels-code-editor`)), session)
+output$`tutorial-exercise-spot-jabba-labels-output` <- renderUI({
+  `tutorial-exercise-spot-jabba-labels-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-spot-jabba-repel-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-spot-jabba-repel-code-editor`)), session)
+output$`tutorial-exercise-spot-jabba-repel-output` <- renderUI({
+  `tutorial-exercise-spot-jabba-repel-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-spot-jabba-label-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-spot-jabba-label-code-editor`)), session)
+output$`tutorial-exercise-spot-jabba-label-output` <- renderUI({
+  `tutorial-exercise-spot-jabba-label-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-ggplot-first-experience-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-ggplot-first-experience-code-editor`)), session)
+output$`tutorial-exercise-ggplot-first-experience-output` <- renderUI({
+  `tutorial-exercise-ggplot-first-experience-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-faceting-exo1-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-faceting-exo1-code-editor`)), session)
+output$`tutorial-exercise-faceting-exo1-output` <- renderUI({
+  `tutorial-exercise-faceting-exo1-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-faceting-exo2-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-faceting-exo2-code-editor`)), session)
+output$`tutorial-exercise-faceting-exo2-output` <- renderUI({
+  `tutorial-exercise-faceting-exo2-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-faceting-exo3-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-faceting-exo3-code-editor`)), session)
+output$`tutorial-exercise-faceting-exo3-output` <- renderUI({
+  `tutorial-exercise-faceting-exo3-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-faceting-exo4-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-faceting-exo4-code-editor`)), session)
+output$`tutorial-exercise-faceting-exo4-output` <- renderUI({
+  `tutorial-exercise-faceting-exo4-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-barplot-exo-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-barplot-exo-code-editor`)), session)
+output$`tutorial-exercise-barplot-exo-output` <- renderUI({
+  `tutorial-exercise-barplot-exo-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-experiment-tidy-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-experiment-tidy-code-editor`)), session)
+output$`tutorial-exercise-experiment-tidy-output` <- renderUI({
+  `tutorial-exercise-experiment-tidy-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-experiment-summarise-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-experiment-summarise-code-editor`)), session)
+output$`tutorial-exercise-experiment-summarise-output` <- renderUI({
+  `tutorial-exercise-experiment-summarise-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-experiment-plot-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-experiment-plot-code-editor`)), session)
+output$`tutorial-exercise-experiment-plot-output` <- renderUI({
+  `tutorial-exercise-experiment-plot-result`()
+})
+</script>
+ <!--html_preserve-->
+<script type="application/shiny-prerendered" data-context="dependencies">
+{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["jquery"]},{"type":"character","attributes":{},"value":["1.11.3"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/jquery"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquery.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.17"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["bootstrap"]},{"type":"character","attributes":{},"value":["3.3.5"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/bootstrap"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["viewport"]}},"value":[{"type":"character","attributes":{},"value":["width=device-width, initial-scale=1"]}]},{"type":"character","attributes":{},"value":["js/bootstrap.min.js","shim/html5shiv.min.js","shim/respond.min.js"]},{"type":"character","attributes":{},"value":["css/cerulean.min.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.17"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["pagedtable"]},{"type":"character","attributes":{},"value":["1.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/pagedtable-1.1"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["js/pagedtable.js"]},{"type":"character","attributes":{},"value":["css/pagedtable.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.17"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["highlightjs"]},{"type":"character","attributes":{},"value":["9.12.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/highlightjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["highlight.js"]},{"type":"character","attributes":{},"value":["textmate.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.17"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["tutorial"]},{"type":"character","attributes":{},"value":["0.10.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/tutorial"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tutorial.js"]},{"type":"character","attributes":{},"value":["tutorial.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["tutorial-autocompletion"]},{"type":"character","attributes":{},"value":["0.10.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/tutorial"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tutorial-autocompletion.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["tutorial-diagnostics"]},{"type":"character","attributes":{},"value":["0.10.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/tutorial"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tutorial-diagnostics.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["tutorial-format"]},{"type":"character","attributes":{},"value":["0.10.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmarkdown/templates/tutorial/resources"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tutorial-format.js"]},{"type":"character","attributes":{},"value":["tutorial-format.css","rstudio-theme.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["jquery"]},{"type":"character","attributes":{},"value":["1.11.3"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/jquery"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquery.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.17"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["navigation"]},{"type":"character","attributes":{},"value":["1.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/navigation-1.1"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tabsets.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.17"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["highlightjs"]},{"type":"character","attributes":{},"value":["9.12.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/highlightjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["highlight.js"]},{"type":"character","attributes":{},"value":["default.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.17"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["jquery"]},{"type":"character","attributes":{},"value":["1.11.3"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/jquery"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquery.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.17"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["font-awesome"]},{"type":"character","attributes":{},"value":["5.1.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/fontawesome"]}]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["css/all.css","css/v4-shims.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.17"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["bootbox"]},{"type":"character","attributes":{},"value":["4.4.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/bootbox"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["bootbox.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["idb-keyvalue"]},{"type":"character","attributes":{},"value":["3.2.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/idb-keyval"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["idb-keyval-iife-compat.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[false]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["tutorial"]},{"type":"character","attributes":{},"value":["0.10.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/tutorial"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tutorial.js"]},{"type":"character","attributes":{},"value":["tutorial.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["tutorial-autocompletion"]},{"type":"character","attributes":{},"value":["0.10.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/tutorial"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tutorial-autocompletion.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["tutorial-diagnostics"]},{"type":"character","attributes":{},"value":["0.10.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/tutorial"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tutorial-diagnostics.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.2.6"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["1.5.15"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.2.6"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["1.5.15"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.2.6"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["1.5.15"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.2.6"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["1.5.15"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.2.6"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["1.5.15"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.2.6"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["1.5.15"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.2.6"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["1.5.15"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.2.6"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["1.5.15"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.2.6"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["1.5.15"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.2.6"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["1.5.15"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.2.6"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["1.5.15"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.2.6"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["1.5.15"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.2.6"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["1.5.15"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.10.0"]}]}]}
+</script>
+<!--/html_preserve-->
+<!--html_preserve-->
+<script type="application/shiny-prerendered" data-context="execution_dependencies">
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72]}},"value":[{"type":"character","attributes":{},"value":["assertthat","backports","base","base64enc","colorspace","compiler","crayon","datasauRus","datasets","digest","dplyr","evaluate","farver","fastmap","forcats","ggplot2","glue","graphics","grDevices","grid","gtable","highr","htmltools","htmlwidgets","httpuv","jsonlite","knitr","labeling","later","lazyeval","learnr","lifecycle","magrittr","markdown","methods","mime","munsell","parallel","pillar","pkgconfig","plyr","png","praise","promises","purrr","R6","Rcpp","repr","reshape2","rlang","rmarkdown","rprojroot","scales","shiny","skimr","stats","stringdist","stringi","stringr","testwhat","tibble","tidyr","tidyselect","tools","tourr","utils","vctrs","withr","xfun","xtable","yaml","zeallot"]},{"type":"character","attributes":{},"value":["0.2.1","1.1.5","3.6.1","0.1-3","1.4-1","3.6.1","1.3.4","0.1.4","3.6.1","0.6.23","0.8.3","0.14","2.0.1","1.0.1","0.4.0","3.2.1","1.3.1","3.6.1","3.6.1","3.6.1","0.3.0","0.8","0.4.0","1.5.1","1.5.2","1.6","1.26","0.3","1.0.0","0.2.2","0.10.0","0.1.0","1.5","1.1","3.6.1","0.7","0.5.0","3.6.1","1.4.2","2.0.3","1.8.4","0.1-8","1.0.0","1.1.0","0.3.3","2.4.1","1.0.3","1.0.1","1.4.3","0.4.2","1.17","1.3-2","1.1.0","1.4.0","2.0.1","3.6.1","0.9.5.5","1.4.3","1.4.0","4.11.1","2.1.3","1.0.0","0.2.5","3.6.1","0.5.6","3.6.1","0.2.0","2.1.2","0.11","1.8-4","2.2.0","0.1.0"]}]}]}
+</script>
+<!--/html_preserve-->
+</div>
+
+</div> <!-- topics -->
+
+<div class="topicsContainer">
+<div class="topicsPositioner">
+<div class="band">
+<div class="bandContent topicsListContainer">
+
+<!-- begin doc-metadata -->
+<div id="doc-metadata">
+<h2 class="title toc-ignore" style="display:none;">Data Visualization with R</h2>
+<h4 class="author"><em>Aymeric Stamm</em></h4>
+</div>
+<!-- end doc-metadata -->
+
+</div> <!-- bandContent.topicsListContainer -->
+</div> <!-- band -->
+</div> <!-- topicsPositioner -->
+</div> <!-- topicsContainer -->
+
+
+</div> <!-- bandContent page -->
+</div> <!-- pageContent band -->
+
+
+
+
+<script>
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+</script>
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+
+</body>
+
+</html>
