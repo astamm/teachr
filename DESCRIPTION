@@ -28,7 +28,15 @@ Imports:
     tibble,
     shiny,
     rmarkdown,
-    kableExtra
+    kableExtra,
+    ggplot2,
+    ggrepel,
+    forcats,
+    tidyr,
+    d3heatmap,
+    plot3D,
+    tourr,
+    datasauRus
 Remotes: 
     datacamp/testwhat
 URL: https://astamm.github.io/teachr/, https://github.com/astamm/teachr

@@ -51,7 +51,7 @@ Powerful and complex data visualisations can be achieved in a systematic fashion
 
 Both of these tasks are performed by the following lines of code:
 
-```{r viz-setup}
+```{r viz-setup, eval=FALSE}
 library(ggplot2)
 starwars <- dplyr::starwars
 ```
@@ -152,6 +152,7 @@ ggplot(data = starwars, mapping = aes(x = height, y = mass)) +
 
 Visual characteristics of plotting characters that can be mapped to a specific variable in the data are:
 
+- linetype
 - label
 - shape
 - colour
@@ -166,14 +167,15 @@ There are two types of variables:
 
 Mapping continuous or discrete variables to the previous aesthetics will behave differently:
 
-aesthetics    | discrete                           | continuous
-------------- | ---------------------------------- | ------------
-label         | value for each (converted to text) | *shouldn't be used*
-shape         | different shape for each           | *shouldn't (and doesn't) work*
-color         | rainbow of colors                  | gradient
-fill          | rainbow of colors                  | gradient
-size          | discrete steps                     | linear mapping between radius and value
-alpha         | *shoudn't be used*                 | linear mapping between radius and value
+aesthetics    | discrete                             | continuous
+------------- | ------------------------------------ | ------------
+linetype      | type of line for each (small number) | *shouldn't be used*
+label         | value for each (converted to text)   | *shouldn't be used*
+shape         | different shape for each             | *shouldn't (and doesn't) work*
+color         | rainbow of colors                    | gradient
+fill          | rainbow of colors                    | gradient
+size          | discrete steps                       | linear mapping between radius and value
+alpha         | *shoudn't be used*                   | linear mapping between radius and value
 
 You might also want to set these features to fixed values, **not** depending on a variable:
 
@@ -405,7 +407,7 @@ ggplot(data = starwars, mapping = aes(y = height, x = gender)) +
   geom_point()
 ```
 
-This is not a great representation of these data.
+This is not a great representation of these data. Why?
 
 #### Violin plots
 
@@ -428,7 +430,7 @@ ggplot(
 
 #### Recode hair color
 
-Using the `fct_other()` function from the **forcats** package, which is also part of the **tidyverse**.
+Using the `fct_other()` function from the [**forcats**](https://forcats.tidyverse.org) package, which is also part of the **tidyverse**.
 
 ```{r hair-color}
 starwars <- starwars %>%
