@@ -454,6 +454,7 @@ starwars &lt;- dplyr::starwars</code></pre>
 <h2>Aesthetics</h2>
 <p>Visual characteristics of plotting characters that can be mapped to a specific variable in the data are:</p>
 <ul>
+<li>linetype</li>
 <li>label</li>
 <li>shape</li>
 <li>colour</li>
@@ -477,31 +478,36 @@ starwars &lt;- dplyr::starwars</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
+<td>linetype</td>
+<td>type of line for each (small number)</td>
+<td><em>shouldn’t be used</em></td>
+</tr>
+<tr class="even">
 <td>label</td>
 <td>value for each (converted to text)</td>
 <td><em>shouldn’t be used</em></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>shape</td>
 <td>different shape for each</td>
 <td><em>shouldn’t (and doesn’t) work</em></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>color</td>
 <td>rainbow of colors</td>
 <td>gradient</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>fill</td>
 <td>rainbow of colors</td>
 <td>gradient</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>size</td>
 <td>discrete steps</td>
 <td>linear mapping between radius and value</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>alpha</td>
 <td><em>shoudn’t be used</em></td>
 <td>linear mapping between radius and value</td>
@@ -731,7 +737,7 @@ Warning: Groups with fewer than two data points have been dropped.</code></pre>
   geom_point()</code></pre>
 <pre><code>Warning: Removed 6 rows containing missing values (geom_point).</code></pre>
 <p><img src="06_DataVisualization_files/figure-html/scatter-1.png" width="624" style="display: block; margin: auto;" /></p>
-<p>This is not a great representation of these data.</p>
+<p>This is not a great representation of these data. Why?</p>
 </div>
 <div id="section-violin-plots" class="section level4">
 <h4>Violin plots</h4>
@@ -754,7 +760,7 @@ Warning: Groups with fewer than two data points have been dropped.</code></pre>
 </div>
 <div id="section-recode-hair-color" class="section level4">
 <h4>Recode hair color</h4>
-<p>Using the <code>fct_other()</code> function from the <strong>forcats</strong> package, which is also part of the <strong>tidyverse</strong>.</p>
+<p>Using the <code>fct_other()</code> function from the <a href="https://forcats.tidyverse.org"><strong>forcats</strong></a> package, which is also part of the <strong>tidyverse</strong>.</p>
 <pre class="r"><code>starwars &lt;- starwars %&gt;%
   dplyr::mutate(
     hair_color2 = forcats::fct_other(
@@ -1148,7 +1154,7 @@ output$`tutorial-exercise-experiment-plot-output` <- renderUI({
 <!--/html_preserve-->
 <!--html_preserve-->
 <script type="application/shiny-prerendered" data-context="execution_dependencies">
-{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72]}},"value":[{"type":"character","attributes":{},"value":["assertthat","backports","base","base64enc","colorspace","compiler","crayon","datasauRus","datasets","digest","dplyr","evaluate","farver","fastmap","forcats","ggplot2","glue","graphics","grDevices","grid","gtable","highr","htmltools","htmlwidgets","httpuv","jsonlite","knitr","labeling","later","lazyeval","learnr","lifecycle","magrittr","markdown","methods","mime","munsell","parallel","pillar","pkgconfig","plyr","png","praise","promises","purrr","R6","Rcpp","repr","reshape2","rlang","rmarkdown","rprojroot","scales","shiny","skimr","stats","stringdist","stringi","stringr","testwhat","tibble","tidyr","tidyselect","tools","tourr","utils","vctrs","withr","xfun","xtable","yaml","zeallot"]},{"type":"character","attributes":{},"value":["0.2.1","1.1.5","3.6.1","0.1-3","1.4-1","3.6.1","1.3.4","0.1.4","3.6.1","0.6.23","0.8.3","0.14","2.0.1","1.0.1","0.4.0","3.2.1","1.3.1","3.6.1","3.6.1","3.6.1","0.3.0","0.8","0.4.0","1.5.1","1.5.2","1.6","1.26","0.3","1.0.0","0.2.2","0.10.0","0.1.0","1.5","1.1","3.6.1","0.7","0.5.0","3.6.1","1.4.2","2.0.3","1.8.4","0.1-8","1.0.0","1.1.0","0.3.3","2.4.1","1.0.3","1.0.1","1.4.3","0.4.2","1.17","1.3-2","1.1.0","1.4.0","2.0.1","3.6.1","0.9.5.5","1.4.3","1.4.0","4.11.1","2.1.3","1.0.0","0.2.5","3.6.1","0.5.6","3.6.1","0.2.0","2.1.2","0.11","1.8-4","2.2.0","0.1.0"]}]}]}
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72]}},"value":[{"type":"character","attributes":{},"value":["assertthat","backports","base","base64enc","colorspace","compiler","crayon","datasauRus","datasets","digest","dplyr","evaluate","farver","fastmap","forcats","ggplot2","glue","graphics","grDevices","grid","gtable","highr","htmltools","htmlwidgets","httpuv","jsonlite","knitr","labeling","later","lazyeval","learnr","lifecycle","magrittr","markdown","methods","mime","munsell","parallel","pillar","pkgconfig","plyr","png","praise","promises","purrr","R6","Rcpp","repr","reshape2","rlang","rmarkdown","rprojroot","scales","shiny","skimr","stats","stringdist","stringi","stringr","testwhat","tibble","tidyr","tidyselect","tools","tourr","utils","vctrs","withr","xfun","xtable","yaml","zeallot"]},{"type":"character","attributes":{},"value":["0.2.1","1.1.5","3.6.1","0.1-3","1.4-1","3.6.1","1.3.4","0.1.4","3.6.1","0.6.23","0.8.3","0.14","2.0.1","1.0.1","0.4.0","3.2.1","1.3.1","3.6.1","3.6.1","3.6.1","0.3.0","0.8","0.4.0","1.5.1","1.5.2","1.6","1.26","0.3","1.0.0","0.2.2","0.10.0","0.1.0","1.5","1.1","3.6.1","0.7","0.5.0","3.6.1","1.4.2","2.0.3","1.8.4","0.1-8","1.0.0","1.1.0","0.3.3","2.4.1","1.0.3","1.0.1","1.4.3","0.4.2","1.17","1.3-2","1.1.0","1.4.0","2.0.2","3.6.1","0.9.5.5","1.4.3","1.4.0","4.11.1","2.1.3","1.0.0","0.2.5","3.6.1","0.5.6","3.6.1","0.2.0","2.1.2","0.11","1.8-4","2.2.0","0.1.0"]}]}]}
 </script>
 <!--/html_preserve-->
 </div>
