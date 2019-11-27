@@ -542,19 +542,19 @@ tourr::animate_xy(
 
 The values of two numerical variables `x` and `y` has been collected in 13 different situations. The data is available for you under the name `experiment` as a tibble.
 
-```{r experiment-setup, echo=FALSE}
+```{r prepare-experiment, echo=FALSE}
 experiment <- datasauRus::datasaurus_dozen_wide
 ```
 
 1. Transform the data so as to make it tidy.
 
-```{r experiment-tidy, exercise=TRUE, exercise.setup="experiment-setup"}
+```{r experiment-tidy, exercise=TRUE, exercise.setup = "prepare-experiment"}
 
 ```
 
 2. Calculate the mean and standard deviation of both `x` and `y` as well as their correlation, for each of the 13 situations.
 
-```{r experiment-summarise, exercise=TRUE, exercise.setup="experiment-setup"}
+```{r experiment-summarise, exercise=TRUE, exercise.setup = "prepare-experiment"}
 
 ```
 
@@ -564,6 +564,6 @@ experiment <- datasauRus::datasaurus_dozen_wide
 
 3. Create a visualization of `y` vs. `x`, for each of the 13 situations. How similar or different are the data collected in the different situations?
 
-```{r experiment-plot, exercise=TRUE, exercise.setup="experiment-setup", fig.align='center'}
+```{r experiment-plot, exercise=TRUE, exercise.setup = "prepare-experiment", fig.align='center'}
 
 ```
