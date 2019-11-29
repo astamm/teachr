@@ -170,12 +170,12 @@ This is where *model diagnosis* comes into play. You can almost entirely diagnos
 
 Let us diagnose the first model:
 
-```{r diagnose-mod1, fig.align='center', exercise=TRUE}
+```{r diagnose-mod1, fig.align='center', exercise=TRUE, exercise.setup = "df-non-linear-lm"}
 
 ```
 
 Let us now diagnose the second model:
 
-```{r diagnose-mod2, fig.align='center', exercise=TRUE}
+```{r diagnose-mod2, fig.align='center', exercise=TRUE, exercise.setup = "df-non-linear-lm"}
 
 ```
