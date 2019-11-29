@@ -36,9 +36,20 @@ Imports:
     d3heatmap,
     plot3D,
     tourr,
-    datasauRus
-Remotes: 
-    datacamp/testwhat
+    datasauRus,
+    modelr,
+    recipes,
+    rsample,
+    future,
+    furrr,
+    parsnip,
+    infer,
+    yardstick,
+    broom,
+    lindia (>= 0.9)
+Remotes:  
+    datacamp/testwhat,
+    astamm/lindia@fix-residuals
 URL: https://astamm.github.io/teachr/, https://github.com/astamm/teachr
 BugReports: https://github.com/astamm/teachr/issues
 VignetteBuilder: knitr
