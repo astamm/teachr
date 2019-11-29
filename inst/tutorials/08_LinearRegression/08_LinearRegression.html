@@ -188,20 +188,21 @@ $(document).ready(function () {
 <h2>Model diagnosis</h2>
 <div id="section-toy-examples-in-wonderland" class="section level3">
 <h3>Toy examples in Wonderland</h3>
-<p>Let us generate two data sets: one for which things will go well and one for which things will go sideways. The following code produces the desired data sets and put them together into a tidy tibble:</p>
-<pre class="r"><code>library(magrittr)
-library(ggplot2)
-set.seed(1234)
+<p><strong>The most important and first thing you should do before any attempt to modeling is to take a look at your data.</strong></p>
+<p>Let us generate two data sets: one for which things will go well and one for which things will go sideways. The following code produces the desired data sets, put them together into a tidy tibble and visualize them:</p>
+<pre class="r"><code>set.seed(1234)
 
 n &lt;- 1000      # sample size
 x &lt;- seq(0, 100, length.out = n)
 first_data &lt;- 3 + 0.1 * x + rnorm(n, sd = 3)
 second_data &lt;- 3 + 0.1 * x + 10 * sin(x / 3) + rnorm(n, sd = 3)
+mod1 &lt;- lm(first_data ~ x)
+mod2 &lt;- lm(second_data ~ x)
 
-df &lt;- tibble::tibble(x, first_data, second_data) %&gt;%
-  tidyr::pivot_longer(cols = -x, values_to = &quot;y&quot;)</code></pre>
-<p><strong>The most important and first thing you should do before any attempt to modeling is to take a look at your data.</strong></p>
-<pre class="r"><code>df %&gt;%
+full_data &lt;- tibble::tibble(x, first_data, second_data) %&gt;%
+  tidyr::pivot_longer(cols = -x, values_to = &quot;y&quot;)
+
+full_data %&gt;%
   ggplot(aes(x, y, col = name)) +
   geom_point(alpha = 0.1) +
   geom_smooth(method = &quot;lm&quot;) +
@@ -212,28 +213,35 @@ df &lt;- tibble::tibble(x, first_data, second_data) %&gt;%
   ) + 
   theme_bw() + 
   theme(legend.position = &quot;none&quot;)</code></pre>
-<p><img src="08_LinearRegression_files/figure-html/df-non-linear-viz-1.png" width="624" style="display: block; margin: auto;" /></p>
-<p>As you can see, both data sets seem to generate the same linear regression predictions, although we already clearly understand which one will go sideways…</p>
-<p>Let us go deeper now. If one really want to fit a linear regression model to explain <code>y</code> in terms of <code>x</code> in both situations, you can use the function <code>lm()</code> that does all the computations for you:</p>
-<div class="tutorial-exercise-support" data-label="df-non-linear-lm" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
-<pre class="text"><code>mod1 &lt;- lm(first_data ~ x)
+<p><img src="08_LinearRegression_files/figure-html/df-non-linear-1.png" width="624" style="display: block; margin: auto;" /></p>
+<div class="tutorial-exercise-support" data-label="prep-nl-data" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
+<pre class="text"><code>set.seed(1234)
+
+n &lt;- 1000      # sample size
+x &lt;- seq(0, 100, length.out = n)
+first_data &lt;- 3 + 0.1 * x + rnorm(n, sd = 3)
+second_data &lt;- 3 + 0.1 * x + 10 * sin(x / 3) + rnorm(n, sd = 3)
+mod1 &lt;- lm(first_data ~ x)
 mod2 &lt;- lm(second_data ~ x)</code></pre>
 </div>
+<p>As you can see, both data sets seem to generate the same linear regression predictions, although we already clearly understand which one will go sideways…</p>
+<p>Let us go deeper now. If one really want to fit a linear regression model to explain <code>y</code> in terms of <code>x</code> in both situations, you can use the function <code>lm()</code> that does all the computations for you as illustrated in the code chunk above.</p>
 <p>Before going into the syntax and the content of the <code>lm()</code> function, remember that, <strong>even though R facilitates computations, it does not verify for you that the assumptions required by the model are met by your data</strong>!</p>
 <p>This is where <em>model diagnosis</em> comes into play. You can almost entirely diagnose your model graphically. Using the grammar of graphics in <code>ggplot2</code>, this can be achieved using the extension <a href="https://github.com/astamm/lindia/tree/fix-residuals"><strong>lindia</strong></a>, that you can also find by borwsing <a href="http://www.ggplot2-exts.org/gallery/">ggplot extensions</a>. In particular, the function <code>lindia::gg_diagnose()</code> shows the relevant plots for diagnosis all at once.</p>
 <p>Let us diagnose the first model:</p>
 <div class="tutorial-exercise" data-label="diagnose-mod1" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
-<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"center","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.timelimit":60,"exercise.setup":"df-non-linear-lm","exercise.checker":["function (label = NULL, solution_code = NULL, user_code = NULL, ","    check_code = NULL, envir_result = NULL, evaluate_result = NULL, ","    ...) ","{","    if (is.null(user_code)) {","        return(list(message = \"I didn't receive your code. Did you write any?\", ","            correct = FALSE, type = \"error\", location = \"append\"))","    }","    if (is.null(solution_code)) {","        return(list(message = \"No solution is provided for this exercise.\", ","            correct = TRUE, type = \"info\", location = \"append\"))","    }","    setup_state(sol_code = solution_code, stu_code = user_code, ","        sol_env = NULL, stu_env = envir_result, stu_result = evaluate_result)","    res <- run_until_fail(parse(text = check_code))","    return(list(message = res$message, correct = res$correct, ","        location = \"append\", type = if (res$correct) \"success\" else \"error\"))","}"]}</script>
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"center","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.timelimit":60,"exercise.setup":"prep-nl-data","exercise.checker":["function (label = NULL, solution_code = NULL, user_code = NULL, ","    check_code = NULL, envir_result = NULL, evaluate_result = NULL, ","    ...) ","{","    if (is.null(user_code)) {","        return(list(message = \"I didn't receive your code. Did you write any?\", ","            correct = FALSE, type = \"error\", location = \"append\"))","    }","    if (is.null(solution_code)) {","        return(list(message = \"No solution is provided for this exercise.\", ","            correct = TRUE, type = \"info\", location = \"append\"))","    }","    setup_state(sol_code = solution_code, stu_code = user_code, ","        sol_env = NULL, stu_env = envir_result, stu_result = evaluate_result)","    res <- run_until_fail(parse(text = check_code))","    return(list(message = res$message, correct = res$correct, ","        location = \"append\", type = if (res$correct) \"success\" else \"error\"))","}"]}</script>
 </div>
 <p>Let us now diagnose the second model:</p>
 <div class="tutorial-exercise" data-label="diagnose-mod2" data-caption="Code" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
-<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"center","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.timelimit":60,"exercise.setup":"df-non-linear-lm","exercise.checker":["function (label = NULL, solution_code = NULL, user_code = NULL, ","    check_code = NULL, envir_result = NULL, evaluate_result = NULL, ","    ...) ","{","    if (is.null(user_code)) {","        return(list(message = \"I didn't receive your code. Did you write any?\", ","            correct = FALSE, type = \"error\", location = \"append\"))","    }","    if (is.null(solution_code)) {","        return(list(message = \"No solution is provided for this exercise.\", ","            correct = TRUE, type = \"info\", location = \"append\"))","    }","    setup_state(sol_code = solution_code, stu_code = user_code, ","        sol_env = NULL, stu_env = envir_result, stu_result = evaluate_result)","    res <- run_until_fail(parse(text = check_code))","    return(list(message = res$message, correct = res$correct, ","        location = \"append\", type = if (res$correct) \"success\" else \"error\"))","}"]}</script>
+<script type="application/json" data-opts-chunk="1">{"fig.width":6.5,"fig.height":4,"fig.retina":2,"fig.align":"center","fig.keep":"high","fig.show":"asis","out.width":624,"warning":true,"error":false,"message":true,"exercise.df_print":"paged","exercise.timelimit":60,"exercise.setup":"prep-nl-data","exercise.checker":["function (label = NULL, solution_code = NULL, user_code = NULL, ","    check_code = NULL, envir_result = NULL, evaluate_result = NULL, ","    ...) ","{","    if (is.null(user_code)) {","        return(list(message = \"I didn't receive your code. Did you write any?\", ","            correct = FALSE, type = \"error\", location = \"append\"))","    }","    if (is.null(solution_code)) {","        return(list(message = \"No solution is provided for this exercise.\", ","            correct = TRUE, type = \"info\", location = \"append\"))","    }","    setup_state(sol_code = solution_code, stu_code = user_code, ","        sol_env = NULL, stu_env = envir_result, stu_result = evaluate_result)","    res <- run_until_fail(parse(text = check_code))","    return(list(message = res$message, correct = res$correct, ","        location = \"append\", type = if (res$correct) \"success\" else \"error\"))","}"]}</script>
 </div>
 
 <script type="application/shiny-prerendered" data-context="server-start">
 library(learnr)
 library(testwhat)
 library(magrittr)
+library(ggplot2)
 
 options(repos = "https://cloud.r-project.org")
 tutorial_options(

@@ -12,6 +12,7 @@ author: Aymeric Stamm
 library(learnr)
 library(testwhat)
 library(magrittr)
+library(ggplot2)
 
 options(repos = "https://cloud.r-project.org")
 tutorial_options(
@@ -123,26 +124,24 @@ Cook's distance does not help in the above two situations, but it does not reall
 
 ### Toy examples in Wonderland
 
-Let us generate two data sets: one for which things will go well and one for which things will go sideways. The following code produces the desired data sets and put them together into a tidy tibble:
+**The most important and first thing you should do before any attempt to modeling is to take a look at your data.**
 
-```{r df-non-linear-code}
-library(magrittr)
-library(ggplot2)
+Let us generate two data sets: one for which things will go well and one for which things will go sideways. The following code produces the desired data sets, put them together into a tidy tibble and visualize them:
+
+```{r df-non-linear, fig.align='center'}
 set.seed(1234)
 
 n <- 1000      # sample size
 x <- seq(0, 100, length.out = n)
 first_data <- 3 + 0.1 * x + rnorm(n, sd = 3)
 second_data <- 3 + 0.1 * x + 10 * sin(x / 3) + rnorm(n, sd = 3)
+mod1 <- lm(first_data ~ x)
+mod2 <- lm(second_data ~ x)
 
-df <- tibble::tibble(x, first_data, second_data) %>%
+full_data <- tibble::tibble(x, first_data, second_data) %>%
   tidyr::pivot_longer(cols = -x, values_to = "y")
-```
 
-**The most important and first thing you should do before any attempt to modeling is to take a look at your data.**
-
-```{r df-non-linear-viz, fig.align='center'}
-df %>%
+full_data %>%
   ggplot(aes(x, y, col = name)) +
   geom_point(alpha = 0.1) +
   geom_smooth(method = "lm") +
@@ -155,14 +154,20 @@ df %>%
   theme(legend.position = "none")
 ```
 
-As you can see, both data sets seem to generate the same linear regression predictions, although we already clearly understand which one will go sideways...
+```{r prep-nl-data}
+set.seed(1234)
 
-Let us go deeper now. If one really want to fit a linear regression model to explain `y` in terms of `x` in both situations, you can use the function `lm()` that does all the computations for you:
-
-```{r df-non-linear-lm}
+n <- 1000      # sample size
+x <- seq(0, 100, length.out = n)
+first_data <- 3 + 0.1 * x + rnorm(n, sd = 3)
+second_data <- 3 + 0.1 * x + 10 * sin(x / 3) + rnorm(n, sd = 3)
 mod1 <- lm(first_data ~ x)
 mod2 <- lm(second_data ~ x)
 ```
+
+As you can see, both data sets seem to generate the same linear regression predictions, although we already clearly understand which one will go sideways...
+
+Let us go deeper now. If one really want to fit a linear regression model to explain `y` in terms of `x` in both situations, you can use the function `lm()` that does all the computations for you as illustrated in the code chunk above.
 
 Before going into the syntax and the content of the `lm()` function, remember that, **even though R facilitates computations, it does not verify for you that the assumptions required by the model are met by your data**!
 
@@ -170,12 +175,12 @@ This is where *model diagnosis* comes into play. You can almost entirely diagnos
 
 Let us diagnose the first model:
 
-```{r diagnose-mod1, fig.align='center', exercise=TRUE, exercise.setup = "df-non-linear-lm"}
+```{r diagnose-mod1, fig.align='center', exercise=TRUE, exercise.setup = "prep-nl-data"}
 
 ```
 
 Let us now diagnose the second model:
 
-```{r diagnose-mod2, fig.align='center', exercise=TRUE, exercise.setup = "df-non-linear-lm"}
+```{r diagnose-mod2, fig.align='center', exercise=TRUE, exercise.setup = "prep-nl-data"}
 
 ```
