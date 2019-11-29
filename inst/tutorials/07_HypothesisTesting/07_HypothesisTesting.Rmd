@@ -128,9 +128,9 @@ This decision-making rule guarantees that the probability of making a type I err
 
 #### p-value
 
-Another approach pertains to basing our decision on the remaining area under the curve in the relevant tail(s) of the null distribution of $T$, *i.e.* to say if I cut the tail where at the point calculated from the observed sample, what does that leave on the relevant tail(s)? 
+Another approach pertains to basing our decision on the remaining area under the curve in the relevant tail(s) of the null distribution of $T$ for values more extreme than the one calculated from the observed sample.
 
-The area under the curve in the relevant tail(s) of the null distribution defined by the value of the test statistic calculated from the observed sample is called the **p-value**. It measures **what was the probability of observing the data we did observe, or data even more in favor of the alternative hypothesis, assuming that the null hypothesis is true**. Formally, if $t_0$ is the value of the test statistic calculated from the observed sample, then:
+The area under the curve in the relevant tail(s) of the null distribution where we find values more extreme than the one calculated from the observed sample defined by the value of the test statistic calculated from the observed sample is called the **p-value**. It measures **what was the probability of observing the data we did observe, or data even more in favor of the alternative hypothesis, assuming that the null hypothesis is true**. Formally, if $t_0$ is the value of the test statistic calculated from the observed sample, then:
 
 - $p = \mathbb{P}_{H_0}(T > t_0)$ for one-sided right-tail hypothesis tests (i.e. where $H_1$ is of the form $\mu > \mu_0$ in the case of testing the mean);
 - $p = \mathbb{P}_{H_0}(T < t_0)$ for one-sided left-tail hypothesis tests (i.e. where $H_1$ is of the form $\mu < \mu_0$ in the case of testing the mean);
@@ -138,8 +138,8 @@ The area under the curve in the relevant tail(s) of the null distribution define
 
 Hence, if the $p$-value is very small, it might means that
 
-- we observed a miracle; or,
-- the null hypothesis might be wrong.
+- *either* we observed a miracle,
+- *or* the null hypothesis might be wrong.
 
 In practice, we can show that rejecting the null hypothesis when $p \le \alpha$ also procudes a decision-making rule that guarantees a probability of type I error at most $\alpha$.
 
@@ -152,13 +152,18 @@ knitr::include_graphics("images/pvalue-alpha.png")
 
 #### Statistical power of a test
 
-The statistical power of a test is an important aspect of the test and often used to compare test performances. It is the probability of being able to correctly reject the null hypothesis, *i.e.* to reject it when it is indeed wrong. It is often denoted by $\mu$. In terms of events, it is defined by:
+The statistical power of a test is an important aspect of the test because
+
+- it is an important performance indicator to compare different testing procedures (observe that there is not a unique statistic to perform a given test);
+- it is often used in clinical trials or other types of trials (e.g. crash tests) to calibrate the number of observations required to achieve a given statistical power.
+
+It is the probability of being able to correctly reject the null hypothesis, *i.e.* to reject it when it is indeed wrong. It is often denoted by $\mu$. In terms of events, it is defined by:
 
 $$ \mu := \mathbb{P}(\mbox{Reject } H_0 | H_1 \mbox{ is true}). $$
 
 **Note.** The statistical power $\mu$ is equal to $1 - \beta$, where $\beta$ is the greek letter often used to designate the probability of type II errors, $\beta := \mathbb{P}(\mbox{Do not reject } H_0 | H_1 \mbox{ is true})$.
 
-Power calculations are difficult because it requires to put ourselve under the alternative hypothesis, which is often of the form $\mu > \mu_0$ or $\mu < \mu_0$ or $\mu \ne \mu_0$. In other words, you often lack information to compute probabilities assuming that the alternative hypothesis is true. You need to specify several alternative hypothesis and see how the power evolves when exploring several alternatives.
+Power calculations are difficult because it requires to put ourselve under the alternative hypothesis, which is often of the form $\mu > \mu_0$ or $\mu < \mu_0$ or $\mu \ne \mu_0$. In other words, you often lack information to compute probabilities assuming that the alternative hypothesis is true. You need to specify several alternative hypothesis and see how the power evolves when exploring several alternatives. You need to have an idea of the order of the difference you might be expecting between, say, a true mean and a nominal value, or of the magnitude of the difference between two population means, etc.
 
 ## Compliance testing
 
@@ -306,7 +311,7 @@ $$ T \stackrel{H_0}{\sim} \mathcal{S}tudent(m), $$
 
 where the degree of freedom $m$ of the Student's law is obtained either via:
 
-$$ m_\mathrm{Welch} = \frac{\left( \frac{S_X^2}{n_X} + \frac{S_Y^2}{n_Y} \right)^2}{\frac{\left( \frac{S_X^2}{n_X} \right)^2}{n_X-1} + \frac{\left( \frac{S_Y^2}{n_Y} \right)^2}{n_Y-1}}, $$
+$$ m_\mathrm{Welch} = \frac{\left( \frac{S_X^2}{n_X} + \frac{S_Y^2}{n_Y} \right)^2}{\frac{\left( \frac{S_X^2}{n_X} \right)^2}{n_X-1} + \frac{\left( \frac{S_Y^2}{n_Y} \right)^2}{n_Y-1}}; \quad \mbox{or}, $$
 
 $$ m_\mathrm{Satterthwaite} = \frac{(n_X-1)(n_Y-1)}{(n_X-1) C_Y^2 + (n_Y-1) C_X^2}, \quad \mbox{with} \quad C_X = \frac{\frac{S_X^2}{n_X}}{\frac{S_X^2}{n_X} + \frac{S_Y^2}{n_Y}} \quad \mbox{and} \quad C_Y = 1 - C_X. $$
 
@@ -467,7 +472,6 @@ exam <- tibble::tibble(
   Id = 1:30, 
   Status = sample(c("Healthy", "Sick"), 30, replace = TRUE, prob = c(1 - p, p))
 )
-exam
 ```
 
 Let $p$ be the probability that a child from the same school is sick. Determine:

@@ -211,8 +211,8 @@ $(document).ready(function () {
 </div>
 <div id="section-p-value" class="section level4">
 <h4>p-value</h4>
-<p>Another approach pertains to basing our decision on the remaining area under the curve in the relevant tail(s) of the null distribution of <span class="math inline">\(T\)</span>, <em>i.e.</em> to say if I cut the tail where at the point calculated from the observed sample, what does that leave on the relevant tail(s)?</p>
-<p>The area under the curve in the relevant tail(s) of the null distribution defined by the value of the test statistic calculated from the observed sample is called the <strong>p-value</strong>. It measures <strong>what was the probability of observing the data we did observe, or data even more in favor of the alternative hypothesis, assuming that the null hypothesis is true</strong>. Formally, if <span class="math inline">\(t_0\)</span> is the value of the test statistic calculated from the observed sample, then:</p>
+<p>Another approach pertains to basing our decision on the remaining area under the curve in the relevant tail(s) of the null distribution of <span class="math inline">\(T\)</span> for values more extreme than the one calculated from the observed sample.</p>
+<p>The area under the curve in the relevant tail(s) of the null distribution where we find values more extreme than the one calculated from the observed sample defined by the value of the test statistic calculated from the observed sample is called the <strong>p-value</strong>. It measures <strong>what was the probability of observing the data we did observe, or data even more in favor of the alternative hypothesis, assuming that the null hypothesis is true</strong>. Formally, if <span class="math inline">\(t_0\)</span> is the value of the test statistic calculated from the observed sample, then:</p>
 <ul>
 <li><span class="math inline">\(p = \mathbb{P}_{H_0}(T &gt; t_0)\)</span> for one-sided right-tail hypothesis tests (i.e. where <span class="math inline">\(H_1\)</span> is of the form <span class="math inline">\(\mu &gt; \mu_0\)</span> in the case of testing the mean);</li>
 <li><span class="math inline">\(p = \mathbb{P}_{H_0}(T &lt; t_0)\)</span> for one-sided left-tail hypothesis tests (i.e. where <span class="math inline">\(H_1\)</span> is of the form <span class="math inline">\(\mu &lt; \mu_0\)</span> in the case of testing the mean);</li>
@@ -220,8 +220,8 @@ $(document).ready(function () {
 </ul>
 <p>Hence, if the <span class="math inline">\(p\)</span>-value is very small, it might means that</p>
 <ul>
-<li>we observed a miracle; or,</li>
-<li>the null hypothesis might be wrong.</li>
+<li><em>either</em> we observed a miracle,</li>
+<li><em>or</em> the null hypothesis might be wrong.</li>
 </ul>
 <p>In practice, we can show that rejecting the null hypothesis when <span class="math inline">\(p \le \alpha\)</span> also procudes a decision-making rule that guarantees a probability of type I error at most <span class="math inline">\(\alpha\)</span>.</p>
 </div>
@@ -231,10 +231,15 @@ $(document).ready(function () {
 </div>
 <div id="section-statistical-power-of-a-test" class="section level4">
 <h4>Statistical power of a test</h4>
-<p>The statistical power of a test is an important aspect of the test and often used to compare test performances. It is the probability of being able to correctly reject the null hypothesis, <em>i.e.</em> to reject it when it is indeed wrong. It is often denoted by <span class="math inline">\(\mu\)</span>. In terms of events, it is defined by:</p>
+<p>The statistical power of a test is an important aspect of the test because</p>
+<ul>
+<li>it is an important performance indicator to compare different testing procedures (observe that there is not a unique statistic to perform a given test);</li>
+<li>it is often used in clinical trials or other types of trials (e.g. crash tests) to calibrate the number of observations required to achieve a given statistical power.</li>
+</ul>
+<p>It is the probability of being able to correctly reject the null hypothesis, <em>i.e.</em> to reject it when it is indeed wrong. It is often denoted by <span class="math inline">\(\mu\)</span>. In terms of events, it is defined by:</p>
 <p><span class="math display">\[ \mu := \mathbb{P}(\mbox{Reject } H_0 | H_1 \mbox{ is true}). \]</span></p>
 <p><strong>Note.</strong> The statistical power <span class="math inline">\(\mu\)</span> is equal to <span class="math inline">\(1 - \beta\)</span>, where <span class="math inline">\(\beta\)</span> is the greek letter often used to designate the probability of type II errors, <span class="math inline">\(\beta := \mathbb{P}(\mbox{Do not reject } H_0 | H_1 \mbox{ is true})\)</span>.</p>
-<p>Power calculations are difficult because it requires to put ourselve under the alternative hypothesis, which is often of the form <span class="math inline">\(\mu &gt; \mu_0\)</span> or <span class="math inline">\(\mu &lt; \mu_0\)</span> or <span class="math inline">\(\mu \ne \mu_0\)</span>. In other words, you often lack information to compute probabilities assuming that the alternative hypothesis is true. You need to specify several alternative hypothesis and see how the power evolves when exploring several alternatives.</p>
+<p>Power calculations are difficult because it requires to put ourselve under the alternative hypothesis, which is often of the form <span class="math inline">\(\mu &gt; \mu_0\)</span> or <span class="math inline">\(\mu &lt; \mu_0\)</span> or <span class="math inline">\(\mu \ne \mu_0\)</span>. In other words, you often lack information to compute probabilities assuming that the alternative hypothesis is true. You need to specify several alternative hypothesis and see how the power evolves when exploring several alternatives. You need to have an idea of the order of the difference you might be expecting between, say, a true mean and a nominal value, or of the magnitude of the difference between two population means, etc.</p>
 </div>
 </div>
 </div>
@@ -334,7 +339,7 @@ $(document).ready(function () {
 <p><strong>Null distribution:</strong></p>
 <p><span class="math display">\[ T \stackrel{H_0}{\sim} \mathcal{S}tudent(m), \]</span></p>
 <p>where the degree of freedom <span class="math inline">\(m\)</span> of the Student’s law is obtained either via:</p>
-<p><span class="math display">\[ m_\mathrm{Welch} = \frac{\left( \frac{S_X^2}{n_X} + \frac{S_Y^2}{n_Y} \right)^2}{\frac{\left( \frac{S_X^2}{n_X} \right)^2}{n_X-1} + \frac{\left( \frac{S_Y^2}{n_Y} \right)^2}{n_Y-1}}, \]</span></p>
+<p><span class="math display">\[ m_\mathrm{Welch} = \frac{\left( \frac{S_X^2}{n_X} + \frac{S_Y^2}{n_Y} \right)^2}{\frac{\left( \frac{S_X^2}{n_X} \right)^2}{n_X-1} + \frac{\left( \frac{S_Y^2}{n_Y} \right)^2}{n_Y-1}}; \quad \mbox{or}, \]</span></p>
 <p><span class="math display">\[ m_\mathrm{Satterthwaite} = \frac{(n_X-1)(n_Y-1)}{(n_X-1) C_Y^2 + (n_Y-1) C_X^2}, \quad \mbox{with} \quad C_X = \frac{\frac{S_X^2}{n_X}}{\frac{S_X^2}{n_X} + \frac{S_Y^2}{n_Y}} \quad \mbox{and} \quad C_Y = 1 - C_X. \]</span></p>
 <p><strong>R function:</strong> <a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/t.test.html">t.test()</a></p>
 <p><strong>Validity:</strong> Relies on the normality assumption and independence within and between samples.</p>
@@ -446,8 +451,7 @@ n &lt;- 30
 exam &lt;- tibble::tibble(
   Id = 1:30, 
   Status = sample(c(&quot;Healthy&quot;, &quot;Sick&quot;), 30, replace = TRUE, prob = c(1 - p, p))
-)
-exam</code></pre>
+)</code></pre>
 </div>
 <p>Let <span class="math inline">\(p\)</span> be the probability that a child from the same school is sick. Determine:</p>
 <ul>
