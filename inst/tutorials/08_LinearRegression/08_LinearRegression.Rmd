@@ -122,52 +122,49 @@ Cook's distance does not help in the above two situations, but it does not reall
 
 ## Model diagnosis
 
-### Toy examples in Wonderland
+### Toy examples
 
-**The most important and first thing you should do before any attempt to modeling is to take a look at your data.**
+Let us generate two data sets: one for which things will go well and one for which things will go sideways. The following code produces the desired data sets and put them together into a tidy tibble:
 
-Let us generate two data sets: one for which things will go well and one for which things will go sideways. The following code produces the desired data sets, put them together into a tidy tibble and visualize them:
-
-```{r df-non-linear, fig.align='center'}
+```{r nl-data-gen}
 set.seed(1234)
 
 n <- 1000      # sample size
 x <- seq(0, 100, length.out = n)
 first_data <- 3 + 0.1 * x + rnorm(n, sd = 3)
 second_data <- 3 + 0.1 * x + 10 * sin(x / 3) + rnorm(n, sd = 3)
-mod1 <- lm(first_data ~ x)
-mod2 <- lm(second_data ~ x)
 
 full_data <- tibble::tibble(x, first_data, second_data) %>%
   tidyr::pivot_longer(cols = -x, values_to = "y")
+```
 
+**The most important and first thing you should do before any attempt to modeling is to take a look at your data.**
+
+```{r nl-data-viz, fig.align='center'}
 full_data %>%
   ggplot(aes(x, y, col = name)) +
   geom_point(alpha = 0.1) +
-  geom_smooth(method = "lm") +
+  geom_smooth(method = "lm", se = FALSE) +
   facet_grid(cols = vars(name)) + 
   labs(
     title = "Scatterplots of y against x.",
     subtitle = "By dataset."
   ) + 
   theme_bw() + 
-  theme(legend.position = "none")
-```
-
-```{r prep-nl-data}
-set.seed(1234)
-
-n <- 1000      # sample size
-x <- seq(0, 100, length.out = n)
-first_data <- 3 + 0.1 * x + rnorm(n, sd = 3)
-second_data <- 3 + 0.1 * x + 10 * sin(x / 3) + rnorm(n, sd = 3)
-mod1 <- lm(first_data ~ x)
-mod2 <- lm(second_data ~ x)
+  theme(legend.position = "none") + 
+  scale_color_viridis_d(option = "cividis")
 ```
 
 As you can see, both data sets seem to generate the same linear regression predictions, although we already clearly understand which one will go sideways...
 
-Let us go deeper now. If one really want to fit a linear regression model to explain `y` in terms of `x` in both situations, you can use the function `lm()` that does all the computations for you as illustrated in the code chunk above.
+Let us go deeper now. If one really want to fit a linear regression model to explain `y` in terms of `x` in both situations, you can use the function `lm()` that does all the computations for you:
+
+```{r nl-data-mod}
+mod1 <- lm(first_data ~ x)
+mod1
+mod2 <- lm(second_data ~ x)
+mod2
+```
 
 Before going into the syntax and the content of the `lm()` function, remember that, **even though R facilitates computations, it does not verify for you that the assumptions required by the model are met by your data**!
 
@@ -175,12 +172,103 @@ This is where *model diagnosis* comes into play. You can almost entirely diagnos
 
 Let us diagnose the first model:
 
-```{r diagnose-mod1, fig.align='center', exercise=TRUE, exercise.setup = "prep-nl-data"}
+```{r diagnose-mod1, fig.align='center'}
+lindia::gg_diagnose(fitted.lm = mod1, plot.all = FALSE)
+```
 
+*A note on Cook's distance threshold.* Some texts recommend to flag as outliers observations with a Cook's distance greater than $1$. Other textbooks use the theshold $4/n$. John Fox, in his booklet on regression diagnostics is rather cautious when it comes to giving numerical thresholds. He advises the use of graphics and to examine in closer details the points with
+
+> values of D that are substantially larger than the rest (thresholds should just be used to enhance graphical displays), John Fox (1991), *Regression Diagnostics: An Introduction*, Sage Publications.
+
+A theoretically justified approach can be achieved by looking at the distributional properties. If the error vector $\boldsymbol{\varepsilon}$ follows a multivariate Gassian distribution:
+
+$$ \boldsymbol{\varepsilon} \sim \mathcal{N}_n(\mathbf{0}, \sigma^2 I_n), $$
+
+then it can be [proved](https://stats.stackexchange.com/questions/400217/squared-internally-studentized-residual-over-n-p-is-beta-distributed) that each squared standardized residual follows a *Beta distribution*:
+
+$$ \frac{r_i^2}{n - k - 1} \sim \mathcal{B}eta \left( \frac{1}{2}, \frac{n - k - 2}{2} \right). $$
+
+Thus we end up with the following distribution for Cook's distance:
+
+$$ \frac{k+1}{n - (k+1)} \frac{1 - h_{ii}}{h_{ii}} D_i \sim \mathcal{B}eta \left( \frac{1}{2}, \frac{n - k - 2}{2} \right). $$
+
+As a result, in average, we should not observe more than $n_\mathrm{authorized} = \alpha n$ observations having a Cook's distance that exceeds the quantile of order $1 - \alpha$ of the above Beta distribution. Let $n_\mathrm{beta}$ be the number of observations with a Cook's distance that *effectively* exceeds the quantile of order $1 - \alpha$ of the above Beta distribution. We can finally flag as outliers those $n_\mathrm{beta} - n_\mathrm{authorized}$ observations with highest Cook's distance, if any.
+
+```{r diagnose-mod1-cook, fig.align='center'}
+lindia::gg_cooksd(fitted.lm = mod1, threshold = "theoretical")
 ```
 
 Let us now diagnose the second model:
 
-```{r diagnose-mod2, fig.align='center', exercise=TRUE, exercise.setup = "prep-nl-data"}
-
+```{r diagnose-mod2, fig.align='center'}
+lindia::gg_diagnose(fitted.lm = mod2, plot.all = FALSE)
 ```
+
+```{r diagnose-mod2-cook, fig.align='center'}
+lindia::gg_cooksd(fitted.lm = mod2, threshold = "theoretical")
+```
+
+## Box-Cox transformations and beyond
+
+[topo](https://www.ime.usp.br/~abe/lista/pdfm9cJKUmFZp.pdf)
+
+The purpose of transforming data is whenever your response random vector $\mathbf{Y}$ cannot be assumed to follow a Gaussian distribution. It is, in some cases, possible to find a *parametric* transformation $h_\lambda: \mathbb{R} \to \mathbb{R}$ such that $h_\lambda(\mathbf{Y}) \sim \mathcal{N}_n(\mathbb{X} \boldsymbol{\beta}, \sigma^2 \mathbb{I}_n)$.
+
+Once you specify the parametric family of transformations to look at, you can then estimate the optimal parameter(s) for instance by maximizing the likelihood.
+
+### Box-Cox Transformation
+
+The first family of transformations was proposed by Box and Cox, in their 1964 seminal paper on the topic, which gave its name to the Box-Cox transformations:
+
+$$ h_\lambda^\mathrm{BC}(y) = \begin{cases} \frac{(y + c)^\lambda - 1}{\lambda}, & \mbox{if } \lambda \ne 0 \\ \log(y + c), & \mbox{if } \lambda = 0, \end{cases} $$
+where $c$ is a constant such that $y + c > 0$, for any $y$.
+
+### Yeo-Johnson Transformation
+
+Since then, there has been a lot of variants around this family of transformations. The Yeo-Johnson transformation is particularly popular because it has a clear interpretation: *it minimizes the Kullback-Leibler distance between the normal distribution and the transformed distribution*. The corresponding family of transformations reads:
+
+$$ h_\lambda^\mathrm{YJ}(y) = \begin{cases} \frac{(y + 1)^\lambda - 1}{\lambda}, & \mbox{if } \lambda \ne 0, \quad y \ge 0, \\ \log(y + 1), & \mbox{if } \lambda = 0, \quad y \ge 0, \\ \frac{(1 - y)^{2 - \lambda} - 1}{\lambda - 2}, & \mbox{if } \lambda \ne 2, \quad y < 0, \\ -\log(1 - y), & \mbox{if } \lambda = 2, \quad y < 0. \end{cases} $$
+It also presents the advantage of naturally accommodating negative values w.r.t. the Box-Cox transformation.
+
+### Implementations in R
+
+In the [**recipes**](https://tidymodels.github.io/recipes/index.html), check the functions [step_BoxCox](https://tidymodels.github.io/recipes/reference/step_BoxCox.html) and [step_YeoJohnson](https://tidymodels.github.io/recipes/reference/step_YeoJohnson.html)
+
+## Building more complex models
+
+### Model specification
+
+```{r model-spec, eval=FALSE}
+mod <- lm(y ~ I(log(co1)) + co2 * co3 + co4 * ca, data = fancy_data)
+```
+
+- the `I()` syntax,
+- Interaction terms
+- the `.` to select all vars, and `.^2` to include all interactions as well
+- the equivalence `A * B` and `A + B + A:B`
+
+### Understanding the output of `lm()`
+
+### Exploring interactions
+
+The [**interactions**](https://interactions.jacob-long.com) package, with [vignette](https://cran.r-project.org/web/packages/interactions/vignettes/interactions.html).
+
+### Testing linear hypotheses
+
+https://www.r-bloggers.com/introducing-olsrr/
+
+#### Multicollinearity
+
+#### Model selection
+
+Here we present the simple *forward* and *backward* procedures to model selection for linear regression models. This is implemented in the R package **stats** via the function `step()`.
+
+- `direction = "backward"`. It starts with the full specified model. It removes one at a time predictors, by order of the predictors (n-way interactions first, then n-1, etc. to finish with main effects), using the AIC which combines fitting term (how well the model explains the data) and model complexity (how many parameters does the model require to estimate). The idea is that the more parameters you make your model depend on the better it will explain the data but, at some point, you will probably overfit the data. In addition, simpler models are easier to interpret and more practical.
+
+- `direction = "forward"`. ?
+
+- `direction = "both"`. ?
+
+Note that there are many other ways to perform model selection. One [interesting and funny approach](https://onlinelibrary.wiley.com/doi/pdf/10.1002/asmb.446) borrows ideas from co-operative game theory: it uses the Shapley–Shubik power index, which was formulated by Lloyd Shapley and Martin Shubik in 1954 to measure the powers of players in a voting game. In the context of regression analysis, it is used to measure the importance of predictors in explaining the response and it has been shown to provide consistent results in the presence of multicollinearity.
+
+## Exercises
