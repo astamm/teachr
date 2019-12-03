@@ -186,7 +186,7 @@ broom::glance(first_model)
 
 This function retrieves some classic *global measures* of the regression fit:
 
-- **r.squared** and **adj.r.squared**. The coefficient of determination $R^2$ and its adjusted version $R_\mathrm{adj}^2$ aim at estimating the proportion of variance of the response variable $\mathbf{Y}$ explained by the fitted model $\widehat{\mathbf{Y}}$. Mathematically, they aim at estimating 
+- **r.squared** and **adj.r.squared** (TO DO: see `qnscombe` data set for caveat of using it alone). The coefficient of determination $R^2$ and its adjusted version $R_\mathrm{adj}^2$ aim at estimating the proportion of variance of the response variable $\mathbf{Y}$ explained by the fitted model $\widehat{\mathbf{Y}}$. Mathematically, they aim at estimating 
 
 $$ \frac{\sigma_\widehat{\mathbf{Y}}^2}{\sigma_\mathbf{Y}^2} = 1 - \frac{\sigma_\widehat{\boldsymbol{\varepsilon}}^2}{\sigma_\mathbf{Y}^2}. $$ 
 
@@ -257,9 +257,24 @@ broom::tidy(first_model)
 
 This function retrieves information about the estimated coefficients and the distribution of the corresponding estimators:
 
-- `term`.
-- `estimate` and `std.error`.
-- `statistic` and `p.value`.
+- `term`. This gives the name of the predictor to which the coefficient is associated.
+- `estimate` and `std.error`. The `estimate` of each coefficients is produced by the estimator
+
+$$ \widehat{\boldsymbol{\beta}} = (\mathbb{X}^\top \mathbb{X})^{-1} \mathbb{X}^\top \mathbf{Y}, $$
+
+which is such that 
+
+$$ \mathbb{E}[\widehat{\boldsymbol{\beta}}] = \boldsymbol{\beta} \quad \mbox{and} \quad \mathrm{Cov}[\widehat{\boldsymbol{\beta}}] = \sigma^2 (\mathbb{X}^\top \mathbb{X})^{-1}. $$
+
+In particular, the variance of a single coefficient estimator is given by:
+
+$$ \mathrm{Var}[\widehat{\beta}_j] = \frac{\sigma^2}{\sum_{i=1}^n x_{ij}^2}. $$
+
+The `std.error` is the square root of an estimate of that variance produced by the following estimator:
+
+$$ \widehat{\mathrm{Var}[\widehat{\beta}_j]} = \frac{\widehat{\sigma^2}}{\sum_{i=1}^n x_{ij}^2} = \frac{1}{n - k - 1} \frac{\widehat{\boldsymbol{\varepsilon}}^\top \widehat{\boldsymbol{\varepsilon}}}{\mathbf{x}_j^\top \mathbf{x}_j}. $$
+
+- `statistic` and `p.value`. These columns report the value of a test statistic from the observed data and associated $p$-value for testing $H_0: \beta_j = 0$ vs. $H_1: \beta_j \ne 0$. The `statistic` is nothing but `estimate` / `std.error`. Under the null hypothesis and the assumption of normality of the residuals, it follows a Student's distribution with $n - k - 1$ degrees of freedom, hence the $p$-value.
 
 [**broom::augment()**](https://broom.tidyverse.org/reference/augment.lm.html)
 
@@ -271,12 +286,40 @@ This function retrieves information about each individual observations and the d
 
 - `first_data`. These are the observed responses. Note that the name of this column is given by the name of your response variable.
 - `x`. These are the values taken by the predictor in correspondence to each observed response. Note that you might here have more than one column depending on the number of predictors you put in your model. Again, the name of the variables here matches the name of your predictors.
-- `.fitted` and `.se.fit`.
-- `.resid`
-- `.hat`
-- `.sigma`
-- `.cooksd`
-- `.std.resid`
+- `.fitted` and `.se.fit`. The `.fitted` column is produced by the estimator
+
+$$ \widehat{\mathbf{Y}} = \mathbb{H} \mathbf{Y} = \mathbb{X} (\mathbb{X}^\top \mathbb{X})^{-1} \mathbb{X}^\top \mathbf{Y}, $$
+
+which is such that 
+
+$$ \mathbb{E}[\widehat{\mathbf{Y}}] = \mathbb{X} \boldsymbol{\beta} \quad \mbox{and} \quad \mathrm{Cov}[\widehat{\mathbf{Y}}] = \sigma^2 \mathbb{X} (\mathbb{X}^\top \mathbb{X})^{-1} \mathbb{X}^\top = \sigma^2 \mathbb{H}. $$
+
+In particular, the variance of a single model response estimator is given by:
+
+$$ \mathrm{Var}[\widehat{Y}_i] = \sigma^2 h_{ii}. $$
+
+The `.se.fit` is the square root of an estimate of that variance produced by the following estimator:
+
+$$ \widehat{\mathrm{Var}[\widehat{Y}_i]} = \widehat{\sigma^2} h_{ii}. $$
+
+- `.resid`. These are the residuals computed via:
+
+$$ \widehat{\boldsymbol{\varepsilon}} = \mathbf{Y} - \widehat{\mathbf{Y}} = (\mathbb{I}_n - \mathbb{H}) \mathbf{Y}. $$
+
+- `.hat`. These are the leverage scores, *i.e.* the diagonal entries of the hat matrix $\mathbb{H}$.
+- `.sigma`. These are the square root of individual error variance estimates obtained via the following estimator:
+
+$$ \widehat{\sigma_i^2} = \frac{\widehat{\boldsymbol{\varepsilon}}_{(-i)}^\top \widehat{\boldsymbol{\varepsilon}}_{(-i)}}{n - k - 2}, $$
+
+where $\widehat{\boldsymbol{\varepsilon}}_{(-i)}$ is the vector of residuals without the $i$-*th* residual.
+
+- `.std.resid`. These are the standardized residuals computed via:
+
+$$ r_i = \frac{\widehat{\varepsilon}_i}{\sqrt{\widehat{\sigma^2} (1 - h_{ii})}}. $$
+
+- `.cooksd`. These are the Cook's distances computed via:
+
+$$ D_i = \frac{r_i^2}{k + 1} \frac{h_{ii}}{1 - h_{ii}}. $$
 
 ### Third step: Model Diagnosis
 
@@ -290,7 +333,17 @@ Let us diagnose the first model:
 lindia::gg_diagnose(fitted.lm = first_model, plot.all = FALSE)
 ```
 
-*A note on Cook's distance threshold.* Some texts recommend to flag as outliers observations with a Cook's distance greater than $1$. Other textbooks use the theshold $4/n$. John Fox, in his booklet on regression diagnostics is rather cautious when it comes to giving numerical thresholds. He advises the use of graphics and to examine in closer details the points with
+**Summary: How to use the diagnosis plots?**
+
+- *Histogram of residuals* and *Normal QQ plot*: to check the normality of residuals;
+- *Residuals vs. predictors* and *Residuals vs. fitted values*: to check for non-linearity not accounted for;
+- *Scale-Location plot*: to check the homoskedasticity assumption (constant variance);
+- *Residuals vs. leverage*: to check the zero-mean assumption on the residuals and to spot potential outliers in the top and bottom right corners;
+- *Cook's distance plot*: to spot potential outliers as flagged using a variety of thresholds.
+
+**A note on Cook's distance threshold.** 
+
+Some texts recommend to flag as outliers observations with a Cook's distance greater than $1$. Other textbooks use the theshold $4/n$. John Fox, in his booklet on regression diagnostics is rather cautious when it comes to giving numerical thresholds. He advises the use of graphics and to examine in closer details the points with
 
 > values of D that are substantially larger than the rest (thresholds should just be used to enhance graphical displays), John Fox (1991), *Regression Diagnostics: An Introduction*, Sage Publications.
 
@@ -311,6 +364,8 @@ As a result, in average, we should not observe more than $n_\mathrm{authorized} 
 ```{r diagnose-mod1-cook, fig.align='center'}
 lindia::gg_cooksd(fitted.lm = first_model, threshold = "theoretical")
 ```
+
+**Application of model diagnosis to the second data set.**
 
 We can now apply all of the above to the second simulated data to see what happens.
 
