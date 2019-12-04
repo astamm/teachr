@@ -77,15 +77,15 @@ $$ \widehat{\sigma^2} := \frac{(\mathbf{Y} - \widehat{\mathbf{Y}})^\top (\mathbf
 
 We can define the **residuals** of a fitted linear regression model as the difference between the observed and fitted response values:
 
-$$ \mathbf{e} := \mathbf{y} - \widehat{\mathbf{y}} = (\mathbb{I}_n - \mathbb{H}) \mathbf{y}. $$
+$$ \widehat{\boldsymbol{\varepsilon}} := \mathbf{y} - \widehat{\mathbf{y}} = (\mathbb{I}_n - \mathbb{H}) \mathbf{y}. $$
 
-As a result, we still do have $\mathbb{\mathbf{e}} = \mathbf{0}$ but we no longer have residuals with constant variance because $\mathbb{V}\mbox{ar}[e_i] = \sigma^2 (1 - h_{ii})$ and residuals are not uncorrelated anymore since $\mbox{Cov}(e_i, e_j) = -h_{ij}$, for $i \ne j$.
+As a result, we still do have $\mathbb{E}[\widehat{\boldsymbol{\varepsilon}}] = \mathbf{0}$ but we no longer have residuals with constant variance because $\mathbb{V}\mbox{ar}[\widehat{\varepsilon}_i] = \sigma^2 (1 - h_{ii})$ and residuals are not uncorrelated anymore since $\mbox{Cov}(\widehat{\varepsilon}_i, \widehat{\varepsilon}_j) = -h_{ij}$, for $i \ne j$.
 
 **Standardized residuals** are a way of estimating the error for a particular data point which takes into account the leverage/influence of the point. These are sometimes called *internally studentized residuals*
 
-$$ r_i := \frac{e_i}{s(e_i)} = \frac{e_i}{\sqrt{\widehat{\sigma^2} \left( 1 - h_{ii} \right)}}. $$
+$$ r_i := \frac{\widehat{\varepsilon}_i}{s(\widehat{\varepsilon}_i)} = \frac{\widehat{\varepsilon}_i}{\sqrt{\widehat{\sigma^2} \left( 1 - h_{ii} \right)}}. $$
 
-The motivation behind standardized residuals is that even though our model assumed homoscedasticity with an *i.i.d.* error term with fixed variance $\varepsilon \sim \mathcal{N}(0, \sigma^2)$, the distribution of the residuals $e_i$ cannot be i.i.d. because the sum of residuals is always *exactly* zero. In fact, $\mbox{Cov}(\mathbf{e}) = I - H$.
+The motivation behind standardized residuals is that even though our model assumed homoscedasticity with an *i.i.d.* error term with fixed variance $\varepsilon \sim \mathcal{N}(0, \sigma^2)$, the distribution of the residuals $\widehat{\varepsilon}_i$ cannot be i.i.d. because the sum of residuals is always *exactly* zero. In fact, $\mbox{Cov}(\widehat{\boldsymbol{\varepsilon}}) = I - H$.
 
 **Studentized residuals** for any given data point are calculated from a model fit to every other data point except the one in question. This is variously called the *externally studentized residuals*, *deleted residuals* or *jackknifed residuals*.
 
@@ -186,7 +186,7 @@ broom::glance(first_model)
 
 This function retrieves some classic *global measures* of the regression fit:
 
-- **r.squared** and **adj.r.squared** (TO DO: see `qnscombe` data set for caveat of using it alone). The coefficient of determination $R^2$ and its adjusted version $R_\mathrm{adj}^2$ aim at estimating the proportion of variance of the response variable $\mathbf{Y}$ explained by the fitted model $\widehat{\mathbf{Y}}$. Mathematically, they aim at estimating 
+- **r.squared** and **adj.r.squared** (TO DO: see `anscombe` data set for caveat of using it alone). The coefficient of determination $R^2$ and its adjusted version $R_\mathrm{adj}^2$ aim at estimating the proportion of variance of the response variable $\mathbf{Y}$ explained by the fitted model $\widehat{\mathbf{Y}}$. Mathematically, they aim at estimating 
 
 $$ \frac{\sigma_\widehat{\mathbf{Y}}^2}{\sigma_\mathbf{Y}^2} = 1 - \frac{\sigma_\widehat{\boldsymbol{\varepsilon}}^2}{\sigma_\mathbf{Y}^2}. $$ 
 
@@ -388,40 +388,212 @@ lindia::gg_cooksd(fitted.lm = second_model, threshold = "theoretical")
 
 ### Model specification
 
+**First, you need a piece of paper or a blackboard to write down properly the model that you intend to fit.**
+
+Next, R can help you with the fitting by doing the maths through the function `lm()` to which you must pass a [**formula**](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/formula.html) object in the following manner:
+
 ```{r model-spec, eval=FALSE}
-mod <- lm(y ~ I(log(co1)) + co2 * co3 + co4 * ca, data = fancy_data)
+mod <- lm(formula = response ~ predictors, data = fancy_data)
 ```
 
-- the `I()` syntax,
-- Interaction terms
-- the `.` to select all vars, and `.^2` to include all interactions as well
-- the equivalence `A * B` and `A + B + A:B`
+The first argument is a [**formula**](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/formula.html). There are two parts to a formula separated by the `~` operator. For regression modeling with a unique response variable, they are structured like this:
+
+- the left-hand side of `~` must contain the response variable as named in the atomic vector storing its values or in the data set containing it;
+- the right-hand side specifies the predictors and will therefore be a combination of potentially transformed variables from your data set (or from atomic vectors defined in your R enviornment).
+
+To get the proper syntax for the rhs of the formula, you should be know the set of allowed operators that have a specific interpretation by R when used within a formula:
+
+- `+`: for adding terms.
+- `-`: for removing terms.
+- `:`: for adding interaction terms only.
+- `*`: for crossing variables, *i.e.* adding variables and their interactions.
+- `%in%`: for nesting variables, *i.e.* adding one variable and its interaction with another.
+- `^`: for limiting variable crossing to a specified order
+- `.`: for adding all other variables in the matrix that have not yet been included in the model.
+
+In regression analysis, we are not interested in the case when all predictors are categorical variables. This is more about grouping the data and looking at the average response value per group. So let us assume that there is at least one continuous predictor that, in absence of context, will be denoted by `x`. Also, linear regression assumes that the response variable is a continuous variable that will be denoted by `y` in absence of context.
+
+The following table summarizes the effect of the some of the above operators when adding a variable `z` to the model predictors. When `z` is categorical, we assume that it can take $h$ unique possible values $z_0, z_1, \dots, z_{h-1}$.
+
+Type of `z` | Formula             | Model
+----------- | ------------------- | --------------------
+Continuous  | `y ~ x + z`         | $Y = \beta_0 + \beta_1 x + \beta_2 z + \varepsilon$
+Continuous  | `y ~ x : z`         | $Y = \beta_0 + \beta_1 x z + \varepsilon$
+Continuous  | `y ~ x + z + x : z` | $Y = \beta_0 + \beta_1 x + \beta_2 z + \beta_3 x z + \varepsilon$
+Continuous  | `y ~ x * z`         | $Y = \beta_0 + \beta_1 x + \beta_2 z + \beta_3 x z + \varepsilon$
+Categorical | `y ~ x + z`         | $Y = \beta_0^{(0)} + \sum_{\ell = 1}^{h-1} \beta_\ell^{(0)} \delta_{\{z = z_\ell\}} + \beta_1^{(1)} x + \varepsilon$
+Categorical | `y ~ x : z`         | $Y = \beta_0^{(0)} + \beta_1^{(1)} x + \sum_{\ell = 1}^{h-1} \beta_\ell^{(1)} x \delta_{\{z = z_\ell\}} + \varepsilon$
+Categorical | `y ~ x + z + x : z` | $Y = \beta_0^{(0)} + \sum_{\ell = 1}^{h-1} \beta_\ell^{(0)} \delta_{\{z = z_\ell\}} + \beta_0^{(1)} x + \sum_{\ell = 1}^{h-1} \beta_\ell^{(1)} x \delta_{\{z = z_\ell\}} + \varepsilon$
+Categorical | `y ~ x * z`         | $Y = \beta_0^{(0)} + \sum_{\ell = 1}^{h-1} \beta_\ell^{(0)} \delta_{\{z = z_\ell\}} + \beta_0^{(1)} x + \sum_{\ell = 1}^{h-1} \beta_\ell^{(1)} x \delta_{\{z = z_\ell\}} + \varepsilon$
+
+What strikes from the above table is that the natural multiplication of variables *within a formula* does not simply adds the product of the predictors in the model but also the predictors themselves. 
+
+What if you want to actually perform an arithmetic operation on your predictors to include a transformed predictor in your model? For example, you might want to include both $x$ and $x^2$ in your model. You have two options:
+
+1. You compute all of the (possibly transformed) predictors you want to include in your model beforehand and store them in the data set (remember `dplyr::mutate()` which will help you achieve this goal easily); or,
+2. You use the *as-is* operator `I()`. In this case, you instruct `lm()` that the operations declared within `I()` must be performed outside from the formula environment and before generating the design matrix for the model.
+
+**Examples: models for the `ggplot2::mpg` data set.**
+
+Let us see a couple of model examples on the `ggplot2::mpg` data set. First, let us see what is in the data set:
+
+```{r mpg-skim}
+skimr::skim(mpg)
+```
+
+Let us model the `hwy` (highway miles per gallon) variable as a function of `displ` (engine displacement, in litres), adding the categorical variable `drv` (front-wheel vs. rear-wheel vs. 4-wheel drive).
+
+First, visualize:
+
+```{r mpg-viz, fig.align='center'}
+mpg %>% 
+  ggplot(aes(displ, hwy, color = drv)) + 
+  geom_point() + 
+  theme_bw()
+```
+
+Note the names of the possible values of the categorical variable `drv`, which will help us in understanding the output of the `lm()` function later on:
+
+```{r mpg-drv-levels}
+unique(mpg$drv)
+```
+
+Let us define a first simple model and use `modelr::model_matrix()` to examine the design matrix $\mathbb{X}$ that `lm()` generates from the formula:
+
+```{r mpg-mod1}
+m1 <- hwy ~ displ + drv
+modelr::model_matrix(mpg, m1)
+mod1 <- lm(m1, mpg)
+broom::glance(mod1)
+broom::tidy(mod1)
+```
+
+Let us visualize the predictions from this model:
+
+```{r mpg-viz-mod1, fig.align='center'}
+mpg %>% 
+  modelr::add_predictions(mod1) %>% 
+  ggplot(aes(displ, hwy, color = drv)) + 
+  geom_point() + 
+  geom_line(aes(y = pred), size = 1) + 
+  theme_bw()
+```
+
+Even before looking at the diagnosis plots, this model is not that satisfactory because it is visible that, in each category of the `drv` variable, the relationship between `hwy` and `displ` is non-linear.
+
+We can try log-transforming `displ`:
+
+```{r mpg-mod2}
+m2 <- hwy ~ I(log(displ)) + drv
+mod2 <- lm(m2, mpg)
+broom::glance(mod2)
+broom::tidy(mod2)
+```
+
+And again visualize the predictions from this model:
+
+```{r mpg-viz-mod2, fig.align='center'}
+mpg %>% 
+  modelr::add_predictions(mod2) %>% 
+  ggplot(aes(displ, hwy, color = drv)) + 
+  geom_point() + 
+  geom_line(aes(y = pred), size = 1) + 
+  theme_bw()
+```
+
+We can additionnally estimate different slopes for each possible value of `drv`:
+
+```{r mpg-mod3}
+m3 <- hwy ~ I(log(displ)) * drv
+mod3 <- lm(m3, mpg)
+broom::glance(mod3)
+broom::tidy(mod3)
+```
+
+And again visualize the predictions from this model:
+
+```{r mpg-viz-mod3, fig.align='center'}
+mpg %>% 
+  modelr::add_predictions(mod3) %>% 
+  ggplot(aes(displ, hwy, color = drv)) + 
+  geom_point() + 
+  geom_line(aes(y = pred), size = 1) + 
+  theme_bw()
+```
+
+There is no built-in `geom_()` function in [**ggplot2**](https://ggplot2.tidyverse.org) for visualizing interactions.
+
+TO DO: introduce the modelr package somewhere
 
 ### Exploring interactions
 
-The [**interactions**](https://interactions.jacob-long.com) package, with [vignette](https://cran.r-project.org/web/packages/interactions/vignettes/interactions.html).
+See the [**interactions**](https://interactions.jacob-long.com) package, especially the [vignette](https://cran.r-project.org/web/packages/interactions/vignettes/interactions.html).
 
 ### Testing linear hypotheses
 
-https://www.r-bloggers.com/introducing-olsrr/
+TO DO: mention the [**oslrr**](https://www.r-bloggers.com/introducing-olsrr/) package somewhere.
 
 #### Multicollinearity
 
+**Sources.**
+
+- [Multicollinearity Essentials and VIF in R](http://www.sthda.com/english/articles/39-regression-model-diagnostics/160-multicollinearity-essentials-and-vif-in-r/).
+- [ggcorrplot: Visualization of a correlation matrix using ggplot2](http://www.sthda.com/english/wiki/ggcorrplot-visualization-of-a-correlation-matrix-using-ggplot2)
+
+**What is it?**
+
+In regression modeling with many predictors, two or more predictor variables might be **linearly** correlated with each other. This situation is referred as collinearity.
+
+There is an extreme situation, called multicollinearity, where collinearity exists between three or more variables even if no pair of variables has a particularly high linear correlation. This means that there is linear redundancy between predictor variables.
+
+In the presence of multicollinearity, the solution of the regression model becomes unstable because $\mathbb{X}^\top \mathbb{X}$ may become ill-conditioned, leading to artificially inflated variances and other problems.
+
+**Visualizing pairwise collinearity.**
+
+We can visualize pairwise collinearity issues with a correlation plot using the `ggcorrplot()` function from the [**ggcorrplot**](https://rpkgs.datanovia.com/ggcorrplot/) package, which offers the possibility of reordering the correlation matrix, *i.e.* rearranging variables to group them by blocks of *homogeneous* correlation values:
+
+```{r mc, fig.align='center'}
+mpg %>% 
+  modelr::model_matrix(mod2) %>% 
+  dplyr::select(-1) %>% 
+  cor() %>% 
+  ggcorrplot::ggcorrplot(
+    hc.order = TRUE, 
+    type = "lower",
+    lab = TRUE
+  )
+```
+
+**Detecting multicollinearity.**
+
+For a given predictor, multicollinearity can be assessed by computing a score called the *variance inflation factor* (VIF), which measures how much the variance of a regression coefficient is inflated due to multicollinearity in the model:
+
+$$ \mathrm{VIF}_j = \frac{1}{1 - R_j^2}, $$
+
+where $R_j^2$ is the coefficient of determination of the regression of the $j$-th predictor w.r.t. all the other predictors. The smallest possible value of VIF is 1 (absence of multicollinearity). As a rule of thumb, a VIF value that exceeds 5 or 10 indicates a problematic amount of collinearity.
+
+When faced to multicollinearity, the concerned variables should be removed, since the presence of multicollinearity implies that the information that this variable provides about the response is redundant in the presence of the other variables.
+
 #### Model selection
 
-Here we present the simple *forward* and *backward* procedures to model selection for linear regression models. This is implemented in the R package **stats** via the function `step()`.
+*Source:* [Stepwise regression](https://en.wikipedia.org/wiki/Stepwise_regression)
 
-- `direction = "backward"`. It starts with the full specified model. It removes one at a time predictors, by order of the predictors (n-way interactions first, then n-1, etc. to finish with main effects), using the AIC which combines fitting term (how well the model explains the data) and model complexity (how many parameters does the model require to estimate). The idea is that the more parameters you make your model depend on the better it will explain the data but, at some point, you will probably overfit the data. In addition, simpler models are easier to interpret and more practical.
+The two main approaches are:
 
-- `direction = "forward"`. ?
+- **Forward selection**, which involves starting with no variables in the model, testing the addition of each variable using a chosen model fit criterion, adding the variable (if any) whose inclusion gives the most statistically significant improvement of the fit, and repeating this process until none improves the model to a statistically significant extent.
+- **Backward elimination**, which involves starting with all candidate variables, testing the deletion of each variable using a chosen model fit criterion, deleting the variable (if any) whose loss gives the most statistically insignificant deterioration of the model fit, and repeating this process until no further variables can be deleted without a statistically significant loss of fit.
 
-- `direction = "both"`. ?
+A list of possible and often used model fit criterion is available on the [Wikipedia Model Selection](https://en.wikipedia.org/wiki/Model_selection) page. In R, the basic `stats::step()` function uses the Akaike's information criterion (AIC) and allows to perform forward selection (`direction = "forward"`) or backward elimination (`direction = "backward"`).
+
+In adding or eliminating predictors in presence of interactions, predictors are grouped by order of interactions, i.e. main first-order interactions (main variables), second-order interactions, etc. For elimination, the group of predictors corresponding to the highest-order interactions is assessed first while for inclusion, it is the reverse.
+
+TO DO: example
 
 Note that there are many other ways to perform model selection. One [interesting and funny approach](https://onlinelibrary.wiley.com/doi/pdf/10.1002/asmb.446) borrows ideas from co-operative game theory: it uses the Shapley–Shubik power index, which was formulated by Lloyd Shapley and Martin Shubik in 1954 to measure the powers of players in a voting game. In the context of regression analysis, it is used to measure the importance of predictors in explaining the response and it has been shown to provide consistent results in the presence of multicollinearity.
 
-## Box-Cox transformations and beyond
+**DO NOT FORGET TO PERFORM MODEL DIAGNOSIS ONCE YOU ARE HAPPY WITH A MODEL.**
 
-[topo](https://www.ime.usp.br/~abe/lista/pdfm9cJKUmFZp.pdf)
+## Box-Cox transformations and beyond
 
 The purpose of transforming data is whenever your response random vector $\mathbf{Y}$ cannot be assumed to follow a Gaussian distribution. It is, in some cases, possible to find a *parametric* transformation $h_\lambda: \mathbb{R} \to \mathbb{R}$ such that $h_\lambda(\mathbf{Y}) \sim \mathcal{N}_n(\mathbb{X} \boldsymbol{\beta}, \sigma^2 \mathbb{I}_n)$.
 
@@ -446,3 +618,5 @@ It also presents the advantage of naturally accommodating negative values w.r.t.
 In the [**recipes**](https://tidymodels.github.io/recipes/index.html), check the functions [step_BoxCox](https://tidymodels.github.io/recipes/reference/step_BoxCox.html) and [step_YeoJohnson](https://tidymodels.github.io/recipes/reference/step_YeoJohnson.html)
 
 ## Exercises
+
+TO DO: add exercises + anscombe ? + VIF ?
