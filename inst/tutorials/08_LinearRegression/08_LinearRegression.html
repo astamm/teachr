@@ -186,6 +186,41 @@ $(document).ready(function () {
 </ol>
 <p>Cook’s distance does not help in the above two situations, but it does not really matter, because, in both cases, we can safely include the corresponding observation into our regression.</p>
 </div>
+<div id="section-confidence-and-prediction-intervals" class="section level3">
+<h3>Confidence and prediction intervals</h3>
+<p><strong>Confidence interval for the mean response <span class="math inline">\(\mathbf{x}_i^\top \boldsymbol{\beta}\)</span> at an already observed point <span class="math inline">\(\mathbf{x}_i\)</span>, <span class="math inline">\(i=1,\dots,n\)</span>.</strong></p>
+<p>We are in the following setting:</p>
+<ul>
+<li>We aim at estimating the mean response at <span class="math inline">\(\mathbf{x}_i\)</span> which is:</li>
+</ul>
+<p><span class="math display">\[ \mathbf{x}_i^\top \boldsymbol{\beta}. \]</span></p>
+<ul>
+<li>We use the coefficient estimator which leads to the following estimator for the mean response:</li>
+</ul>
+<p><span class="math display">\[ \mathbf{x}_i^\top \widehat{\boldsymbol{\beta}} \sim \mathcal{N} \left( \mathbf{x}_i^\top \boldsymbol{\beta}, \sigma^2 \mathbf{x}_i^\top (\mathbb{X}^\top \mathbb{X})^{-1} \mathbf{x}_i \right), \]</span></p>
+<p>We also have that:</p>
+<p><span class="math display">\[ \frac{\widehat{\sigma^2}}{\sigma^2} \sim \chi^2(n-k-1), \]</span></p>
+<p>and <span class="math inline">\(\widehat{\boldsymbol{\beta}}\)</span> and <span class="math inline">\(\widehat{\sigma^2}\)</span> are statistically independent. Thus, we can write:</p>
+<p><span class="math display">\[ \frac{\mathbf{x}_i^\top \boldsymbol{\beta} - \mathbf{x}_i^\top \widehat{\boldsymbol{\beta}}}{\sqrt{\widehat{\sigma^2} \mathbf{x}_i^\top (\mathbb{X}^\top \mathbb{X})^{-1} \mathbf{x}_i}} \sim \mathcal{T}(n-k-1). \]</span></p>
+<p>We can therefore express a <span class="math inline">\((1-\alpha)\%\)</span> <em>confidence</em> interval for the mean response <span class="math inline">\(\mathbf{x}_i^\top \boldsymbol{\beta}\)</span> at <span class="math inline">\(\mathbf{x}_i\)</span> as:</p>
+<p><span class="math display">\[ \mathbb{P} \left( \mathbf{x}_i^\top \boldsymbol{\beta} \in \left[ \mathbf{x}_i^\top \widehat{\boldsymbol{\beta}} \pm t_{1-\frac{\alpha}{2}}(n-k-1) \sqrt{\widehat{\sigma^2} \mathbf{x}_i^\top (\mathbb{X}^\top \mathbb{X})^{-1} \mathbf{x}_i} \right] \right) = 1 - \alpha. \]</span></p>
+<p><strong>Prediction interval for a new not yet observed response <span class="math inline">\(Y_{n+1}\)</span> at a new observed point <span class="math inline">\(\mathbf{x}_{n+1}\)</span>.</strong></p>
+<p>We are in the following setting:</p>
+<ul>
+<li>We aim at estimating:</li>
+</ul>
+<p><span class="math display">\[ Y_{n+1} = \mathbf{x}_{n+1}^\top \boldsymbol{\beta} + \varepsilon_{n+1} \sim \mathcal{N} \left( \mathbf{x}_{n+1}^\top \boldsymbol{\beta}, \sigma^2 \right), \]</span></p>
+<ul>
+<li>We use the coefficient estimator which leads to the following estimator for a new response:</li>
+</ul>
+<p><span class="math display">\[ \widehat{Y_{n+1}} = \mathbf{x}_{n+1}^\top \widehat{\boldsymbol{\beta}} \sim \mathcal{N}  \left( \mathbf{x}_{n+1}^\top \boldsymbol{\beta}, \sigma^2 \mathbf{x}_{n+1}^\top (\mathbb{X}^\top \mathbb{X})^{-1} \mathbf{x}_{n+1} \right), \]</span></p>
+<p>which implies:</p>
+<p><span class="math display">\[ Y_{n+1} - \widehat{Y_{n+1}} \sim \mathcal{N} \left( 0, \sigma^2 \left( 1 + \mathbf{x}_{n+1}^\top (\mathbb{X}^\top \mathbb{X})^{-1} \mathbf{x}_{n+1} \right) \right). \]</span></p>
+<p>Thus, we have:</p>
+<p><span class="math display">\[ \frac{Y_{n+1} - \widehat{Y_{n+1}}}{\sqrt{\widehat{\sigma^2} \left( 1 + \mathbf{x}_{n+1}^\top (\mathbb{X}^\top \mathbb{X})^{-1} \mathbf{x}_{n+1} \right)}} \sim \mathcal{T}(n-k-1). \]</span></p>
+<p>We can therefore express a <span class="math inline">\((1-\alpha)\%\)</span> <em>prediction</em> interval for the new not yet observed response <span class="math inline">\(Y_{n+1}\)</span> at <span class="math inline">\(\mathbf{x}_{n+1}\)</span> as:</p>
+<p><span class="math display">\[ \mathbb{P} \left( Y_{n+1} \in \left[ \widehat{Y_{n+1}} \pm t_{1-\frac{\alpha}{2}}(n-k-1) \sqrt{\widehat{\sigma^2} \left( 1 + \mathbf{x}_{n+1}^\top (\mathbb{X}^\top \mathbb{X})^{-1} \mathbf{x}_{n+1} \right)} \right] \right) = 1 - \alpha. \]</span></p>
+</div>
 </div>
 <div id="section-simple-models" class="section level2">
 <h2>Simple models</h2>
@@ -299,9 +334,9 @@ full_data &lt;- tibble::tibble(x, first_data, second_data) %&gt;%
 <p>which is such that</p>
 <p><span class="math display">\[ \mathbb{E}[\widehat{\boldsymbol{\beta}}] = \boldsymbol{\beta} \quad \mbox{and} \quad \mathrm{Cov}[\widehat{\boldsymbol{\beta}}] = \sigma^2 (\mathbb{X}^\top \mathbb{X})^{-1}. \]</span></p>
 <p>In particular, the variance of a single coefficient estimator is given by:</p>
-<p><span class="math display">\[ \mathrm{Var}[\widehat{\beta}_j] = \frac{\sigma^2}{\sum_{i=1}^n x_{ij}^2}. \]</span></p>
+<p><span class="math display">\[ \mathrm{Var}[\widehat{\beta}_j] = \sigma^2 \left[ (\mathbb{X}^\top \mathbb{X})^{-1} \right]_{jj}. \]</span></p>
 <p>The <code>std.error</code> is the square root of an estimate of that variance produced by the following estimator:</p>
-<p><span class="math display">\[ \widehat{\mathrm{Var}[\widehat{\beta}_j]} = \frac{\widehat{\sigma^2}}{\sum_{i=1}^n x_{ij}^2} = \frac{1}{n - k - 1} \frac{\widehat{\boldsymbol{\varepsilon}}^\top \widehat{\boldsymbol{\varepsilon}}}{\mathbf{x}_j^\top \mathbf{x}_j}. \]</span></p>
+<p><span class="math display">\[ \widehat{\mathrm{Var}[\widehat{\beta}_j]} = \frac{\widehat{\sigma^2}}{\sum_{i=1}^n x_{ij}^2} = \frac{\widehat{\boldsymbol{\varepsilon}}^\top \widehat{\boldsymbol{\varepsilon}}}{n - k - 1} \left[ (\mathbb{X}^\top \mathbb{X})^{-1} \right]_{jj}. \]</span></p>
 <ul>
 <li><code>statistic</code> and <code>p.value</code>. These columns report the value of a test statistic from the observed data and associated <span class="math inline">\(p\)</span>-value for testing <span class="math inline">\(H_0: \beta_j = 0\)</span> vs. <span class="math inline">\(H_1: \beta_j \ne 0\)</span>. The <code>statistic</code> is nothing but <code>estimate</code> / <code>std.error</code>. Under the null hypothesis and the assumption of normality of the residuals, it follows a Student’s distribution with <span class="math inline">\(n - k - 1\)</span> degrees of freedom, hence the <span class="math inline">\(p\)</span>-value.</li>
 </ul>
@@ -1301,7 +1336,6 @@ Coefficients:
 <div id="section-implementations-in-r" class="section level3">
 <h3>Implementations in R</h3>
 <p>The <a href="https://tidymodels.github.io/recipes/index.html"><strong>recipes</strong></a> package has built-in functions <a href="https://tidymodels.github.io/recipes/reference/step_BoxCox.html">step_BoxCox</a> and <a href="https://tidymodels.github.io/recipes/reference/step_YeoJohnson.html">step_YeoJohnson</a> to include data transformations to normality as a data preprocessing step before further modeling.</p>
-<p>TO DO : talk about confidence intervals and prediction intervals -&gt; in a tidymodels fashion ?</p>
 </div>
 </div>
 <div id="section-exercises" class="section level2">
