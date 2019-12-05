@@ -1,0 +1,42 @@
+---
+title: "Modeling within the Tidyverse"
+tutorial:
+  id: "1002d962-c704-41af-8c61-2a953a4afc47"
+  version: 1.0
+output: learnr::tutorial
+runtime: shiny_prerendered
+author: Aymeric Stamm
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(testwhat)
+library(magrittr)
+
+options(repos = "https://cloud.r-project.org")
+tutorial_options(
+  exercise.timelimit = 60,
+  exercise.checker = testwhat::testwhat_learnr
+)
+knitr::opts_chunk$set(comment = NA)
+```
+
+## Outline
+
+- Teaching modeling with the tidyverse principles
+  - [**modelr**](https://modelr.tidyverse.org): provides functions that help you create elegant pipelines when modelling; it is designed primarily to support teaching the basics of modelling within the tidyverse.
+  - [**broom**](https://broom.tidyverse.org): takes the messy output of built-in functions in R, such as `lm`, `nls`, or `t.test`, and turns them into tidy tibbles.
+
+- The [**tidymodels**](https://github.com/tidymodels) ecosystem, a collection of modeling packages designed with common APIs and a shared philosophy:
+  
+    - [**parsnip**](https://tidymodels.github.io/parsnip/index.html): provides common API for common statistical inferential procedures.
+    - [**recipes**](https://tidymodels.github.io/recipes/index.html): is a general data preprocessor with a modern interface. It can create model matrices that incorporate feature engineering, imputation, and other help tools.
+    - [**rsample**](https://tidymodels.github.io/rsample/index.html): has infrastructure for resampling data so that models can be assessed and empirically validated.
+    - [**yardstick**](https://tidymodels.github.io/yardstick/): contains tools for evaluating models (e.g. accuracy, RMSE, etc.).
+    - [**infer**](https://infer.netlify.com/index.html): is a modern approach to statistical inference.
+    - Full list [here](https://github.com/tidymodels/tidymodels)
+
+- Parallel computing
+  
+    - [**future**](https://cran.r-project.org/web/packages/future/index.html): provides a very simple and uniform way of evaluating R expressions asynchronously using various resources available to the user.
+    - [**furrr**](https://davisvaughan.github.io/furrr/): simplify the combination of [**purrr**](https://purrr.tidyverse.org)’s family of mapping functions and [**future**](https://cran.r-project.org/web/packages/future/index.html)’s parallel processing capabilities.
