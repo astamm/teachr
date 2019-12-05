@@ -186,7 +186,7 @@ broom::glance(first_model)
 
 This function retrieves some classic *global measures* of the regression fit:
 
-- **r.squared** and **adj.r.squared** (TO DO: see `anscombe` data set for caveat of using it alone). The coefficient of determination $R^2$ and its adjusted version $R_\mathrm{adj}^2$ aim at estimating the proportion of variance of the response variable $\mathbf{Y}$ explained by the fitted model $\widehat{\mathbf{Y}}$. Mathematically, they aim at estimating 
+- **r.squared** and **adj.r.squared**. The coefficient of determination $R^2$ and its adjusted version $R_\mathrm{adj}^2$ aim at estimating the proportion of variance of the response variable $\mathbf{Y}$ explained by the fitted model $\widehat{\mathbf{Y}}$. Mathematically, they aim at estimating 
 
 $$ \frac{\sigma_\widehat{\mathbf{Y}}^2}{\sigma_\mathbf{Y}^2} = 1 - \frac{\sigma_\widehat{\boldsymbol{\varepsilon}}^2}{\sigma_\mathbf{Y}^2}. $$ 
 
@@ -521,17 +521,20 @@ mpg %>%
   theme_bw()
 ```
 
-There is no built-in `geom_()` function in [**ggplot2**](https://ggplot2.tidyverse.org) for visualizing interactions.
+**Notes.**
 
-TO DO: introduce the modelr package somewhere
+1. Pay attention to the use of functions from the [**modelr**](https://modelr.tidyverse.org) package, which provides functions that help you create elegant pipelines when modelling. In the above examples, we used it for two purposes:
+
+    - Add the predictions from a model to the data set used for estimating the model with `modelr::add_predictions()`; you can similarly add the residuals to the original data set with `modelr::add_residuals()`;
+    - Inspect the design matrix $\mathbb{X}$ that a given formula produces via `modelr::model_matrix()`.
+
+2. The [**ggplot2**](https://ggplot2.tidyverse.org) package is not fully featured for visualizing interactions (it is not meant to be).
 
 ### Exploring interactions
 
 See the [**interactions**](https://interactions.jacob-long.com) package, especially the [vignette](https://cran.r-project.org/web/packages/interactions/vignettes/interactions.html).
 
 ### Testing linear hypotheses
-
-TO DO: mention the [**oslrr**](https://www.r-bloggers.com/introducing-olsrr/) package somewhere.
 
 #### Multicollinearity
 
@@ -587,9 +590,64 @@ A list of possible and often used model fit criterion is available on the [Wikip
 
 In adding or eliminating predictors in presence of interactions, predictors are grouped by order of interactions, i.e. main first-order interactions (main variables), second-order interactions, etc. For elimination, the group of predictors corresponding to the highest-order interactions is assessed first while for inclusion, it is the reverse.
 
-TO DO: example
+Let us see examples using the `swiss` data set from the **datasets** base R package. It reports a standardized fertility measure and socio-economic indicators for each of the 47 French-speaking provinces of Switzerland at about 1888:
 
-Note that there are many other ways to perform model selection. One [interesting and funny approach](https://onlinelibrary.wiley.com/doi/pdf/10.1002/asmb.446) borrows ideas from co-operative game theory: it uses the Shapley–Shubik power index, which was formulated by Lloyd Shapley and Martin Shubik in 1954 to measure the powers of players in a voting game. In the context of regression analysis, it is used to measure the importance of predictors in explaining the response and it has been shown to provide consistent results in the presence of multicollinearity.
+Variable name    | Description
+---------------- | -------------
+fertility	       | Common standardized fertility measure
+agriculture	     | % of males involved in agriculture as occupation
+examination      | % of draftees receiving highest mark on army examination
+education	       | % of draftees receiving education beyond primary school
+catholic         | % of catholic (as opposed to protestant)
+infant_mortality | live births who live less than 1 year
+
+```{r swiss-skim}
+swiss <- swiss %>% 
+  tibble::as_tibble() %>% 
+  janitor::clean_names()
+skimr::skim(swiss)
+```
+
+**Backward elimination.**
+
+```{r swiss-backward}
+initial_model_backward <- lm(fertility ~ .^2, data = swiss)
+step(
+  object = initial_model_backward, 
+  direction = "backward"
+)
+```
+
+**Forward selection.**
+
+```{r swiss-forward-attempt}
+initial_model_forward <- lm(fertility ~ 1, data = swiss)
+step(
+  object = initial_model_forward, 
+  direction = "forward", 
+  scope = fertility ~ .^2
+)
+```
+
+This substantially does nothing. Why? In the *Details* section of the help for `step()`, you can read:
+
+> Models specified by scope can be templates to update object as used by update.formula. So using . in a scope formula means ‘what is already there’, with .^2 indicating all interactions of existing terms.
+
+So R creates the upper scope model by combining all predictors in the initial model up to the second-order interactions. But the initial model is the null model, so there are no predictors to combine!
+
+```{r swiss-forward}
+initial_model_forward <- lm(fertility ~ 1, data = swiss)
+step(
+  object = initial_model_forward, 
+  direction = "forward", 
+  scope = fertility ~ (agriculture + examination + education + catholic + infant_mortality)^2
+)
+```
+
+**Notes.**
+
+1. Are the final models the same when using backward elimination or forward selection?
+2. There are many other ways to perform model selection. See the [**olsrr**](https://olsrr.rsquaredacademy.com) package for an implementation of many of them. One [interesting and funny approach](https://onlinelibrary.wiley.com/doi/pdf/10.1002/asmb.446) (not implemented in [**olsrr**](https://olsrr.rsquaredacademy.com)) borrows ideas from co-operative game theory: it uses the Shapley–Shubik power index, which was formulated by Lloyd Shapley and Martin Shubik in 1954 to measure the powers of players in a voting game. In the context of regression analysis, it is used to measure the importance of predictors in explaining the response and it has been shown to provide consistent results in the presence of multicollinearity.
 
 **DO NOT FORGET TO PERFORM MODEL DIAGNOSIS ONCE YOU ARE HAPPY WITH A MODEL.**
 
@@ -618,5 +676,14 @@ It also presents the advantage of naturally accommodating negative values w.r.t.
 In the [**recipes**](https://tidymodels.github.io/recipes/index.html), check the functions [step_BoxCox](https://tidymodels.github.io/recipes/reference/step_BoxCox.html) and [step_YeoJohnson](https://tidymodels.github.io/recipes/reference/step_YeoJohnson.html)
 
 ## Exercises
+
+**Note:** The [**olsrr**](https://olsrr.rsquaredacademy.com) package provides a set of tools for improved output from linear regression models, designed mainly for beginner/intermediate R users. The package includes:
+
+- comprehensive regression output
+- variable selection procedures
+- heteroskedasticiy, collinearity diagnostics and measures of influence
+- various plots and underlying data
+
+### Exercise 1
 
 TO DO: add exercises + anscombe ? + VIF ?

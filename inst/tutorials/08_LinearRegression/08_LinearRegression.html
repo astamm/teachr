@@ -238,7 +238,7 @@ full_data &lt;- tibble::tibble(x, first_data, second_data) %&gt;%
 </div>
 <p>This function retrieves some classic <em>global measures</em> of the regression fit:</p>
 <ul>
-<li><strong>r.squared</strong> and <strong>adj.r.squared</strong> (TO DO: see <code>anscombe</code> data set for caveat of using it alone). The coefficient of determination <span class="math inline">\(R^2\)</span> and its adjusted version <span class="math inline">\(R_\mathrm{adj}^2\)</span> aim at estimating the proportion of variance of the response variable <span class="math inline">\(\mathbf{Y}\)</span> explained by the fitted model <span class="math inline">\(\widehat{\mathbf{Y}}\)</span>. Mathematically, they aim at estimating</li>
+<li><strong>r.squared</strong> and <strong>adj.r.squared</strong>. The coefficient of determination <span class="math inline">\(R^2\)</span> and its adjusted version <span class="math inline">\(R_\mathrm{adj}^2\)</span> aim at estimating the proportion of variance of the response variable <span class="math inline">\(\mathbf{Y}\)</span> explained by the fitted model <span class="math inline">\(\widehat{\mathbf{Y}}\)</span>. Mathematically, they aim at estimating</li>
 </ul>
 <p><span class="math display">\[ \frac{\sigma_\widehat{\mathbf{Y}}^2}{\sigma_\mathbf{Y}^2} = 1 - \frac{\sigma_\widehat{\boldsymbol{\varepsilon}}^2}{\sigma_\mathbf{Y}^2}. \]</span></p>
 <p>Their definition is based on the following variance decomposition identity:</p>
@@ -820,8 +820,15 @@ broom::glance(mod3)</code></pre>
   geom_line(aes(y = pred), size = 1) + 
   theme_bw()</code></pre>
 <p><img src="08_LinearRegression_files/figure-html/mpg-viz-mod3-1.png" width="624" style="display: block; margin: auto;" /></p>
-<p>There is no built-in <code>geom_()</code> function in <a href="https://ggplot2.tidyverse.org"><strong>ggplot2</strong></a> for visualizing interactions.</p>
-<p>TO DO: introduce the modelr package somewhere</p>
+<p><strong>Notes.</strong></p>
+<ol style="list-style-type: decimal">
+<li><p>Pay attention to the use of functions from the <a href="https://modelr.tidyverse.org"><strong>modelr</strong></a> package, which provides functions that help you create elegant pipelines when modelling. In the above examples, we used it for two purposes:</p>
+<ul>
+<li>Add the predictions from a model to the data set used for estimating the model with <code>modelr::add_predictions()</code>; you can similarly add the residuals to the original data set with <code>modelr::add_residuals()</code>;</li>
+<li>Inspect the design matrix <span class="math inline">\(\mathbb{X}\)</span> that a given formula produces via <code>modelr::model_matrix()</code>.</li>
+</ul></li>
+<li><p>The <a href="https://ggplot2.tidyverse.org"><strong>ggplot2</strong></a> package is not fully featured for visualizing interactions (it is not meant to be).</p></li>
+</ol>
 </div>
 <div id="section-exploring-interactions" class="section level3">
 <h3>Exploring interactions</h3>
@@ -829,7 +836,6 @@ broom::glance(mod3)</code></pre>
 </div>
 <div id="section-testing-linear-hypotheses" class="section level3">
 <h3>Testing linear hypotheses</h3>
-<p>TO DO: mention the <a href="https://www.r-bloggers.com/introducing-olsrr/"><strong>oslrr</strong></a> package somewhere.</p>
 <div id="section-multicollinearity" class="section level4">
 <h4>Multicollinearity</h4>
 <p><strong>Sources.</strong></p>
@@ -869,8 +875,411 @@ broom::glance(mod3)</code></pre>
 </ul>
 <p>A list of possible and often used model fit criterion is available on the <a href="https://en.wikipedia.org/wiki/Model_selection">Wikipedia Model Selection</a> page. In R, the basic <code>stats::step()</code> function uses the Akaike’s information criterion (AIC) and allows to perform forward selection (<code>direction = &quot;forward&quot;</code>) or backward elimination (<code>direction = &quot;backward&quot;</code>).</p>
 <p>In adding or eliminating predictors in presence of interactions, predictors are grouped by order of interactions, i.e. main first-order interactions (main variables), second-order interactions, etc. For elimination, the group of predictors corresponding to the highest-order interactions is assessed first while for inclusion, it is the reverse.</p>
-<p>TO DO: example</p>
-<p>Note that there are many other ways to perform model selection. One <a href="https://onlinelibrary.wiley.com/doi/pdf/10.1002/asmb.446">interesting and funny approach</a> borrows ideas from co-operative game theory: it uses the Shapley–Shubik power index, which was formulated by Lloyd Shapley and Martin Shubik in 1954 to measure the powers of players in a voting game. In the context of regression analysis, it is used to measure the importance of predictors in explaining the response and it has been shown to provide consistent results in the presence of multicollinearity.</p>
+<p>Let us see examples using the <code>swiss</code> data set from the <strong>datasets</strong> base R package. It reports a standardized fertility measure and socio-economic indicators for each of the 47 French-speaking provinces of Switzerland at about 1888:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Variable name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>fertility</td>
+<td>Common standardized fertility measure</td>
+</tr>
+<tr class="even">
+<td>agriculture</td>
+<td>% of males involved in agriculture as occupation</td>
+</tr>
+<tr class="odd">
+<td>examination</td>
+<td>% of draftees receiving highest mark on army examination</td>
+</tr>
+<tr class="even">
+<td>education</td>
+<td>% of draftees receiving education beyond primary school</td>
+</tr>
+<tr class="odd">
+<td>catholic</td>
+<td>% of catholic (as opposed to protestant)</td>
+</tr>
+<tr class="even">
+<td>infant_mortality</td>
+<td>live births who live less than 1 year</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>swiss &lt;- swiss %&gt;% 
+  tibble::as_tibble() %&gt;% 
+  janitor::clean_names()
+skimr::skim(swiss)</code></pre>
+<table>
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td align="left">Name</td>
+<td align="left">swiss</td>
+</tr>
+<tr class="even">
+<td align="left">Number of rows</td>
+<td align="left">47</td>
+</tr>
+<tr class="odd">
+<td align="left">Number of columns</td>
+<td align="left">6</td>
+</tr>
+<tr class="even">
+<td align="left">_______________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Column type frequency:</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">numeric</td>
+<td align="left">6</td>
+</tr>
+<tr class="odd">
+<td align="left">________________________</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Group variables</td>
+<td align="left">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">mean</th>
+<th align="right">sd</th>
+<th align="right">p0</th>
+<th align="right">p25</th>
+<th align="right">p50</th>
+<th align="right">p75</th>
+<th align="right">p100</th>
+<th align="left">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">fertility</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">70.14</td>
+<td align="right">12.49</td>
+<td align="right">35.00</td>
+<td align="right">64.70</td>
+<td align="right">70.40</td>
+<td align="right">78.45</td>
+<td align="right">92.5</td>
+<td align="left">▂▂▇▇▅</td>
+</tr>
+<tr class="even">
+<td align="left">agriculture</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">50.66</td>
+<td align="right">22.71</td>
+<td align="right">1.20</td>
+<td align="right">35.90</td>
+<td align="right">54.10</td>
+<td align="right">67.65</td>
+<td align="right">89.7</td>
+<td align="left">▃▃▆▇▅</td>
+</tr>
+<tr class="odd">
+<td align="left">examination</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">16.49</td>
+<td align="right">7.98</td>
+<td align="right">3.00</td>
+<td align="right">12.00</td>
+<td align="right">16.00</td>
+<td align="right">22.00</td>
+<td align="right">37.0</td>
+<td align="left">▅▇▆▂▂</td>
+</tr>
+<tr class="even">
+<td align="left">education</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">10.98</td>
+<td align="right">9.62</td>
+<td align="right">1.00</td>
+<td align="right">6.00</td>
+<td align="right">8.00</td>
+<td align="right">12.00</td>
+<td align="right">53.0</td>
+<td align="left">▇▃▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">catholic</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">41.14</td>
+<td align="right">41.70</td>
+<td align="right">2.15</td>
+<td align="right">5.20</td>
+<td align="right">15.14</td>
+<td align="right">93.12</td>
+<td align="right">100.0</td>
+<td align="left">▇▁▁▁▅</td>
+</tr>
+<tr class="even">
+<td align="left">infant_mortality</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">19.94</td>
+<td align="right">2.91</td>
+<td align="right">10.80</td>
+<td align="right">18.15</td>
+<td align="right">20.00</td>
+<td align="right">21.70</td>
+<td align="right">26.6</td>
+<td align="left">▁▂▇▆▂</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Backward elimination.</strong></p>
+<pre class="r"><code>initial_model_backward &lt;- lm(fertility ~ .^2, data = swiss)
+step(
+  object = initial_model_backward, 
+  direction = &quot;backward&quot;
+)</code></pre>
+<pre><code>Start:  AIC=188.01
+fertility ~ (agriculture + examination + education + catholic + 
+    infant_mortality)^2
+
+                               Df Sum of Sq    RSS    AIC
+- examination:catholic          1     0.846 1300.0 186.04
+- education:infant_mortality    1     3.065 1302.2 186.12
+- catholic:infant_mortality     1    15.768 1314.9 186.57
+- education:catholic            1    20.582 1319.7 186.75
+- agriculture:catholic          1    35.592 1334.7 187.28
+&lt;none&gt;                                      1299.2 188.01
+- agriculture:education         1    65.644 1364.8 188.32
+- examination:infant_mortality  1    73.578 1372.7 188.60
+- agriculture:examination       1   100.889 1400.0 189.52
+- examination:education         1   179.288 1478.4 192.08
+- agriculture:infant_mortality  1   191.373 1490.5 192.47
+
+Step:  AIC=186.04
+fertility ~ agriculture + examination + education + catholic + 
+    infant_mortality + agriculture:examination + agriculture:education + 
+    agriculture:catholic + agriculture:infant_mortality + examination:education + 
+    examination:infant_mortality + education:catholic + education:infant_mortality + 
+    catholic:infant_mortality
+
+                               Df Sum of Sq    RSS    AIC
+- education:infant_mortality    1     3.908 1303.9 184.18
+- catholic:infant_mortality     1    17.269 1317.3 184.66
+- agriculture:catholic          1    37.061 1337.1 185.36
+&lt;none&gt;                                      1300.0 186.04
+- education:catholic            1    56.755 1356.8 186.05
+- agriculture:education         1    69.460 1369.5 186.49
+- examination:infant_mortality  1    85.963 1386.0 187.05
+- agriculture:examination       1   114.333 1414.3 188.00
+- examination:education         1   178.445 1478.4 190.08
+- agriculture:infant_mortality  1   205.256 1505.2 190.93
+
+Step:  AIC=184.18
+fertility ~ agriculture + examination + education + catholic + 
+    infant_mortality + agriculture:examination + agriculture:education + 
+    agriculture:catholic + agriculture:infant_mortality + examination:education + 
+    examination:infant_mortality + education:catholic + catholic:infant_mortality
+
+                               Df Sum of Sq    RSS    AIC
+- catholic:infant_mortality     1    25.786 1329.7 183.10
+- agriculture:catholic          1    36.413 1340.3 183.47
+&lt;none&gt;                                      1303.9 184.18
+- agriculture:education         1    79.202 1383.1 184.95
+- education:catholic            1    79.302 1383.2 184.96
+- agriculture:examination       1   116.350 1420.2 186.20
+- examination:education         1   185.887 1489.8 188.44
+- agriculture:infant_mortality  1   219.826 1523.7 189.50
+- examination:infant_mortality  1   230.537 1534.4 189.83
+
+Step:  AIC=183.1
+fertility ~ agriculture + examination + education + catholic + 
+    infant_mortality + agriculture:examination + agriculture:education + 
+    agriculture:catholic + agriculture:infant_mortality + examination:education + 
+    examination:infant_mortality + education:catholic
+
+                               Df Sum of Sq    RSS    AIC
+- agriculture:catholic          1    26.657 1356.3 182.03
+&lt;none&gt;                                      1329.7 183.10
+- education:catholic            1    91.721 1421.4 184.24
+- agriculture:education         1    92.242 1421.9 184.25
+- agriculture:examination       1   121.234 1450.9 185.20
+- examination:education         1   197.231 1526.9 187.60
+- examination:infant_mortality  1   210.665 1540.3 188.01
+- agriculture:infant_mortality  1   220.436 1550.1 188.31
+
+Step:  AIC=182.03
+fertility ~ agriculture + examination + education + catholic + 
+    infant_mortality + agriculture:examination + agriculture:education + 
+    agriculture:infant_mortality + examination:education + examination:infant_mortality + 
+    education:catholic
+
+                               Df Sum of Sq    RSS    AIC
+&lt;none&gt;                                      1356.3 182.03
+- agriculture:education         1    74.979 1431.3 182.56
+- agriculture:examination       1    99.701 1456.0 183.37
+- examination:education         1   174.619 1531.0 185.72
+- education:catholic            1   216.628 1573.0 187.00
+- agriculture:infant_mortality  1   271.060 1627.4 188.60
+- examination:infant_mortality  1   272.913 1629.3 188.65</code></pre>
+<pre><code>
+Call:
+lm(formula = fertility ~ agriculture + examination + education + 
+    catholic + infant_mortality + agriculture:examination + agriculture:education + 
+    agriculture:infant_mortality + examination:education + examination:infant_mortality + 
+    education:catholic, data = swiss)
+
+Coefficients:
+                 (Intercept)                   agriculture  
+                   225.91005                      -1.90665  
+                 examination                     education  
+                    -5.12020                      -2.47350  
+                    catholic              infant_mortality  
+                     0.21116                      -5.26935  
+     agriculture:examination         agriculture:education  
+                     0.01488                       0.01908  
+agriculture:infant_mortality         examination:education  
+                     0.06353                       0.06389  
+examination:infant_mortality            education:catholic  
+                     0.17219                      -0.01238  </code></pre>
+<p><strong>Forward selection.</strong></p>
+<pre class="r"><code>initial_model_forward &lt;- lm(fertility ~ 1, data = swiss)
+step(
+  object = initial_model_forward, 
+  direction = &quot;forward&quot;, 
+  scope = fertility ~ .^2
+)</code></pre>
+<pre><code>Start:  AIC=238.35
+fertility ~ 1</code></pre>
+<pre><code>
+Call:
+lm(formula = fertility ~ 1, data = swiss)
+
+Coefficients:
+(Intercept)  
+      70.14  </code></pre>
+<p>This substantially does nothing. Why? In the <em>Details</em> section of the help for <code>step()</code>, you can read:</p>
+<blockquote>
+<p>Models specified by scope can be templates to update object as used by update.formula. So using . in a scope formula means ‘what is already there’, with .^2 indicating all interactions of existing terms.</p>
+</blockquote>
+<p>So R creates the upper scope model by combining all predictors in the initial model up to the second-order interactions. But the initial model is the null model, so there are no predictors to combine!</p>
+<pre class="r"><code>initial_model_forward &lt;- lm(fertility ~ 1, data = swiss)
+step(
+  object = initial_model_forward, 
+  direction = &quot;forward&quot;, 
+  scope = fertility ~ (agriculture + examination + education + catholic + infant_mortality)^2
+)</code></pre>
+<pre><code>Start:  AIC=238.35
+fertility ~ 1
+
+                   Df Sum of Sq    RSS    AIC
++ education         1    3162.7 4015.2 213.04
++ examination       1    2994.4 4183.6 214.97
++ catholic          1    1543.3 5634.7 228.97
++ infant_mortality  1    1245.5 5932.4 231.39
++ agriculture       1     894.8 6283.1 234.09
+&lt;none&gt;                          7178.0 238.34
+
+Step:  AIC=213.04
+fertility ~ education
+
+                   Df Sum of Sq    RSS    AIC
++ catholic          1    961.07 3054.2 202.18
++ infant_mortality  1    891.25 3124.0 203.25
++ examination       1    465.63 3549.6 209.25
+&lt;none&gt;                          4015.2 213.04
++ agriculture       1     61.97 3953.3 214.31
+
+Step:  AIC=202.18
+fertility ~ education + catholic
+
+                     Df Sum of Sq    RSS    AIC
++ infant_mortality    1    631.92 2422.2 193.29
++ agriculture         1    486.28 2567.9 196.03
++ education:catholic  1    169.36 2884.8 201.50
+&lt;none&gt;                            3054.2 202.18
++ examination         1      2.46 3051.7 204.15
+
+Step:  AIC=193.29
+fertility ~ education + catholic + infant_mortality
+
+                             Df Sum of Sq    RSS    AIC
++ education:catholic          1   302.095 2120.2 189.03
++ agriculture                 1   264.176 2158.1 189.86
+&lt;none&gt;                                    2422.2 193.29
++ education:infant_mortality  1    56.831 2365.4 194.17
++ examination                 1     9.486 2412.8 195.10
++ catholic:infant_mortality   1     0.091 2422.2 195.29
+
+Step:  AIC=189.03
+fertility ~ education + catholic + infant_mortality + education:catholic
+
+                             Df Sum of Sq    RSS    AIC
++ agriculture                 1   194.671 1925.5 186.50
+&lt;none&gt;                                    2120.2 189.03
++ examination                 1    42.896 2077.2 190.07
++ education:infant_mortality  1     5.560 2114.6 190.90
++ catholic:infant_mortality   1     1.969 2118.2 190.98
+
+Step:  AIC=186.5
+fertility ~ education + catholic + infant_mortality + agriculture + 
+    education:catholic
+
+                               Df Sum of Sq    RSS    AIC
++ examination                   1    98.626 1826.8 186.03
+&lt;none&gt;                                      1925.5 186.50
++ education:infant_mortality    1    26.116 1899.4 187.86
++ catholic:infant_mortality     1     5.028 1920.5 188.38
++ agriculture:catholic          1     3.867 1921.6 188.41
++ agriculture:infant_mortality  1     2.499 1923.0 188.44
++ agriculture:education         1     1.206 1924.3 188.47
+
+Step:  AIC=186.03
+fertility ~ education + catholic + infant_mortality + agriculture + 
+    examination + education:catholic
+
+                               Df Sum of Sq    RSS    AIC
+&lt;none&gt;                                      1826.8 186.03
++ examination:catholic          1    74.584 1752.3 186.07
++ agriculture:infant_mortality  1    25.367 1801.5 187.37
++ examination:infant_mortality  1    23.881 1803.0 187.41
++ education:infant_mortality    1    17.838 1809.0 187.57
++ examination:education         1    11.778 1815.1 187.73
++ agriculture:examination       1     8.123 1818.7 187.82
++ catholic:infant_mortality     1     1.512 1825.3 187.99
++ agriculture:education         1     0.641 1826.2 188.01
++ agriculture:catholic          1     0.106 1826.8 188.03</code></pre>
+<pre><code>
+Call:
+lm(formula = fertility ~ education + catholic + infant_mortality + 
+    agriculture + examination + education:catholic, data = swiss)
+
+Coefficients:
+       (Intercept)           education            catholic    infant_mortality  
+          59.50006            -0.31333             0.18758             1.25531  
+       agriculture         examination  education:catholic  
+          -0.15601            -0.35675            -0.01248  </code></pre>
+<p><strong>Notes.</strong></p>
+<ol style="list-style-type: decimal">
+<li>Are the final models the same when using backward elimination or forward selection?</li>
+<li>There are many other ways to perform model selection. See the <a href="https://olsrr.rsquaredacademy.com"><strong>olsrr</strong></a> package for an implementation of many of them. One <a href="https://onlinelibrary.wiley.com/doi/pdf/10.1002/asmb.446">interesting and funny approach</a> (not implemented in <a href="https://olsrr.rsquaredacademy.com"><strong>olsrr</strong></a>) borrows ideas from co-operative game theory: it uses the Shapley–Shubik power index, which was formulated by Lloyd Shapley and Martin Shubik in 1954 to measure the powers of players in a voting game. In the context of regression analysis, it is used to measure the importance of predictors in explaining the response and it has been shown to provide consistent results in the presence of multicollinearity.</li>
+</ol>
 <p><strong>DO NOT FORGET TO PERFORM MODEL DIAGNOSIS ONCE YOU ARE HAPPY WITH A MODEL.</strong></p>
 </div>
 </div>
@@ -896,6 +1305,15 @@ broom::glance(mod3)</code></pre>
 </div>
 <div id="section-exercises" class="section level2">
 <h2>Exercises</h2>
+<p><strong>Note:</strong> The <a href="https://olsrr.rsquaredacademy.com"><strong>olsrr</strong></a> package provides a set of tools for improved output from linear regression models, designed mainly for beginner/intermediate R users. The package includes:</p>
+<ul>
+<li>comprehensive regression output</li>
+<li>variable selection procedures</li>
+<li>heteroskedasticiy, collinearity diagnostics and measures of influence</li>
+<li>various plots and underlying data</li>
+</ul>
+<div id="section-exercise-1" class="section level3">
+<h3>Exercise 1</h3>
 TO DO: add exercises + anscombe ? + VIF ? 
 <script type="application/shiny-prerendered" data-context="server-start">
 library(learnr)
@@ -921,9 +1339,10 @@ learnr:::register_http_handlers(session, metadata = list(id = "f6487f97-7138-46a
 <!--/html_preserve-->
 <!--html_preserve-->
 <script type="application/shiny-prerendered" data-context="execution_dependencies">
-{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78]}},"value":[{"type":"character","attributes":{},"value":["assertthat","backports","base","base64enc","broom","colorspace","compiler","crayon","datasets","digest","dplyr","evaluate","farver","fastmap","generics","ggcorrplot","ggplot2","glue","graphics","grDevices","grid","gridExtra","gtable","highr","htmltools","htmlwidgets","httpuv","jsonlite","knitr","labeling","later","lattice","lazyeval","learnr","lifecycle","lindia","magrittr","markdown","MASS","methods","mime","modelr","munsell","nlme","parallel","pillar","pkgconfig","plyr","praise","promises","purrr","R6","Rcpp","repr","reshape2","rlang","rmarkdown","rprojroot","scales","shiny","skimr","stats","stringdist","stringi","stringr","testwhat","tibble","tidyr","tidyselect","tools","utils","vctrs","viridisLite","withr","xfun","xtable","yaml","zeallot"]},{"type":"character","attributes":{},"value":["0.2.1","1.1.5","3.6.1","0.1-3","0.5.2","1.4-1","3.6.1","1.3.4","3.6.1","0.6.23","0.8.3","0.14","2.0.1","1.0.1","0.0.2","0.1.3","3.2.1","1.3.1","3.6.1","3.6.1","3.6.1","2.3","0.3.0","0.8","0.4.0","1.5.1","1.5.2","1.6","1.26","0.3","1.0.0","0.20-38","0.2.2","0.10.0","0.1.0","0.9","1.5","1.1","7.3-51.4","3.6.1","0.7","0.1.5","0.5.0","3.1-142","3.6.1","1.4.2","2.0.3","1.8.4","1.0.0","1.1.0","0.3.3","2.4.1","1.0.3","1.0.1","1.4.3","0.4.2","1.18","1.3-2","1.1.0","1.4.0","2.0.2","3.6.1","0.9.5.5","1.4.3","1.4.0","4.11.1","2.1.3","1.0.0","0.2.5","3.6.1","3.6.1","0.2.0","0.3.0","2.1.2","0.11","1.8-4","2.2.0","0.1.0"]}]}]}
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80]}},"value":[{"type":"character","attributes":{},"value":["assertthat","backports","base","base64enc","broom","colorspace","compiler","crayon","datasets","digest","dplyr","evaluate","farver","fastmap","generics","ggcorrplot","ggplot2","glue","graphics","grDevices","grid","gridExtra","gtable","highr","htmltools","htmlwidgets","httpuv","janitor","jsonlite","knitr","labeling","later","lattice","lazyeval","learnr","lifecycle","lindia","magrittr","markdown","MASS","methods","mime","modelr","munsell","nlme","parallel","pillar","pkgconfig","plyr","praise","promises","purrr","R6","Rcpp","repr","reshape2","rlang","rmarkdown","rprojroot","scales","shiny","skimr","snakecase","stats","stringdist","stringi","stringr","testwhat","tibble","tidyr","tidyselect","tools","utils","vctrs","viridisLite","withr","xfun","xtable","yaml","zeallot"]},{"type":"character","attributes":{},"value":["0.2.1","1.1.5","3.6.1","0.1-3","0.5.2","1.4-1","3.6.1","1.3.4","3.6.1","0.6.23","0.8.3","0.14","2.0.1","1.0.1","0.0.2","0.1.3","3.2.1","1.3.1","3.6.1","3.6.1","3.6.1","2.3","0.3.0","0.8","0.4.0","1.5.1","1.5.2","1.2.0","1.6","1.26","0.3","1.0.0","0.20-38","0.2.2","0.10.0","0.1.0","0.9","1.5","1.1","7.3-51.4","3.6.1","0.7","0.1.5","0.5.0","3.1-142","3.6.1","1.4.2","2.0.3","1.8.4","1.0.0","1.1.0","0.3.3","2.4.1","1.0.3","1.0.1","1.4.3","0.4.2","1.18","1.3-2","1.1.0","1.4.0","2.0.2","0.11.0","3.6.1","0.9.5.5","1.4.3","1.4.0","4.11.1","2.1.3","1.0.0","0.2.5","3.6.1","3.6.1","0.2.0","0.3.0","2.1.2","0.11","1.8-4","2.2.0","0.1.0"]}]}]}
 </script>
 <!--/html_preserve-->
+</div>
 </div>
 
 </div> <!-- topics -->
