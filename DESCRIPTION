@@ -46,7 +46,8 @@ Imports:
     infer,
     yardstick,
     broom,
-    lindia (>= 0.9)
+    lindia (>= 0.9),
+    ggcorrplot
 Remotes: 
     datacamp/testwhat,
     astamm/lindia@fix-residuals

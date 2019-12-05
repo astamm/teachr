@@ -20,6 +20,14 @@ tutorial_options(
   exercise.checker = testwhat::testwhat_learnr
 )
 knitr::opts_chunk$set(comment = NA)
+
+production <- teachr::production
+brain <- teachr::brain
+anscombe <- teachr::anscombe
+cement <- teachr::cement
+job <- teachr::job
+cars <- teachr::cars
+mussels <- teachr::mussels
 ```
 
 ## Theory
@@ -673,17 +681,151 @@ It also presents the advantage of naturally accommodating negative values w.r.t.
 
 ### Implementations in R
 
-In the [**recipes**](https://tidymodels.github.io/recipes/index.html), check the functions [step_BoxCox](https://tidymodels.github.io/recipes/reference/step_BoxCox.html) and [step_YeoJohnson](https://tidymodels.github.io/recipes/reference/step_YeoJohnson.html)
+The [**recipes**](https://tidymodels.github.io/recipes/index.html) package has built-in functions [step_BoxCox](https://tidymodels.github.io/recipes/reference/step_BoxCox.html) and [step_YeoJohnson](https://tidymodels.github.io/recipes/reference/step_YeoJohnson.html) to include data transformations to normality as a data preprocessing step before further modeling.
+
+TO DO : talk about confidence intervals and prediction intervals -> in a tidymodels fashion ?
 
 ## Exercises
 
-**Note:** The [**olsrr**](https://olsrr.rsquaredacademy.com) package provides a set of tools for improved output from linear regression models, designed mainly for beginner/intermediate R users. The package includes:
+### Some remarks before starting
+
+
+**The [olsrr](https://olsrr.rsquaredacademy.com) package.**
+
+It provides a set of tools for improved output from linear regression models, designed mainly for beginner/intermediate R users. The package includes:
 
 - comprehensive regression output
 - variable selection procedures
 - heteroskedasticiy, collinearity diagnostics and measures of influence
 - various plots and underlying data
 
+**Resolution of the exercises.**
+
+In the following exercises, you will be asked to study the relationship of a continuous response variable and one or more predictors. In doing so, remember to:
+
+- perform model diagnosis
+- including visualization tools
+- including multicollinearity assessment
+- perform informed model selection
+- comment each result of an analysis you run with R
+
 ### Exercise 1
 
-TO DO: add exercises + anscombe ? + VIF ?
+Analysis of the `production` data set which is composed of the following variables: 
+
+Variable name | Description
+------------- | -------------
+x             | Number of produced pieces
+y             | Production cost
+
+Study the relationship between `x` and `y`.
+
+```{r production, exercise=TRUE, exercise.lines=10}
+
+```
+
+### Exercise 2
+
+Analysis of the `brain` data set which is composed of the following variables:
+
+Variable name | Description
+------------- | -------------
+body_weight   | Body weight in kg
+brain_weight  | Brain weight in kg
+
+Study the relationship between body and brain weights, to establish how the variable `brain_weight` changes with the variable `body_weight`.
+
+```{r brain, exercise=TRUE, exercise.lines=10}
+
+```
+
+### Exercise 3
+
+Analysis of the `anscombe` data set which is composed of the following variables:
+
+Variable name | Description
+------------- | -------------
+x1            | Predictor to be used for explaining `y1`
+x2            | Predictor to be used for explaining `y2`
+x3            | Predictor to be used for explaining `y3`
+x4            | Predictor to be used for explaining `y4`
+y1            | Response to be explained by `x1`
+y2            | Response to be explained by `x2`
+y3            | Response to be explained by `x3`
+y4            | Response to be explained by `x4`
+
+Study the relationship between each $y_i$ and the corresponding $x_i$. 
+
+```{r anscombe, exercise=TRUE, exercise.lines=10}
+
+```
+
+### Exercise 4
+
+Analysis of the `cement` data set, which contains the following variables:
+
+Variable name     | Description
+----------------- | ----------------
+aluminium         | Percentage of $\mathrm{Ca}_3 \mathrm{Al}_2 \mathrm{O}_6$
+silicate          | Percentage of $\mathrm{C}_2 \mathrm{S}$
+aluminium_ferrite | Percentage of $4 \mathrm{CaO} \mathrm{Al}_2 \mathrm{O}_3 \mathrm{Fe}_2 \mathrm{O}_3$
+silicate_bic      | Percentage of $\mathrm{C}_3 \mathrm{S}$
+hardness          | Hardness of the cement obtained by mixing the above four components
+
+Study, using a multiple linear regression model, how the variable `hardness` depends on the four predictors.
+
+```{r cement, exercise=TRUE, exercise.lines=10}
+
+```
+
+### Exercise 5
+
+Analysis of the `job` data set, which contains the following variables:
+
+Variable name | Description
+------------- | ----------------
+average_score | Average score obtained by the employee in the test
+years_service | Number of years of service
+sex           | Male or female
+
+We want to see if it is possible to use the sex of the person in addition to the years of service to predict, with a linear model, the average score obtained in the test. Estimate a linear regression of `average_score` vs. `years_service`, considering the categorical variable `sex`.
+
+```{r job, exercise=TRUE, exercise.lines=10}
+
+```
+
+### Exercise 6
+
+Analysis of the `cars` data set, which contains the following variables:
+
+Variable name | Description
+------------- | ----------------
+speed         | Speed of the car before starting braking
+dist          | Distance travelled by the car during the braking period until it completely stops
+
+Verify if the distance travelled during the braking depends on the starting velocity of the car:
+
+1. Choose the best model to explain the distance as function of the speed,
+2. Predict the braking distance for a starting velocity of 25 km/h, using a point estimate and a prediction interval.
+
+```{r cars, exercise=TRUE, exercise.lines=10}
+
+```
+
+### Exercise 7
+
+Analysis of the `mussels` data set, which contains the following variables:
+
+Variable name | Description
+------------- | ----------------
+length        | Length of a mussel (mm)
+width         | Width of a mussel (mm)
+height        | Height of a mussel (mm)
+size          | Mass of a mussel (g)
+weight        | Weight of eatable part of a mussel (g)
+
+We want to study how the eatable part of a mussel varies as a function of the other four variables using a multiple linear regression.
+
+```{r mussels, exercise=TRUE, exercise.lines=10}
+
+```
