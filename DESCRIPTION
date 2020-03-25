@@ -13,7 +13,9 @@ Description: The goal of teachr is to provide a set of
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
+Depends:
+    R (>= 2.10)
 Imports: 
     testwhat (>= 4.11.1),
     readr,
@@ -22,7 +24,6 @@ Imports:
     skimr (>= 2.0.0),
     janitor,
     knitr,
-    learnr (>= 0.10.0),
     naniar,
     dplyr,
     tibble,
@@ -48,6 +49,8 @@ Imports:
     broom,
     lindia (>= 0.9),
     ggcorrplot
+Suggests:
+    learnr
 Remotes: 
     datacamp/testwhat,
     astamm/lindia@fix-residuals
