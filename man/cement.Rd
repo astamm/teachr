@@ -3,23 +3,25 @@
 \docType{data}
 \name{cement}
 \alias{cement}
-\title{Prices of 50,000 round cut diamonds.}
+\title{A Data Set About Cement Composition}
 \format{
-A data frame with 53940 rows and 10 variables:
+A \code{\link[tibble]{tibble}} with 13 observations of 5 variables:
 \describe{
-  \item{price}{price, in US dollars}
-  \item{carat}{weight of the diamond, in carats}
-  ...
+  \item{aluminium}{Quantity of aluminium, in grams.}
+  \item{silicate}{Quantity of silicate, in grams.}
+  \item{aluminium_ferrite}{Quantity of aluminium ferrite, in grams.}
+  \item{silicate_bic}{Quantity of silicate bic, in grams.}
+  \item{hardness}{Hardness.}
 }
 }
 \source{
-\url{http://www.diamondse.info/}
+???
 }
 \usage{
 cement
 }
 \description{
-A dataset containing the prices and other attributes of almost 54,000
-diamonds.
+A data set containing 13 cements with different compositions leading to
+different hardness.
 }
 \keyword{datasets}

@@ -3,23 +3,24 @@
 \docType{data}
 \name{mussels}
 \alias{mussels}
-\title{Prices of 50,000 round cut diamonds.}
+\title{Mussels Data Set}
 \format{
-A data frame with 53940 rows and 10 variables:
+A \code{\link[tibble]{tibble}} with 82 observations of 5 variables:
 \describe{
-  \item{price}{price, in US dollars}
-  \item{carat}{weight of the diamond, in carats}
-  ...
+  \item{length}{Mussel length, in mm.}
+  \item{width}{Mussel width, in mm.}
+  \item{height}{Mussel height, in mm.}
+  \item{size}{Mussel size, in mm3.}
+  \item{weight}{Mussel weight, in kg.}
 }
 }
 \source{
-\url{http://www.diamondse.info/}
+???
 }
 \usage{
 mussels
 }
 \description{
-A dataset containing the prices and other attributes of almost 54,000
-diamonds.
+A data set about mussels.
 }
 \keyword{datasets}

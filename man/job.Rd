@@ -3,23 +3,22 @@
 \docType{data}
 \name{job}
 \alias{job}
-\title{Prices of 50,000 round cut diamonds.}
+\title{Job Data Set}
 \format{
-A data frame with 53940 rows and 10 variables:
+A \code{\link[tibble]{tibble}} with 20 observations of 3 variables:
 \describe{
-  \item{price}{price, in US dollars}
-  \item{carat}{weight of the diamond, in carats}
-  ...
+  \item{average_score}{Average score.}
+  \item{years_service}{Years of service.}
+  \item{sex}{Gender.}
 }
 }
 \source{
-\url{http://www.diamondse.info/}
+???
 }
 \usage{
 job
 }
 \description{
-A dataset containing the prices and other attributes of almost 54,000
-diamonds.
+A data set about jobs.
 }
 \keyword{datasets}

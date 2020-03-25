@@ -3,9 +3,9 @@
 \docType{data}
 \name{brain}
 \alias{brain}
-\title{Brain data set}
+\title{Brain Data Set}
 \format{
-A tibble with 62 rows and 2 variables:
+A \code{\link[tibble]{tibble}} with 62 rows and 2 variables:
 \describe{
   \item{body_weight}{body weight, in kg.}
   \item{brain_weight}{brain weight, in kg.}

@@ -29,7 +29,7 @@ Tufte, Edward R. (1989). The Visual Display of Quantitative
 anscombe
 }
 \description{
-Four \emph{x-y} datasets which have the same traditional statistical
+Four \emph{x-y} data sets which have the same traditional statistical
 properties (mean, variance, correlation, regression line, etc.), yet are
 quite different.
 }

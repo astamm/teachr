@@ -5,7 +5,7 @@
 \alias{cars}
 \title{Speed and Stopping Distances of Cars}
 \format{
-A tibble with 50 observations of 2 variables:
+A \code{\link[tibble]{tibble}} with 50 observations of 2 variables:
 \describe{
   \item{speed}{Speed, in mph.}
   \item{dist}{Stopping distance, in ft.}

@@ -1,6 +1,6 @@
 #' Anscombe's Quartet of ‘Identical’ Simple Linear Regressions
 #'
-#' Four \emph{x-y} datasets which have the same traditional statistical
+#' Four \emph{x-y} data sets which have the same traditional statistical
 #' properties (mean, variance, correlation, regression line, etc.), yet are
 #' quite different.
 #'
@@ -27,11 +27,11 @@
 #'   American Statistician, 27, 17–21. doi: \url{10.2307/2682899}.
 "anscombe"
 
-#' Brain data set
+#' Brain Data Set
 #'
 #' A data set containing the body weight and brain weight of 62 species.
 #'
-#' @format A tibble with 62 rows and 2 variables:
+#' @format A \code{\link[tibble]{tibble}} with 62 rows and 2 variables:
 #' \describe{
 #'   \item{body_weight}{body weight, in kg.}
 #'   \item{brain_weight}{brain weight, in kg.}
@@ -44,7 +44,7 @@
 #' The data give the speed of cars and the distances taken to stop. Note that
 #' the data were recorded in the 1920s.
 #'
-#' @format A tibble with 50 observations of 2 variables:
+#' @format A \code{\link[tibble]{tibble}} with 50 observations of 2 variables:
 #' \describe{
 #'   \item{speed}{Speed, in mph.}
 #'   \item{dist}{Stopping distance, in ft.}
@@ -55,58 +55,62 @@
 #' @references McNeil, D. R. (1977) Interactive Data Analysis. Wiley.
 "cars"
 
-#' Prices of 50,000 round cut diamonds.
+#' A Data Set About Cement Composition
 #'
-#' A dataset containing the prices and other attributes of almost 54,000
-#' diamonds.
+#' A data set containing 13 cements with different compositions leading to
+#' different hardness.
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A \code{\link[tibble]{tibble}} with 13 observations of 5 variables:
 #' \describe{
-#'   \item{price}{price, in US dollars}
-#'   \item{carat}{weight of the diamond, in carats}
-#'   ...
+#'   \item{aluminium}{Quantity of aluminium, in grams.}
+#'   \item{silicate}{Quantity of silicate, in grams.}
+#'   \item{aluminium_ferrite}{Quantity of aluminium ferrite, in grams.}
+#'   \item{silicate_bic}{Quantity of silicate bic, in grams.}
+#'   \item{hardness}{Hardness.}
 #' }
-#' @source \url{http://www.diamondse.info/}
+#'
+#' @source ???
 "cement"
 
-#' Prices of 50,000 round cut diamonds.
+#' Job Data Set
 #'
-#' A dataset containing the prices and other attributes of almost 54,000
-#' diamonds.
+#' A data set about jobs.
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A \code{\link[tibble]{tibble}} with 20 observations of 3 variables:
 #' \describe{
-#'   \item{price}{price, in US dollars}
-#'   \item{carat}{weight of the diamond, in carats}
-#'   ...
+#'   \item{average_score}{Average score.}
+#'   \item{years_service}{Years of service.}
+#'   \item{sex}{Gender.}
 #' }
-#' @source \url{http://www.diamondse.info/}
+#'
+#' @source ???
 "job"
 
-#' Prices of 50,000 round cut diamonds.
+#' Mussels Data Set
 #'
-#' A dataset containing the prices and other attributes of almost 54,000
-#' diamonds.
+#' A data set about mussels.
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A \code{\link[tibble]{tibble}} with 82 observations of 5 variables:
 #' \describe{
-#'   \item{price}{price, in US dollars}
-#'   \item{carat}{weight of the diamond, in carats}
-#'   ...
+#'   \item{length}{Mussel length, in mm.}
+#'   \item{width}{Mussel width, in mm.}
+#'   \item{height}{Mussel height, in mm.}
+#'   \item{size}{Mussel size, in mm3.}
+#'   \item{weight}{Mussel weight, in kg.}
 #' }
-#' @source \url{http://www.diamondse.info/}
+#'
+#' @source ???
 "mussels"
 
-#' Prices of 50,000 round cut diamonds.
+#' Production Data Set
 #'
-#' A dataset containing the prices and other attributes of almost 54,000
-#' diamonds.
+#' A data set about production.
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A \code{\link[tibble]{tibble}} with 10 observations of 2 variables:
 #' \describe{
-#'   \item{price}{price, in US dollars}
-#'   \item{carat}{weight of the diamond, in carats}
-#'   ...
+#'   \item{x}{Something.}
+#'   \item{y}{Something else.}
 #' }
-#' @source \url{http://www.diamondse.info/}
+#'
+#' @source ???
 "production"

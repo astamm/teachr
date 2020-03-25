@@ -3,23 +3,21 @@
 \docType{data}
 \name{production}
 \alias{production}
-\title{Prices of 50,000 round cut diamonds.}
+\title{Production Data Set}
 \format{
-A data frame with 53940 rows and 10 variables:
+A \code{\link[tibble]{tibble}} with 10 observations of 2 variables:
 \describe{
-  \item{price}{price, in US dollars}
-  \item{carat}{weight of the diamond, in carats}
-  ...
+  \item{x}{Something.}
+  \item{y}{Something else.}
 }
 }
 \source{
-\url{http://www.diamondse.info/}
+???
 }
 \usage{
 production
 }
 \description{
-A dataset containing the prices and other attributes of almost 54,000
-diamonds.
+A data set about production.
 }
 \keyword{datasets}
