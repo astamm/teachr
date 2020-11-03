@@ -508,7 +508,7 @@ The ggplot2 package is now widely used worldwide. As a result, a number of peopl
 
 ### Heatmaps
 
-You can visualize a third dimension by color-coding a 2D plane. This is what does a heatmap. There are several ways to draw heatmaps in R. We recommend the [**d3heatmap**](https://github.com/rstudio/d3heatmap) package which provides interactive heatmaps.
+You can visualize a third dimension by color-coding a 2D plane. This is what does a heatmap. There are several ways to draw heatmaps in R. We recommend the [**heatmaply**](https://github.com/talgalili/heatmaply) package which provides interactive heatmaps.
 
 ### Data visualization of 3D data in 3D
 
