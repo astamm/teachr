@@ -11,6 +11,9 @@ author: Aymeric Stamm
 ```{r setup, include=FALSE}
 library(learnr)
 library(testwhat)
+library(magrittr)
+library(ggplot2)
+library(tibble)
 
 options(repos = "https://cloud.r-project.org")
 tutorial_options(
@@ -18,38 +21,73 @@ tutorial_options(
   exercise.checker = testwhat::testwhat_learnr
 )
 knitr::opts_chunk$set(comment = NA)
-```
 
-## Functions
-<img src="https://github.com/r-lib/rlang/raw/master/man/figures/rlang.png" alt="vctrs logo" width="64" style="float: right; margin-left: 10px; margin-right: 10px;"/>
-
-A function is an R object like any other R objects. For instance, you can create a list of functions. A function is an object that you can *call* via `my_function()`, which usually takes a certain number of input arguments and returns an R object. Let us try together to write a function that takes two input arguments `x` and `y` and returns their sum:
-```{r function-declaration, exercise=TRUE}
-
-```
-
-```{r def-my-add, echo=FALSE}
-my_add <- function(x, y) {
-  x + y
+plot.microbenchmark <- function(object, ..., log = TRUE) {
+  object <- object %>% 
+    dplyr::mutate(
+      ntime = microbenchmark:::convert_to_unit(time, "t")
+    ) %>% 
+    dplyr::group_by(expr) %>% 
+    dplyr::filter(
+      !(ntime %in% boxplot.stats(ntime)$out)
+    )
+  y_min <- min(object$ntime)
+  y_max <- max(object$ntime)
+  plt <- object %>% 
+    ggplot(aes(x = expr, y = ntime)) + 
+    geom_violin() + 
+    scale_x_discrete(name = "") + 
+    coord_flip() + 
+    theme_bw()
+  y_label <- sprintf("Time [%s]", attr(object$ntime, "unit"))
+  plt <- if (log) {
+    plt + 
+      scale_y_log10(
+        name = y_label, 
+        limits = c(y_min, y_max)
+      )
+  }
+  else {
+    plt + scale_y_continuous(
+      name = y_label, 
+      limits = c(y_min, y_max)
+    )
+  }
+  plt
 }
 ```
 
-Note the `->` **assignment operator**, which is not `=`. We strongly advice **against** using `=` for assignment because 
+## Functions
 
-- it often gets confused with `==` for testing equality;
-- it is used for naming elements in vectors (as we will see later).
+<img src="https://github.com/r-lib/rlang/raw/master/man/figures/rlang.png" alt="vctrs logo" width="64" style="float: right; margin-left: 10px; margin-right: 10px;"/>
+
+A function is an R object like any other R objects. For instance, you can create a list of functions. A function is an object that you can *call* via `my_function()`, which usually takes a certain number of input arguments and returns an R object. Let us write a function that takes two input arguments `x` and `y` and returns their sum. The general syntax would be something like:
+
+```{r def-my-add}
+my_add <- function(x, y = 1, ...) {
+  return(x + y)
+}
+```
+
+Note the `<-` **assignment operator**, which is not `=`. We strongly advice **against** using `=` for assignment because
+
+-   it often gets confused with `==` for testing equality;
+-   it is used for naming elements in vectors (as we will see later).
 
 Input arguments to a function can be of three forms:
 
-- Mandatory arguments: these are explicit named arguments with no default value;
-- Optional arguments: these are explicit named arguments with a default value;
-- `...`: the *dot* argument is useful whenever you do not know, or do not want to fix, the number of inputs that the function can accept; in this case, the number of input parameters can be retrieved via the function `dots_n()` from the [**rlang**](https://rlang.r-lib.org) package; you can capture the arguments passed to `...` as a list via `rlang::list2()`.
+-   Mandatory arguments: these are explicit named arguments with no default value;
+-   Optional arguments: these are explicit named arguments with a default value;
+-   `...`: the *dot* argument is useful whenever you do not know, or do not want to fix, the number of inputs that the function can accept; in this case, the number of input parameters can be retrieved via the function `dots_n()` from the [**rlang**](https://rlang.r-lib.org) package; you can capture the arguments passed to `...` as a list via `rlang::list2()`.
 
-A function defined as above is useable right away. More generally, you can use `rlang::as_function()` to generate useable functions from the three following inputs:
+Now we can comment our `my_add` function. It takes one mandatory argument `x` and adds it to a second optional argument `y` which takes the value of $1$ if not provided by the user when calling the function. It is also possible to pass extra arguments through the `...` argument although any additional arguments that would be supplied are currently not used by the function implementation.
 
-- a function: a pre-existing function using its name without quotation;
-- a string: a pre-existing function using its name as a string;
-- a lambda function: this is a compact syntax to generate short functions on the fly.
+A function defined as above can be used right away. More generally, you can use `rlang::as_function()` to generate ready-to-use functions from the three following inputs:
+
+-   a function: a pre-existing function using its name without quotation;
+-   a string: a pre-existing function using its name as a string;
+-   a lambda function: this is a compact syntax to generate short functions on the fly.
+
 ```{r function-defs}
 add1 <- rlang::as_function(my_add)
 add2 <- rlang::as_function("my_add")
@@ -65,38 +103,151 @@ add3(1, 2)
 add4(1, 2)
 ```
 
+### Exercises
+
+#### Exercise 1
+
+Write a function that approximates the golden number using the Fibonacci sequence.
+
+```{r exo-fibonacci, exercise=TRUE}
+
+```
+
+```{r exo-fibonacci-hint-1}
+# The golden number can be approximated as 
+# the ratio of two consecutive elements of 
+# the Fibonacci sequence.
+```
+
+```{r exo-fibonacci-hint-2}
+# Write a first function that generates 
+# the $n$-th element of the Fibonacci 
+# sequence. Next use that function in 
+# a second function that approximates 
+# the golden number.
+```
+
+```{r exo-fibonacci-hint-3}
+fibonacci <- function(n) {
+  if (n == 0) return(0)
+  if (n == 1) return(1)
+  fibonacci(n - 1) + fibonacci(n - 2)
+}
+```
+
+```{r exo-fibonacci-hint-4}
+golden_number <- function(n = 10) {
+  fibonacci(n + 1) / fibonacci(n)
+}
+golden_number()
+```
+
+#### Exercise 2
+
+Write a function that takes any number of input arguments and returns the list of input arguments itself by default, or, optionally, the number of input arguments.
+
+```{r exo-dots, exercise=TRUE}
+
+```
+
+```{r exo-dots-hint-1}
+# Use rlang::list2(...) to capture the 
+# arguments from the dot argument.
+```
+
+```{r exo-dots-hint-2}
+# Add an extra optional argument (such 
+# as "type") and use an if conditional 
+# statement in the function implementation 
+# to handle output according to the value 
+# of argument "type".
+```
+
+```{r exo-dots-hint-3}
+parse_arguments <- function(..., num = FALSE) {
+  if (num) return(rlang::dots_n(...))
+  return(rlang::list2(...))
+}
+parse_arguments(10, b = 4, po = "a")
+parse_arguments(10, b = 4, po = "a", num = TRUE)
+```
+
 ## Function-Oriented Programming
 
 There are two kinds of programming languages:
 
-- **Object-Oriented Programming (OOP).** OOP puts objects at the center of the language and design specific functions associated to each object type that are called *methods* of the object.
-- **Function-Oriented Programming (FOP).** FOP puts functions at the center of the language and define mulitple instances of the function for each object on which the function can be called.
+-   **Object-Oriented Programming (OOP).** OOP puts objects at the center of the language and designs specific functions associated to each object type that are called *methods* of the object.
+-   **Function-Oriented Programming (FOP).** FOP puts functions at the center of the language and defines multiple instances of the function for each object on which the function can be called.
 
-While other popular programming languages such as Python and C++ are object-oriented, R is *primarily* function-oriented. The [**R6**](https://r6.r-lib.org/articles/Introduction.html) package allows the users to define objects in an OOP fashion with associated methods just like in C++ using so-called `R6` classes but this is not how R was originally designed and it is out of the scope of this class.
+While other popular programming languages such as Python and C++ are object-oriented, R is *primarily* function-oriented. The [**R6**](https://r6.r-lib.org/articles/Introduction.html) package allows the users to define objects in an OOP fashion with associated methods just like in C++ using so-called `R6` classes but this is not how R was originally designed and it is out of the scope here.
 
-In R instead, you can for example implement the `mean()` function for various objects. An implementation for a specific object, say `my_object`, needs to be named `mean.my_object` while the mother function `mean()` calls a lower-level function `UseMethod()` that will dispatch the correct implementation given the input object type. 
+In R instead, you can for example implement the `mean()` function for various objects. An implementation for a specific object, say `my_object`, needs to be named `mean.my_object` while the mother function `mean()` calls a lower-level function `UseMethod()` that will dispatch the correct implementation given the input object type.
 
-**Your turn:** Use the following code box to see the internal code of the mean function and use auto-completion to find out all the different implementations of the `mean()` function in the **base** package.
-```{r fop, exercise=TRUE}
+**Tip:** to reveal the internal code of a function, just type the name of the function with no parentheses.
+
+### Exercise
+
+In the code cell below, we define a new R object, specifically for handling positive numbers. Provide a function that computes the geometric mean of a set of positive numbers using internally the `mean.default()` function, which provides the arithmetic mean of a set of real numbers.
+
+```{r exo-fop, exercise=TRUE}
+positive_numbers <- function(x) {
+  # The input x is a vector of real number
+  stopifnot(all(x > 0))
+  class(x) <- c("positive_numbers", class(x))
+  x
+}
 
 ```
 
-<div id="fop-hint">
-**Hint:** To reveal the internal code of a function, just type the name of the function with no parentheses.
-</div>
+```{r exo-fop-hint-1}
+# You can create a vector of numbers using 
+# the c() function with the syntax 
+# x <- c(1.1, 2.4, 4.3) which will generate 
+# a vector with 3 real numbers in this case.
+# You can alternatively generate a vector of 
+# n positive numbers by sampling from a 
+# probability distribution defined on the 
+# set of real positive numbers such as the 
+# exponential distribution. To do so in R, 
+# use the rexp() function as in 
+# x <- rexp(n).
+```
+
+```{r exo-fop-hint-2}
+# You need to implement the function 
+# mean.positive_numbers().
+```
+
+```{r exo-fop-hint-3}
+?exp
+?log
+```
+
+```{r exo-fop-hint-4}
+mean.positive_numbers <- function(x) {
+    exp(mean.default(log(x)))
+}
+
+x <- rexp(10)
+mean(x)
+mean(positive_numbers(x))
+```
 
 ## The [tidyverse](https://www.tidyverse.org)
+
 <img src="https://github.com/tidyverse/tidyverse/raw/master/man/figures/logo.png" alt="tidyverse logo" width="64" style="float: right; margin-left: 10px; margin-right: 10px;"/>
 
-The approach that we are taking to learn R is called the [**tidyverse**](https://www.tidyverse.org). It is a coding philosophy that takes the form of a series of packages that handles 5 main tasks:
+The approach that we are taking to learn R is called the [**tidyverse**](https://www.tidyverse.org). It is a coding philosophy that takes the form of a series of packages that handles $5$ main tasks:
 
-1. Better handling of basic R data types by designing a dedicated package for each of them;
-1. Easy data import by designing 3 packages tailored to import specific file formats;
-1. Easy data wrangling and transformation by designing a first package dedicated to reshaping data sets and a second package dedicated to transforming a data set;
-1. Easy data visualization by providing a dedicated package that contains an entire grammar for plotting;
-1. Easier data modeling.
+1.  Better handling of basic R data types by designing a dedicated package for each of them;
+2.  Easy data import by designing $3$ packages tailored to import specific file formats;
+3.  Easy data wrangling and transformation by designing a first package dedicated to reshaping data sets and a second package dedicated to transforming a data set;
+4.  Easy data visualization by providing a dedicated package that contains an entire grammar for plotting;
+5.  Easier data modeling by providing a set of dedicated packages regrouped under the [**tidymodels**](https://www.tidymodels.org) package that harmonize data pre-processing steps and calls to different implementations of a same statistical method.
 
-The last task is mainly a work in progress at the moment within the tidyverse community so we will only scheme some modeling capabitilies. The authors of the tidyverse dedicated a whole book available online on these topics that is an excellent complement to the tutorials seen in this class: [R for Data Science](https://r4ds.had.co.nz).
+The last task is out of scope for the first half of the course.
+
+The authors of the tidyverse dedicated a whole book available online on these topics that is an excellent complement to the tutorials seen in this class: [R for Data Science](https://r4ds.had.co.nz).
 
 In our task of cleaning and analyzing data sets, we need to treat separately different kinds of variables: numerical, categorical, binary, date-times, time-of-day. In addition, it can be convenient from a programming point of view to be able to combine together variables of different types to go towards objects that can properly store data sets. Let us dig into each type.
 
@@ -105,6 +256,7 @@ In our task of cleaning and analyzing data sets, we need to treat separately dif
 ### Creating and subsetting vectors
 
 Atomic vectors are containers of the same base type among $4$: integers, doubles, strings, boolean. To create an atomic vector, use `c()`:
+
 ```{r vector-c}
 # Atomic vector of doubles
 x <- c(1, 3, 5)
@@ -123,11 +275,14 @@ class(w)
 ```
 
 Vector elements can be named, either when they are defined:
+
 ```{r vector-named-def}
 x <- c(a = 1, b = 3, c = 5)
 x
 ```
+
 or, after their definition:
+
 ```{r vector-named-after}
 x <- c(1, 3, 5)
 y
@@ -136,6 +291,7 @@ x
 ```
 
 To subset an atomic vector, use the operator `[`:
+
 ```{r vector-sub}
 # By position, using a vector of doubles or integers
 # (each number refer to the position of elements to keep)
@@ -155,11 +311,13 @@ x[c("a", "c")]
 ```
 
 ### Numerical variables
+
 <img src="https://github.com/r-lib/vctrs/raw/master/man/figures/logo.png" alt="vctrs logo" width="64" style="float: right; margin-left: 10px; margin-right: 10px;"/>
 
 #### Doubles and integers
 
-Observations from numerical variables are stored as either `integer` or `double` objects which are integer-precision or double-precision numeric vectors respectively. In R, numbers are doubles by default. To make an integer, place an `L` after the number:
+Observations from numerical variables are stored as either `integer` or `double` objects which are integer-precision or double-precision numeric vectors respectively. In R, numbers are doubles by default. To explicitly mark a number as integer, place an `L` after the number:
+
 ```{r double-vs-integer}
 typeof(1)
 typeof(1L)
@@ -167,44 +325,52 @@ typeof(1L)
 
 The distinction between integers and doubles is usually not important, but there are two important differences that you should be aware of:
 
-1. **Doubles are approximations.** Doubles represent floating point numbers that cannot always be precisely represented with a fixed amount of memory. This means that you should consider all doubles to be approximations. 
+1.  **Doubles are approximations.** Doubles represent floating point numbers that cannot always be precisely represented with a fixed amount of memory. This means that you should consider all doubles to be approximations. For example, if we compare $\sqrt{2}^2$ and $2$ using `==`, this is what we get:
 
-For example, try to compute $\sqrt{2}$ and look for the difference between $\sqrt{2}^2$ and $2$, what do you see?
-```{r double-approx, exercise=TRUE}
+    ```{r double-approx}
+    a <- sqrt(2)^2
+    b <- 2
+    a == b
+    abs(a - b)
+    ```
 
-```
+    This behaviour is common when working with floating point numbers: most calculations include some approximation error. Instead of comparing floating point numbers using `==`, you should check that their difference in absolute value is not greater than a small tolerance value. For this purpose, you can use the function `dplyr::near()`.
 
-```{r double-approx-hint}
-?sqrt
-```
+    ```{r dplyr-near}
+    dplyr::near(sqrt(2)^2, 2)
+    ```
 
-This behaviour is common when working with floating point numbers: most calculations include some approximation error. Instead of comparing floating point numbers using `==`, you should check that their difference in absolute value is not greater than twice the smallest representable double (which is stored in R as `.Machine$double.eps`).
+2.  **Number of special values.** Integers have one special value: `NA`, while doubles have four: `NA`, `NaN`, `Inf` and `-Inf`. The `NaN` value stands for *not-a-number*.
 
-2. **Number of special values.** Integers have one special value: `NA`, while doubles have four: `NA`, `NaN`, `Inf` and `-Inf`. The `NaN` value stands for *not-a-number*.
+    In R, the special value that encodes missing values is `NA`. Missing values can be detected in a vector by invoking the function `is.na()`. Note that it detects both `NA` and `NaN` entries. In the case of doubles, all three other special values `NaN`, `Inf` and `-Inf` can arise during division:
 
-In R, the special value that encodes missing values is `NA`. Missing values can be detected in a vector by invoking the function `is.na()`. Note that it detects both `NA` and `NaN` entries.
-In the case of doubles, all three other special values `NaN`, `Inf` and `-Inf` can arise during division:
-```{r divide-by-zero}
-c(-1, 0, 1) / 0
-```
+    ```{r divide-by-zero}
+    c(-1, 0, 1) / 0
+    ```
 
-Avoid using `==` to check for these special values. Instead use the helper functions `is.finite()`, `is.infinite()`, and `is.nan()`.
+    Here is now what is happening if we use specifically integers:
 
-Find out which entries of the following numeric variable are finite using both `is.finite()` and the negation of `is.infinite()`. What can you conclude?
-```{r special-values, exercise=TRUE}
-x <- c(Inf, 3, NA, NaN)
+    ```{r divide-by-zero-int}
+    c(-1L, 0L, 1L) %/% 0L
+    ```
 
-```
+    Note the use of the special operator `%/%` to perform the integer division. In effect, even if input arguments to the real division operator `/` are integers the result is converted to double. So we must use the integer division operator if we want to preserve an integer output.
 
-#### Creating and accessing numeric vectors
+    Avoid using `==` to check for these special values. Instead use the helper functions `is.finite()`, `is.infinite()`, and `is.nan()`.
 
-The function `c()` that allows to create atomic vectors, also allows to concatenate them. Create the vector $(1, 4, 2.3, \pi)^\top$. Then, concatenate the named vector $(\mathrm{m}: 0, \mathrm{v}: 1)$:
-```{r numeric-concat, exercise=TRUE}
+#### Concatenation, sequences
 
+The function `c()` that allows to create atomic vectors, also allows to concatenate them:
+
+```{r c-concatenate}
+x <- c(1, 7, 6, 4)
+y <- c(3, 2, 9, 7)
+c(x, y)
 ```
 
 You can also create a vector that linearly spans a given interval on a regular grid with `seq()`.
-```{r num-seq}
+
+```{r seq}
 # By specifying the length of the grid
 x <- seq(-1, 1, length.out = 10)
 x
@@ -213,108 +379,168 @@ y <- seq(-1, 1, by = 0.1)
 y
 ```
 
-For sequences of integers in a given interval you can use `seq_len()` or `seq_along()` or the syntax `start:stop`. Define the vector $(1, 2, 3, 4, 5)^\top$ in two different ways, using first `seq_len()` and then the `start:stop` syntax:
-```{r seq-len, exercise=TRUE}
+For sequences of integers of step $1$, there are two simplified functions. Say you want to generate a vector containing all integers from $1$ to $7$. You can then use either:
 
+```{r seq-len}
+seq_len(7)
 ```
-Which solution seems simpler? Why could the other one still be interesting?
 
-Apply `seq_along()` to the following vector:
-```{r seq-along, exercise=TRUE}
-x <- c(1.3, pi, 0.3, 7.9)
+or the syntax `start:stop`:
 
+```{r start-stop}
+1:7
 ```
-What does it do?
 
 #### Usual mathematical functions and operations
 
-You can find all the universal mathematical functions in the **base** package: abs, sqrt, log, exp, trigonometric functions, etc. These functions are all vectorized. You can find all usual mathmatical operations in the **base** package as well: addition, subtraction, multiplication, division, powering, integer division, modulo and all comparison operators. See the exhaustive list of available mathematical functions and operators with `?groupGeneric`:
+You can find all the universal mathematical functions in the **base** package: `abs()`, `sqrt()`, `log()`, `exp()`, trigonometric functions, etc. These functions are all vectorized. You can find all usual mathematical operations in the **base** package as well: addition (`+`), subtraction (`-`), multiplication (`*`), division `/`, powering (`^`), integer division (`%/%`), modulo (`%%`) and all comparison operators. See the exhaustive list of available mathematical functions and operators with `?groupGeneric`:
+
 ```{r group-generic, exercise=TRUE}
 ?groupGeneric
+
 ```
 
 **Recycling.** Be careful that operations are also completely vectorized and R will not prevent you from performing operations between two vectors of different lengths (although it will warn you to some extent). Experiment in the following code box for understanding how R handles this situation:
+
 ```{r recycling, exercise=TRUE}
-x <- 1:10
-y <- 1:5
+x <- 1:5
+y <- 1:10
+x+y
+
+x <- seq_len(5)
+y <- seq_len(11)
+x+y
 
 ```
 
-For completeness, we mention that you can also create and manipulate vectors of complex numbers. Complex numbers can be created via `complex()` from the **base** package. We will not detail complex vectors because it is pretty rare (but it happens) that they end up appearing in data sets for statistical analysis.
+If you experimented enough, you will have realized that R sometimes warn you but not always. Did you figure out when the warning occurs? In any event, even when R warns you, it recycles anyway. You can prevent recycling from happening for those situations where R warns you by starting your R script with the command `options(warn = 2)` which tells R to convert all warnings into errors. But beware that all other kind of warnings will be turned into errors as well. Plus, in the situation of recycling without warning, R will still recycle. So our recommendation is to **never rely on recycling** in your R code.
+
+For completeness, we shall mention that you can also create and manipulate vectors of complex numbers. Complex numbers can be created via `complex()` from the **base** package. We will not detail complex vectors because it is pretty rare (but it happens) that they end up appearing in data sets for statistical analysis.
 
 There is a work-in-progress (WIP) package within the tidyverse called [**vctrs**](https://vctrs.r-lib.org) that attempts to implement a more robust and more generic vector class that should be better suited for representing numeric variables in the near future.
 
+#### Exercises
+
+##### Exercise 1
+
+Find out which entries of the following numeric variable are finite using both `is.finite()` and the negation of `is.infinite()`. What can you conclude?
+
+```{r exo1-special-values, exercise=TRUE}
+x <- c(Inf, 3, NA, NaN)
+
+```
+
+##### Exercise 2
+
+We propose here a benchmarking (timing of the execution times) of the `seq_len()` and the `start:stop` syntax:
+
+```{r bchk-seq}
+mbm <- microbenchmark::microbenchmark(
+  seq_len = seq_len(10000000), 
+  start_stop = 1:10000000, 
+  times = 1000
+)
+plot(mbm)
+```
+
+In view of these results, which approach would you recommend? Why are there two possible approaches then?
+
+##### Exercise 3
+
+Compute an approximation of $\pi$ using trigonometric functions.
+
+```{r exo3-pi, exercise=TRUE}
+
+```
+
+##### Exercise 4
+
+Extract even numbers from the following vector of integers:
+
+```{r exo4-even, exercise=TRUE}
+x <- rpois(20)
+
+```
+
 ### Categorical variables
 
-Categorical variables like the hair color for instance take values that are substantially words (dark, brown, blond, etc.). The natural way to store a sample of observations of categorial variables in R is a character vector which contains a sample of those words. There is a second type of vectors, called `factors`, that constrains character vectors to take on a finite set of possible values called *levels*. Values that are not among the expected levels are considered missing and treated as `NA`. The main advantages are that you control the order of the levels and thus you can customize plot appearances or variable summary. Let us dig into these two types of vectors.
+Categorical variables like the hair color for instance take values that are substantially words (dark, brown, blond, etc.). The natural way to store a sample of observations of categorical variables in R is a character vector which contains a sample of those words. There is a second type of vectors, called `factors`, that constrains character vectors to take on a finite set of possible values called *levels*. Values that are not among the expected levels are considered missing and treated as `NA`. The main advantages are that you control the order of the levels and thus you can customize plot appearances or variable summary. Let us dig into these two types of vectors.
 
 #### Character vectors
+
 <img src="https://github.com/tidyverse/stringr/raw/master/man/figures/logo.png" alt="stringr logo" width="64" style="float: right; margin-left: 10 px; margin-right: 10px;"/>
 
 Character vectors are vectors made of strings. There is a dedicated package within the tidyverse for manipulating strings (and character vectors) called [**stringr**](https://stringr.tidyverse.org). The names of all the functions for manipulating character vectors in this package start with `str_*`. You can therefore see the exhaustive list when typing `str_` thanks to code completion. The final part of the function names is usually explicit about the intended purpose of the function. You can then invoke the help on any function you think you might need to see the precise syntax for using it.
 
-Be aware that all `str_*` functions are vectorized meaning that they will apply what they are intended to do to each string within a character vector. Apply the `str_length()` function to the following character vector:
-```{r str-length, exercise=TRUE}
-x <- c("a", "R for data science", NA)
-
-```
-Did you expect such a result? What should be the R code if we really wanted the size of the character vector?
-```{r length-str, exercise=TRUE}
-
-```
+Be aware that all `str_*` functions are vectorized meaning that they will apply what they are intended to do to each string within a character vector.
 
 Useful `str_*` functions for later exploring data sets include:
 
-- `str_c()`: for concatenating strings together;
-- `str_detect()`: for finding entries with strings that match a given pattern; 
-- `str_replace()`: for finding and replacing a given pattern by another one;
-- `str_replace_na()`: for handling missing values
-- `str_sub()`: for subsetting a string.
+-   `str_c()`: for concatenating strings together;
+-   `str_detect()`: for finding entries with strings that match a given pattern;
+-   `str_replace()` and `str_replace_all()`: for finding and replacing a given pattern by another one;
+-   `str_replace_na()`: for handling missing values;
+-   `str_sub()`: for subsetting a string.
 
-For example, use one or more of the above mentioned functions to change the following sentence in order to make you happy (but me less):
-```{r str-replace, exercise=TRUE}
-x <- "Centrale Lyon will win again the Challenge this year, vive Centrale Lyon !"
+The function `str_detect()` is particularly useful for filtering observations in data sets by keeping only those for which categorical variables match certain values. To get the best experience of this function, one should learn how to match patterns with regular expressions. We recommend the interested reader to use `str_view()` which offers a nice visualization of the effect of regular expressions. For example, if we want to understand what kind of patterns the regular expression `".a."` matches, we can use:
 
-```
-
-The function `str_detect()` is particularly useful for filtering observations in data sets by keeping only those for which categorical variables match certain values. To get the best experience of this function, one should learn how to match patterns with regular expressions. We recommend the interested reader to use `str_view()` which offers a nice visualization of the effect of regular expressions. However, the same regular expressions should then be used in combination with `str_detect()` when it comes to filtering data sets, because `str_view()` is provided only for educational purposes. For completeness, this is an example of how `str_view()` can help you understand how regular expression work:
 ```{r str-view}
 x <- c("apple", "banana", "pear")
 stringr::str_view(x, ".a.")
 ```
 
+We understand from the output that it is matching pieces of strings of length $3$ with the letter `a` in the middle.
+
+However, the same regular expressions should then be used in combination with `str_detect()` when it comes to filtering data sets, because `str_view()` is provided only for educational purposes. So if you want to get rid of `"apple"` in the previous example because it does not contain any letter `a` surrounded by two other letters, you should do something like:
+
+```{r str-detect-view}
+x <- c("apple", "banana", "pear")
+x[stringr::str_detect(x, ".a.")]
+```
+
 #### Factors
+
 <img src="https://github.com/tidyverse/forcats/raw/master/man/figures/logo.png" alt="forcats logo" width="64" style="float: right; margin-left: 10 px; margin-right: 10px;"/>
 
 Categorical variables are in fact variables that have a fixed and known set of possible values. Samples of observations of such variables are particularly well handled using `factors` in R. Functions for creating and manipulating `factors` can be found in the dedicated [**forcats**](https://forcats.tidyverse.org) package.
 
-**Why factors?**
-There are two major advantages in using `factors` over simpler character vectors for representing observations from categorical variables:
+##### Why factors?
 
-1. When creating a `factor`, you can explicitly define the set of allowed values that the variable can take, which are called the *levels*. Hence, any other value in the character vector will be changed into missing value.
-1. When creating a `factor`, you also decide the order of the levels, which is by default alphabetical. This is particularly useful for reporting summaries of categorical variables, be them tables or bar plots.
+There are two major advantages in using `factor`s over simpler character vectors for representing observations from categorical variables:
 
-However, it is considerably simpler to manipulate character vectors w.r.t. `factors`. As a result, we **highly recommend** that you stick to character vectors for representing categorical variables and only switch to the `factor` representation when it comes to summarizing them.
+1.  When creating a `factor`, you can explicitly define the set of allowed values that the variable can take, which are called the *levels*. Hence, any other value in the character vector will be changed into missing value.
+2.  When creating a `factor`, you also decide the order of the levels, which is by default alphabetical. This is particularly useful for reporting summaries of categorical variables, be them tables or bar plots.
 
-To convert a numeric or character vector, say `x`, into a `factor`, use `forcats::as_factor(x)`. Once you converted it into a `factor`, you can then use any of the `fct_*` functions of the [**forcats**](https://forcats.tidyverse.org) package to manipulate it. Again, thanks to code completion, you can easily get a list of all these functions and the end of the function name is usually self-explicit about the intended purpose.
+However, it is considerably simpler to manipulate character vectors w.r.t. `factor`s. As a result, we **highly recommend** that you stick to character vectors for representing categorical variables and only switch to the `factor` representation when it comes to summarizing or plotting them.
 
-**Creating a factor.** Imagine that you have a variable that records month:
+To convert a numeric or character vector, say `x`, into a `factor`, use `factor()`. Once you converted it into a `factor`, you can then use any of the `fct_*` functions of the [**forcats**](https://forcats.tidyverse.org) package to manipulate it. Again, thanks to code completion, you can easily get a list of all these functions and the end of the function name is usually self-explicit about the intended purpose.
+
+##### Creating a factor
+
+Imagine that you have a variable that records month:
+
 ```{r factor-intro-1, results='hide'}
 x1 <- c("Dec", "Apr", "Jan", "Mar")
 ```
 
 Using a string to record this variable has two problems:
 
-- There are only twelve possible months, and there is nothing saving you from typos:
-```{r factor-intro-2, results='hide'}
-x2 <- c("Dec", "Apr", "Jam", "Mar")
-```
-- It does not sort in a useful way:
-```{r factor-intro-3}
-sort(x1)
-```
+-   There are only twelve possible months, and there is nothing saving you from typos:
 
-You can fix both of these problems with a `factor`. To create a factor you must start by creating a list of the valid levels:
+    ```{r factor-intro-2, results='hide'}
+    x2 <- c("Dec", "Apr", "Jam", "Mar", "Try")
+    ```
+
+<!-- -->
+
+-   It does not sort in a useful way:
+
+    ```{r factor-intro-3}
+    sort(x1)
+    ```
+
+You can fix both of these problems with a `factor`. To create a factor you can start by creating a list of the valid levels:
+
 ```{r factor-intro-4, results='hide'}
 month_levels <- c(
   "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
@@ -322,7 +548,8 @@ month_levels <- c(
 )
 ```
 
-Now you can create a `factor`:
+Now you can coerce your character vector of months into a `factor`:
+
 ```{r factor-intro-5}
 y1 <- factor(x1, levels = month_levels)
 y1
@@ -330,22 +557,26 @@ sort(y1)
 ```
 
 Observe that any values not in the set of authorized levels will be silently converted to `NA`:
+
 ```{r factor-intro-6}
 y2 <- factor(x2, levels = month_levels)
 y2
 ```
 
 If you'd rather want a warning, you can use `readr::parse_factor()`:
+
 ```{r factor-intro-7}
 y2 <- readr::parse_factor(x2, levels = month_levels)
 ```
 
 If you omit the levels, they will be taken from the data in alphabetical order:
+
 ```{r factor-intro-8}
 factor(x1)
 ```
 
-Sometimes you could prefer that the order of the levels match the order of the first appearance in the data. You can do that when creating the factor by setting levels to `unique(x)`, or after the fact, with `forcats::fct_inorder()`:
+Sometimes you could prefer that the order of the levels matches the order of the first appearance in the data. You can do that when creating the `factor` by setting levels to `unique(x)`, or after the facts, with `forcats::fct_inorder()`:
+
 ```{r factor-intro-9}
 # When creating the factor
 f1 <- factor(x1, levels = unique(x1))
@@ -356,52 +587,91 @@ f2
 ```
 
 If you ever need to access the set of valid levels directly, you can do so with `levels()`:
+
 ```{r factor-intro-10}
 levels(f2)
 ```
 
-**Modifying factor levels.**
+##### Modifying factor levels
 
-Sometimes, raw data sets are not that clean and typos in categorial variables is a major source of problems. Sometimes, the number of categories is unnecessarily high, making the frequency of some categories too small for statistical significance. We might also want to clarify labels for publication or collapse levels for high-level displays. This is where `fct_recode()`, `fct_collapse()` and `fct_lump()` come into play.
+Sometimes, raw data sets are not that clean and typos in categorical variables is a major source of problems. Sometimes, the number of categories is unnecessarily high, making the frequency of some categories too small for statistical significance. We might also want to clarify categories for publication or collapse levels for high-level displays. This is where `fct_recode()`, `fct_collapse()` and `fct_lump()` come into play.
 
-Let us experiment with these functions. We will use two categorical variables extracted from the `forcats::gss_cat` data set It is a sample of data from the General Social Survey, which is a long-running US survey conducted by the independent research organization NORC at the University of Chicago. We will focus on the two categorical variables `partyid` and `relig`:
+Let us experiment with these functions. We will use two categorical variables extracted from the `forcats::gss_cat` data set. This data set is a sample of data from the General Social Survey, which is a long-running US survey conducted by the independent research organization [NORC](https://www.norc.org/Pages/default.aspx) at the University of Chicago. We will focus on the two categorical variables `partyid` and `relig`:
+
 ```{r gsscat-setup}
 partyid <- forcats::gss_cat$partyid
 relig <- forcats::gss_cat$relig
 ```
 
-First use the function `table()` from the **base** package to get an idea of the levels of the `partyid` factor as well as their frequency in the data:
-```{r gsscat-table, exercise=TRUE, exercise.setup="gsscat-setup"}
+Let us first analyze the variable `partyid`. The first thing to do is to inspect the frequency of each category for this variable:
 
+```{r gsscat-partyid-viz}
+knitr::kable(table(partyid))
 ```
 
-Can you group together citizens that do not belong to one of the $7$ most represented parties?
-```{r gsscat-recode, exercise=TRUE, exercise.setup="gsscat-setup"}
+The function `table()` from the **base** package does the job of counting the number of observations in each category. The function `knitr::kable()` is just cosmetic for a nice formatting of the table in your browser. There are two things that we can notice:
 
-```
+1.  Category labels are not always very clear because of abbreviations.
+2.  There is one category with a frequency of $1$ which, for the purpose of statistical analysis, is irrelevant.
 
-```{r gsscat-recode-solution}
+We can solve both these problems with the `forcats::fct_recode()` function, for example as follows:
+
+```{r fct-recode}
 new_partyid <- forcats::fct_recode(
   partyid,
-  "Republican, strong"    = "Strong republican",
-  "Republican, weak"      = "Not str republican",
-  "Independent, near rep" = "Ind,near rep",
-  "Independent, near dem" = "Ind,near dem",
-  "Democrat, weak"        = "Not str democrat",
-  "Democrat, strong"      = "Strong democrat",
-  "Other"                 = "No answer",
-  "Other"                 = "Don't know",
-  "Other"                 = "Other party"
+  "Republican (strong)"           = "Strong republican",
+  "Republican (weak)"             = "Not str republican",
+  "Independent (near republican)" = "Ind,near rep",
+  "Independent (near democrat)"   = "Ind,near dem",
+  "Democrat (weak)"               = "Not str democrat",
+  "Democrat (strong)"             = "Strong democrat", 
+  "Unsure"                        = "No answer",
+  "Unsure"                        = "Don't know"
 )
-table(new_partyid)
+knitr::kable(table(new_partyid))
 ```
 
-Can you group together levels so that the resulting factor ends up with only the four following levels: other, republicans, independents and democrats?
-```{r gsscat-collapse, exercise=TRUE, exercise.setup="gsscat-setup"}
+In the function `forcats::fct_recode()`, we only need to list the categories that we aim at relabeling. There other ones will be left as is. If we attribute the same new label to several categories, the latter will be merged together, as we did for categories `"no answer"` and `"Don't know"` that we grouped under the category `"Unsure"`.
+
+#### Exercises
+
+##### Exercise 1
+
+1.  Experiment with the function `stringr::str_length()` on the following vector:
+
+    ```{r exo1-str-length, exercise=TRUE}
+    x <- c("a", "R for data science", NA)
+
+    ```
+
+2.  What does it do? Did you expect such a result?
+
+3.  If you did not expect this result, what piece of `R`{=html} code would compute what you intended?
+
+    ```{r exo1-length-str, exercise=TRUE}
+    x <- c("a", "R for data science", NA)
+
+    ```
+
+##### Exercise 2
+
+Use one or more of the `stringr::str_*()` functions to change the following sentence in order to make you happy (but me less):
+
+```{r exo3-str-replace, exercise=TRUE}
+x <- "Centrale Lyon will win again the Challenge this year, vive Centrale Lyon !"
 
 ```
 
-```{r gsscat-collapse-solution}
+##### Exercise 3
+
+Explore how to use the function `forcats::fct_collapse()` to group categories into the four following macro-categories: other, republicans, independents and democrats.
+
+```{r exo3-fct-collapse, exercise=TRUE, exercise.setup="gsscat-setup"}
+knitr::kable(table(partyid))
+
+```
+
+```{r exo3-fct-collapse-solution}
 new_partyid <- forcats::fct_collapse(
   partyid,
   other = c("No answer", "Don't know", "Other party"),
@@ -409,18 +679,21 @@ new_partyid <- forcats::fct_collapse(
   independents = c("Ind,near rep", "Independent", "Ind,near dem"),
   democrats = c("Not str democrat", "Strong democrat")
 )
-table(new_partyid)
+knitr::kable(table(new_partyid))
 ```
 
-Now looking at the `relig` factor, can you lump together the smallest groups?
-```{r gsscat-lump, exercise=TRUE, exercise.setup="gsscat-setup"}
+##### Exercise 4
+
+Explore how to use the function `forcats::fct_lump()` to automatically group the smallest categories of the `relig` variable so that we end up with exactly $10$ categories.
+
+```{r exo4-fct-lump, exercise=TRUE, exercise.setup="gsscat-setup"}
+knitr::kable(table(relig))
 
 ```
 
-```{r gsscat-lump-solution}
-table(relig)
+```{r exo4-fct-lump-solution}
 new_relig <- forcats::fct_lump(relig, n = 10)
-table(new_relig)
+knitr::kable(table(new_relig))
 ```
 
 ### Binary variables
@@ -430,6 +703,7 @@ Binary variables are variables which can take only two outcomes, which can be en
 Logical vectors are vectors of booleans that can therefore take only three possible values: `FALSE`, `TRUE`, and `NA`. As a result, they are particularly well suited for representing binary variables. Logical vectors are usually constructed with comparison operators `==`, `!=`, `<`, `<=`, `>`, `>=`.
 
 Write a piece of code that returns a binary vector with `TRUE` entries for pair integers up to $10$ and `FALSE` otherwise:
+
 ```{r bool-comparison, exercise=TRUE}
 
 ```
@@ -439,6 +713,7 @@ Write a piece of code that returns a binary vector with `TRUE` entries for pair 
 ```
 
 Remember that you can also create binary vectors by hand with `c()`:
+
 ```{r bool-create}
 c(TRUE, TRUE, FALSE, NA)
 ```
@@ -446,6 +721,7 @@ c(TRUE, TRUE, FALSE, NA)
 ### Missing values
 
 Logical, integer, real, complex and character vectors all come with their own missing value:
+
 ```{r missing-codes, echo=TRUE, results='hide'}
 NA            # logical
 NA_integer_   # integer
@@ -457,31 +733,35 @@ NA_character_ # character
 Normally you do not need to know about these different types because you can always use `NA` and it will be converted to the correct type using coercion rules internal to R. However, there are some functions that are strict about their inputs so it might be helpful to know about this.
 
 ### Date and date-times variables
+
 <img src="https://github.com/tidyverse/lubridate/raw/master/man/figures/logo.png" alt="lubridate logo" width="64" style="float: right; margin-left: 10 px; margin-right: 10px;"/>
 
-Dates and times are arguably the most complex data types. Just think of the nightmare of determining [leap years](https://en.wikipedia.org/wiki/Leap_year). It is not only a year divisible by 4. The full rule has actually three parts. And this is just the beginning of our problems with dates and times (think about time zones, daylight savings times, etc.). Fortunately for us, the [**lubridate**](https://lubridate.tidyverse.org) package solves seemlessly all of these problems. 
+Dates and times are arguably the most complex data types. Just think of the nightmare of determining [leap years](https://en.wikipedia.org/wiki/Leap_year). It is not only a year divisible by 4. The full rule has actually three parts. And this is just the beginning of our problems with dates and times (think about time zones, daylight savings times, etc.). Fortunately for us, the [**lubridate**](https://lubridate.tidyverse.org) package solves seemlessly all of these problems.
 
-Note that, bottom line, dates and times are nothing but numbers because, internally, they are stored as the number of seconds separating a date/time from a fixed date. Hence, all the things described for numeric vectors will generally be allowed for date/time objects but we **strongly recommend** to manipulate them through the  because operation rules on date/time objects are not the same as for classical numbers.
+Note that, bottom line, dates and times are nothing but numbers because, internally, they are stored as the number of seconds separating a date/time from a fixed date. Hence, all the things described for numeric vectors will generally be allowed for date/time objects but we **strongly recommend** to manipulate them through the because operation rules on date/time objects are not the same as for classical numbers.
 
 #### Creating date and date-time objects
 
 Most of the time, you will create a `date` or `date-time` object:
 
-- *from a string*: creating a `date` object from a string is the job of the `yms()` function and friends; basically you just need to permute the order of the letters `y`, `m` and `d` according to the order of appearance of the year, month and day in the input string to form a new three-letter function that exists in the [**lubridate**](https://lubridate.tidyverse.org) package and will automatically work out the format once you specify the order of the components; functions of the type `ymd_hms()` also exist for creating `date-time` objects with the same philosophy.
-- *from individual components*: creating a `date` object from the year, month and day is the job of `make_date()`; the function `make_datetime()` allows to create `date-time` objects.
+-   *from a string*: creating a `date` object from a string is the job of the `yms()` function and friends; basically you just need to permute the order of the letters `y`, `m` and `d` according to the order of appearance of the year, month and day in the input string to form a new three-letter function that exists in the [**lubridate**](https://lubridate.tidyverse.org) package and will automatically work out the format once you specify the order of the components; functions of the type `ymd_hms()` also exist for creating `date-time` objects with the same philosophy.
+-   *from individual components*: creating a `date` object from the year, month and day is the job of `make_date()`; the function `make_datetime()` allows to create `date-time` objects.
 
 #### Extracting components from date and date-time objects
 
 The reverse operations can be done, i.e. it is possible to extract individual components from a `date` or `date-time` object with the accessor functions `year()`, `month()`, etc.
 
 Use these functions to extract the year, month, day, hours, minutes, seconds of the following date:
+
 ```{r extract-component, exercise=TRUE}
 datetime <- lubridate::ymd_hms("2016-07-08 12:34:56")
 
 ```
+
 How did you extract the day? What is the difference between the different functions to perform day extraction?
 
 For `month()` and `wday()`, you can set `label = TRUE` to return the abbreviated name of the month or day of the week. Set `abbr = FALSE` to return the full name.
+
 ```{r month-wday}
 datetime <- lubridate::ymd_hms("2016-07-08 12:34:56")
 lubridate::month(datetime, label = TRUE)
@@ -491,6 +771,7 @@ lubridate::wday(datetime, label = TRUE, abbr = FALSE)
 #### Modifying a date or date-time object
 
 You can also use each accessor function to set the components of a `date` or `date-time` object:
+
 ```{r modify-inplace}
 datetime <- lubridate::ymd_hms("2016-07-08 12:34:56")
 
@@ -503,6 +784,7 @@ datetime
 ```
 
 Alternatively, rather than modifying in place, you can create a new `date` or `date-time` object with `update()`. This also allows you to set multiple values at once.
+
 ```{r modify-update}
 update(datetime, year = 2020, month = 2, mday = 2, hour = 2)
 ```
@@ -510,6 +792,7 @@ update(datetime, year = 2020, month = 2, mday = 2, hour = 2)
 Note that `update()` is a method from the **stats** package, an implementation of zwhich is proposed in the [**lubridate**](https://lubridate.tidyverse.org) package for date and date-time objects. Hence, it is not part of the [**lubridate**](https://lubridate.tidyverse.org) package and should therefore not be referred to as such.
 
 If values are too big, they will roll-over:
+
 ```{r modify-rollover}
 datetime <- lubridate::ymd("2015-02-01")
 update(datetime, mday = 30)
@@ -517,22 +800,26 @@ update(datetime, hour = 400)
 ```
 
 ## Lists
+
 <img src="https://github.com/tidyverse/purrr/raw/master/man/figures/logo.png" alt="purrr logo" width="64" style="float: right; margin-left: 10 px; margin-right: 10px;"/>
 
 Atomic vectors can only store booleans, numeric entries or strings and are required to contain only one type of these. In fact, R is very permissive and allows you to mix all types into a vector but results might be unexpected. Play with the following code:
+
 ```{r mix-vector, exercise=TRUE}
 c(1, 3, TRUE)
 c(1, 3, TRUE, "a")
 
 ```
+
 Did you expect this outcome?
 
 Lists are a special kind of vectors defined to answer two problematics:
 
-1. Creating vectors with entries that have heterogeneous types and that keep their own type when grouped together in the vector;
-2. Creating vectors with homogeneous entries that have more complex data types, such as matrices, data sets, results as output by R modeling functions or any other R object.
+1.  Creating vectors with entries that have heterogeneous types and that keep their own type when grouped together in the vector;
+2.  Creating vectors with homogeneous entries that have more complex data types, such as matrices, data sets, results as output by R modeling functions or any other R object.
 
 To create a list, use the function `list2()` from the [**rlang**](https://rlang.r-lib.org) package. For example, using `rlang::list2()` instead of `c()` in the previous examples allows you to preserve the original data types of the entries:
+
 ```{r mix-list, exercise=TRUE}
 rlang::list2(1, 3, TRUE)
 rlang::list2(1, 3, TRUE, "a")
@@ -540,6 +827,7 @@ rlang::list2(1, 3, TRUE, "a")
 ```
 
 Note however that, while for atomic vectors you use `c()` for both creation and concatenation, you cannot do that with `rlang::list2()`:
+
 ```{r concat-list-wrong, exercise=TRUE}
 l <- rlang::list2(TRUE, "a")
 rlang::list2(1, 3, l)
@@ -547,6 +835,7 @@ rlang::list2(1, 3, l)
 ```
 
 Instead, when working with lists, creation and concatenation are two different operations handled by two different functions: `rlang::list2()` for creation and the usual `c()` for concatenation:
+
 ```{r concat-list-right, exercise=TRUE}
 l <- rlang::list2(TRUE, "a")
 c(1, 3, l)
@@ -557,8 +846,9 @@ This actually means that `c()` is in fact the generic function for *concatenatio
 
 There are two operators for performing list subsetting: `[` and `[[`. For both operators, you can subset either by position using numeric vectors or by name using character vectors. The difference between the two operators is that
 
-- `[` always return a list even when a single element of the original list is requested while `[[` converts the result into the appropriate simpler R object;
-- `[[` however works only for single-element subsetting.
+-   `[` always return a list even when a single element of the original list is requested while `[[` converts the result into the appropriate simpler R object;
+-   `[[` however works only for single-element subsetting.
+
 ```{r list-subset}
 l <- rlang::list2(a = 1, b = 2)
 l[1]
@@ -571,19 +861,23 @@ l[["a"]]
 
 List manipulation is handled by the [**purrr**](https://purrr.tidyverse.org) package. We invite you to see the webpage of the package for an in-depth presentation of all the operations you can perform on lists. We here focus on the family of functions with the `map` prefix. The `map` functions transform their input by applying a function to each element (or a subet of elements) and returning a list or a vector of the same length as the input. In particular:
 
-- `map()` always returns a list;
-- `map_lgl()`, `map_int()`, `map_dbl()` and `map_chr()` return an atomic vector of the indicated type.
+-   `map()` always returns a list;
+-   `map_lgl()`, `map_int()`, `map_dbl()` and `map_chr()` return an atomic vector of the indicated type.
 
 The first argument to these functions is the input list or atomic vector. The second argument is the function to be applied to each element of the list. It can be specified in three ways:
 
-- A `function` object, in which case it is directly used.
-- A formula of the form `~ .x + 2`, which defines a lambda function, internally converted by `rlang::as_function()` into a proper function. There are three ways to refer to the arguments of a lambda function depending of the number of parameters it takes:
-    - For a single argument function, use `.`;
-    - For a two argument function, use `.x` and `.y`;
-    - For more arguments, use `..1`, `..2`, `..3`, etc.
-- A string or a number character vector, in which case it is converted to an *extractor* function. A string performs extraction by name while a number performs extraction by position.  If a component is not found, the value of `.default` will be returned.
+-   A `function` object, in which case it is directly used.
+
+-   A formula of the form `~ .x + 2`, which defines a lambda function, internally converted by `rlang::as_function()` into a proper function. There are three ways to refer to the arguments of a lambda function depending of the number of parameters it takes:
+
+    -   For a single argument function, use `.`;
+    -   For a two argument function, use `.x` and `.y`;
+    -   For more arguments, use `..1`, `..2`, `..3`, etc.
+
+-   A string or a number character vector, in which case it is converted to an *extractor* function. A string performs extraction by name while a number performs extraction by position. If a component is not found, the value of `.default` will be returned.
 
 Let see a first example:
+
 ```{r map-example}
 # Explicit function
 set.seed(123)
@@ -594,6 +888,7 @@ purrr::map_dbl(purrr::map(1:10, ~ rnorm(10, .)), mean)
 ```
 
 Additional parameters to the `map` functions are further arguments to be passed on the mapped function. The mapped input is passed as the first argument of the mapped function that has not yet been assigned by the named additional parameters in the `map` function call. Let see that in action to better understand how input mapping is done. Try to reproduce the last example using only the function name in the second argument of the `map` call:
+
 ```{r map-yourturn, exercise=TRUE}
 
 ```
@@ -602,9 +897,9 @@ Additional parameters to the `map` functions are further arguments to be passed 
 set.seed(123)
 ```
 
-<div id="map-yourturn-hint">
+::: {#map-yourturn-hint}
 **Hint:** Remember to always name your additional arguments in the `map` function calls.
-</div>
+:::
 
 ```{r map-yourturn-solution}
 purrr::map_dbl(purrr::map(1:10, rnorm, n = 10), mean)
@@ -622,33 +917,34 @@ ex() %>%
 The `map2` and `pmap` families of functions are variants of the `map` family but iterate over multiple inputs simultaneously. They are parallel in the sense that each input is processed in parallel with the others, not in the sense of multicore computing.
 
 ## Tibbles
+
 <img src="https://github.com/tidyverse/tibble/raw/master/man/figures/logo.png" alt="tibble logo" width="64" style="float: right; margin-left: 10 px; margin-right: 10px;"/>
 
 ### What is a tibble ?
 
 Data sets are tables that store in each row an observation, such as an individual, and in each column a variable that is obersved for such an individual. Variables can be of various type: numerical, categorical, binary or date-time. Hence, a data set can be column-wise heterogeneous. There is a package called [**tibble**](https://tibble.tidyverse.org) that handles data set with the R object `tbl_df` that is called a *tibble*. Bottom line, tibbles are nothing but customized lists where:
 
-- each element of the list has the same number of rows, accessible by calling the `nrow()` function on a tibble;
-- each elemenet of the list has a name; names are accessible and modifiable throught a `names` attribute that is a character vector the same length as the underlying list.
+-   each element of the list has the same number of rows, accessible by calling the `nrow()` function on a tibble;
+-   each elemenet of the list has a name; names are accessible and modifiable throught a `names` attribute that is a character vector the same length as the underlying list.
 
 ### Behavior of a `tbl_df` object
 
-- Column data is not coerced. A character vector is not turned into a factor, unless explicitly done by the user beforehand; 
-- List-columns can be included, allowing to include in tibbles variables that are more complex objects than atomic vectors;
-- Recycling only happens for a length $1$ input, in which case the single value is replicated to match the number of observations.
+-   Column data is not coerced. A character vector is not turned into a factor, unless explicitly done by the user beforehand;
+-   List-columns can be included, allowing to include in tibbles variables that are more complex objects than atomic vectors;
+-   Recycling only happens for a length $1$ input, in which case the single value is replicated to match the number of observations.
 
 ### Creating tibbles
 
 To create a tibble, use `tibble()` (column-wise creation) or `tribble()` (row-wise creation):
 
-- `tibble()` builds columns sequentially. When defining a column, you can refer to columns created earlier in the call. Only columns of length one are recycled.
+-   `tibble()` builds columns sequentially. When defining a column, you can refer to columns created earlier in the call. Only columns of length one are recycled.
 
 ```{r tibble, exercise=TRUE}
 df1 <- tibble::tibble(x = 1:5, y = x * 2)
 
 ```
 
-- `tribble()` will create a list-column if the value in any cell is not a scalar:
+-   `tribble()` will create a list-column if the value in any cell is not a scalar:
 
 ```{r tribble, exercise=TRUE}
 df2 <- tibble::tribble(
@@ -660,12 +956,14 @@ df2 <- tibble::tribble(
 ```
 
 To coerce a data set already imported as an R object different from `tbl_df` (currently supporting coercion from `data.frame`, `list`, `matrix` and `table`), use `as_tibble`:
+
 ```{r as-tibble, exercise=TRUE}
 l <- rlang::list2(x = c("a", "b"), y = rlang::list2(1:3, 4:6))
 
 ```
 
 Finally, if you want to have a compact summary of a data set, you can use `glimpse()`. Try it on the `iris` data set:
+
 ```{r glimpse, exercise=TRUE}
 
 ```
@@ -673,12 +971,14 @@ Finally, if you want to have a compact summary of a data set, you can use `glimp
 ### Subsetting
 
 Experiment the different ways to use the `[` operator (by position, name, etc.) on tibbles (note that you can now subset both rows and/or columns):
+
 ```{r subset-tbl, exercise=TRUE}
 iris_tbl <- tibble::as_tibble(iris)
 
 ```
 
 To subset a single column, you can also use the `[[` extractor operator, which will automatically coerce the result into the simplest possible R object representation:
+
 ```{r extract-tbl}
 iris_tbl <- tibble::as_tibble(iris)
 # By position
@@ -688,6 +988,7 @@ iris_tbl[["Sepal.Length"]]
 ```
 
 Finally, one can use the `$` operator to extract a given column using its name in an unquoted fashion:
+
 ```{r dollar-tbl}
 iris_tbl$Sepal.Length
 ```
@@ -697,6 +998,7 @@ iris_tbl$Sepal.Length
 It happens sometimes (especially in simulation setups) that you end up with a data set with only numerical variables. In this situation, it might be suitable to use a matrix representation instead of a tibble. There are basic functions for handling matrices in the **base** package.
 
 To create a matrix from a vector, use `matrix()`:
+
 ```{r matrix, exercise=TRUE, exercise.lines=5}
 # Fill matrix by columns
 matrix(data = 1:6, nrow = 2, ncol = 3)
@@ -705,6 +1007,7 @@ matrix(data = 1:6, nrow = 2, ncol = 3, byrow = TRUE)
 ```
 
 To create a matrix by concatenating rows or columns, use`rbind()` and `cbind()` respectively:
+
 ```{r rcbind, exercise=TRUE, exercise.lines=5}
 # Concatenate vectors as rows
 rbind(1:3, 4:6)
@@ -714,10 +1017,11 @@ cbind(c(1, 4), c(2, 5), c(3, 6))
 
 To subset a matrix, the same subset operator `[` can be used with two arguments:
 
-- the first specifies the subset of rows;
-- the second specifies the subset of columns.
+-   the first specifies the subset of rows;
+-   the second specifies the subset of columns.
 
 To create a matrix from a data set made of numerical variables, use `as.matrix()`. For example, the first $4$ variables in the `iris` data set are numeric. Coerce them into a matrix called $X$:
+
 ```{r as-matrix, exercise=TRUE}
 
 ```
@@ -729,16 +1033,19 @@ A <- t(X) %*% X
 ```
 
 To know the dimensions of the matrix (number of rows and columns), use `dim()`:
+
 ```{r dim, exercise=TRUE, exercise.setup="defs-matrix"}
 
 ```
 
 To transpose a matrix, use `t()`:
+
 ```{r transpose, exercise=TRUE, exercise.setup="defs-matrix"}
 
 ```
 
 Universal mathematical functions and operators `+`, `-`, `*` and `/` can be used without any problem. They just apply the function or the operator element-wise. For operations, matrix dimensions should match. An error will be thrown if it is not the case. The element-wise multiplication is not the usual matrix multiplication. The latter can be performed using the operator `%*%`. For example, compute $X^\top X$ and store it in matrix $A$:
+
 ```{r matrix-product, exercise=TRUE, exercise.setup="defs-matrix"}
 
 ```
@@ -757,6 +1064,7 @@ To perform matrix exponential, logarithm or powering, use the **expm** package. 
 To perform the spectral decomposition of a square matrix, use `eigen()`.
 
 In statistics, a data set of $p$ numerical variables of which we observed $n$ realizations is often represented as an $n \times p$ matrix $X$ where variables are in columns and observations in rows. We can get easily the *sample mean* using `colMeans(X)` and the sample covariance matrix using `cov(X)`:
+
 ```{r mat-stat, exercise=TRUE, exercise.setup="defs-matrix"}
 colMeans(A)
 cov(A)
@@ -766,44 +1074,53 @@ cov(A)
 When the number $p$ of variables (matrix columns) exceeds the number $n$ of observations (matrix rows), the sample covariance matrix is known to be a poor estimator of the true unknown covariance matrix. In particular it is not invertible. The **corpcor** package provides a number of functions to perform shrinkage estimation of both the covariance and precision matrices.
 
 ## The pipe operator
+
 <img src="https://github.com/tidyverse/magrittr/raw/master/man/figures/logo.png" alt="magrittr logo" width="64" style="float: right; margin-left: 10px; margin-right: 10px;"/>
 
 ### What is it?
 
 The tidyverse philosolphy adopts a coding style that relies on the pipe operator `%>%` available from the [**magrittr**](https://magrittr.tidyverse.org) package, which is part of the tidyverse as well (meaning that loading the [**tidyverse**](https://www.tidyverse.org) package into your R environment automatically makes the pipe operator available for use). The idea is that you start with an object you intend to modify through some function(s), and *pipe* it into a function using `%>%`. The object is then passed as the **first argument** of the function. Hence, the code
+
 ```{r pipe, echo=TRUE, results='hide'}
 iris %>% head()
 ```
+
 is completely equivalent to
+
 ```{r pipe-unfolded, echo=TRUE, results='hide'}
 head(iris)
 ```
 
 What makes the pipe operator powerful is that one can *chain* several operations one after the other. This makes code easier to read because:
 
-- you start from an object you intend to modify;
-- you sequentially modify it with pipes;
-- one modification at a time on its own line of code (which you can comment for even better clarity).
+-   you start from an object you intend to modify;
+-   you sequentially modify it with pipes;
+-   one modification at a time on its own line of code (which you can comment for even better clarity).
 
 ### The dot place-holder
 
 Piping creates chains where at each position in the chain, the current result of previous transformations of the input object is available through the **dot place-holder** for further processing. For example, the following code extracts the first three letters of the alphabet and print them in the format `position: letter`:
+
 ```{r dot-usage, echo=TRUE}
 1:3 %>% 
   paste(letters[.], sep = ": ")
 ```
+
 Indeed, this is equivalent to:
+
 ```{r dot-equivalent, echo=TRUE}
 paste(1:3, letters[1:3], sep = ": ")
 ```
+
 because the vector `1:3` is passed twice:
 
-1. as first argument of the function `paste()`;
-1. within `letters[1:3]` as second argument of the function `paste()`.
+1.  as first argument of the function `paste()`;
+2.  within `letters[1:3]` as second argument of the function `paste()`.
 
 ### Exercices
 
 **Exercice 1.** Write a piece of code that extracts the even numbers lower than 100 and perform their sum:
+
 ```{r pipe-chain, exercise=TRUE}
 
 ```
@@ -841,12 +1158,14 @@ ex() %>% {
 ```
 
 **Exercice 2.** It is possible to force the pipe not to pass the current result in the chain to the first argument of the next function. This is done by surrounding the next action in the chain with curly brackets. Modify the following code to display only the minimum, mean and maximum summary of the first 10 integers:
+
 ```{r pipe-prevent-dot, exercise=TRUE}
 1:10 %>% 
   c(min(.), mean(.), max(.))
 ```
 
 **Exercice 3.** Simplify the following code using pipes:
+
 ```{r code-wo-pipe}
 a <- dplyr::filter(mtcars, carb > 1)
 b <- dplyr::group_by(a, cyl)
