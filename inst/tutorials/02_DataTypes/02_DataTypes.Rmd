@@ -14,6 +14,7 @@ library(testwhat)
 library(magrittr)
 library(ggplot2)
 library(tibble)
+library(lobstr)
 
 options(repos = "https://cloud.r-project.org")
 tutorial_options(
@@ -382,7 +383,7 @@ y
 For sequences of integers of step $1$, there are two simplified functions. Say you want to generate a vector containing all integers from $1$ to $7$. You can then use either:
 
 ```{r seq-len}
-seq_len(7)
+s1 <- seq_len(7)
 ```
 
 or the syntax `start:stop`:
@@ -390,6 +391,30 @@ or the syntax `start:stop`:
 ```{r start-stop}
 1:7
 ```
+
+Of course, you can also use the generic function `seq()` for generating sequences of contiguous integers:
+
+```{r seq-integers}
+seq(1, 7, by = 1)
+```
+
+The last approach is however not recommended because it is memory-inefficient as illustrated by the following example:
+
+```{r membch-seq-setup}
+s1 <- seq_len(1e6)
+s2 <- 1:1e6
+s3 <- seq(1, 1e6, by = 1)
+s4 <- seq(1L, 1e6L, by = 1L)
+```
+
+```{r, membch-seq-result, echo=FALSE}
+tibble(
+  Variable = c("s1", "s2", "s3", "s4"), 
+  `Memory (bytes)` = purrr::map_dbl(Variable, ~ lobstr::obj_size(get(.)))
+)
+```
+
+In fact, the first two functions use [ALTREP](https://svn.r-project.org/R/branches/ALTREP/ALTREP.html) which stands for **ALT**ernative **REP**resentations and was introduced in `R 3.5`{=html}. Prior to R 3.5, `:` and `seq_len()` would compute all the requested integers and store the results into one big vector, e.g. `1:1000` would require around $4,000$ bytes. As of `R 3.5`{=html}, this sequence is instead represented by an ALTREP vector, so *none* of the values actually exist in memory. Instead, each time `R`{=html} accesses a particular value in the sequence, that value is computed on-the-fly. This saves memory and execution time, and allows users to use sequences which would otherwise be too big to fit in memory. The generic `seq()` function instead does not use ALTREP vector. Moreover, we need to be explicit about numbers being integers, e.g. using `1L`, otherwise memory allocation doubles because integers are being seen as real numbers.
 
 #### Usual mathematical functions and operations
 
@@ -631,7 +656,7 @@ new_partyid <- forcats::fct_recode(
 knitr::kable(table(new_partyid))
 ```
 
-In the function `forcats::fct_recode()`, we only need to list the categories that we aim at relabeling. There other ones will be left as is. If we attribute the same new label to several categories, the latter will be merged together, as we did for categories `"no answer"` and `"Don't know"` that we grouped under the category `"Unsure"`.
+In the function `forcats::fct_recode()`, we only need to list the categories that we aim at relabeling. There other ones will be left as is. If we attribute the same new label to several categories, the latter will be merged together, as we did for categories `"No answer"` and `"Don't know"` that we grouped under the category `"Unsure"`.
 
 #### Exercises
 
@@ -736,22 +761,22 @@ Normally you do not need to know about these different types because you can alw
 
 <img src="https://github.com/tidyverse/lubridate/raw/master/man/figures/logo.png" alt="lubridate logo" width="64" style="float: right; margin-left: 10 px; margin-right: 10px;"/>
 
-Dates and times are arguably the most complex data types. Just think of the nightmare of determining [leap years](https://en.wikipedia.org/wiki/Leap_year). It is not only a year divisible by 4. The full rule has actually three parts. And this is just the beginning of our problems with dates and times (think about time zones, daylight savings times, etc.). Fortunately for us, the [**lubridate**](https://lubridate.tidyverse.org) package solves seemlessly all of these problems.
+Dates and times are arguably the most complex data types. Just think of the nightmare of determining [leap years](https://en.wikipedia.org/wiki/Leap_year). It is not only a year divisible by $4$. The full rule has actually three parts. And this is just the beginning of our problems with dates and times (think about time zones, daylight savings times, etc.). Fortunately for us, the [**lubridate**](https://lubridate.tidyverse.org) package solves seamlessly all of these problems.
 
-Note that, bottom line, dates and times are nothing but numbers because, internally, they are stored as the number of seconds separating a date/time from a fixed date. Hence, all the things described for numeric vectors will generally be allowed for date/time objects but we **strongly recommend** to manipulate them through the because operation rules on date/time objects are not the same as for classical numbers.
+Note that, bottom line, dates and times are nothing but numbers because, internally, they are stored as the number of seconds separating a date/time from a fixed date. Hence, all the things described for numeric vectors will generally be allowed for date/time objects but we **strongly recommend** to manipulate them through the [**lubridate**](https://lubridate.tidyverse.org) package because operation rules on date/time objects are not the same as for classical numbers.
 
 #### Creating date and date-time objects
 
 Most of the time, you will create a `date` or `date-time` object:
 
--   *from a string*: creating a `date` object from a string is the job of the `yms()` function and friends; basically you just need to permute the order of the letters `y`, `m` and `d` according to the order of appearance of the year, month and day in the input string to form a new three-letter function that exists in the [**lubridate**](https://lubridate.tidyverse.org) package and will automatically work out the format once you specify the order of the components; functions of the type `ymd_hms()` also exist for creating `date-time` objects with the same philosophy.
--   *from individual components*: creating a `date` object from the year, month and day is the job of `make_date()`; the function `make_datetime()` allows to create `date-time` objects.
+-   [from a string]{.ul}: creating a `date` object from a string is the job of the `yms()` function and friends; basically you just need to permute the order of the letters `y`, `m` and `d` according to the order of appearance of the year, month and day in the input string to form a new three-letter function that exists in the [**lubridate**](https://lubridate.tidyverse.org) package and will automatically work out the format once you specify the order of the components; functions of the type `ymd_hms()` also exist for creating `date-time` objects with the same philosophy.
+-   [from individual components]{.ul}: creating a `date` object from the year, month and day is the job of `make_date()`; the function `make_datetime()` allows to create `date-time` objects.
 
 #### Extracting components from date and date-time objects
 
 The reverse operations can be done, i.e. it is possible to extract individual components from a `date` or `date-time` object with the accessor functions `year()`, `month()`, etc.
 
-Use these functions to extract the year, month, day, hours, minutes, seconds of the following date:
+Take a look at the help of each accessor functions to find the right syntax for extracting the year, month, day, hours, minutes, seconds of the following date:
 
 ```{r extract-component, exercise=TRUE}
 datetime <- lubridate::ymd_hms("2016-07-08 12:34:56")
@@ -767,6 +792,8 @@ datetime <- lubridate::ymd_hms("2016-07-08 12:34:56")
 lubridate::month(datetime, label = TRUE)
 lubridate::wday(datetime, label = TRUE, abbr = FALSE)
 ```
+
+Is the last output from `lubridate::wday()` what you expected? How can you fix this?
 
 #### Modifying a date or date-time object
 
@@ -789,7 +816,7 @@ Alternatively, rather than modifying in place, you can create a new `date` or `d
 update(datetime, year = 2020, month = 2, mday = 2, hour = 2)
 ```
 
-Note that `update()` is a method from the **stats** package, an implementation of zwhich is proposed in the [**lubridate**](https://lubridate.tidyverse.org) package for date and date-time objects. Hence, it is not part of the [**lubridate**](https://lubridate.tidyverse.org) package and should therefore not be referred to as such.
+Note that `update()` is a method from the **stats** package, an implementation of which is proposed in the [**lubridate**](https://lubridate.tidyverse.org) package for date and date-time objects. Hence, it is not part of the [**lubridate**](https://lubridate.tidyverse.org) package and should therefore not be referred to as such.
 
 If values are too big, they will roll-over:
 
@@ -801,52 +828,48 @@ update(datetime, hour = 400)
 
 ## Lists
 
-<img src="https://github.com/tidyverse/purrr/raw/master/man/figures/logo.png" alt="purrr logo" width="64" style="float: right; margin-left: 10 px; margin-right: 10px;"/>
+![purrr logo](https://github.com/tidyverse/purrr/raw/master/man/figures/logo.png){style="float: right; margin-left: 10 px; margin-right: 10px;" width="64"}
 
-Atomic vectors can only store booleans, numeric entries or strings and are required to contain only one type of these. In fact, R is very permissive and allows you to mix all types into a vector but results might be unexpected. Play with the following code:
+Atomic vectors can only store booleans, numeric entries or strings and are required to contain only one type of these. In fact, `R`{=html} is very permissive and allows you to mix all types into a vector but results might be unexpected:
 
-```{r mix-vector, exercise=TRUE}
+```{r mix-vector}
 c(1, 3, TRUE)
 c(1, 3, TRUE, "a")
-
 ```
 
 Did you expect this outcome?
 
-Lists are a special kind of vectors defined to answer two problematics:
+Lists are a special kind of vectors that provide a solution to $2$ major issues of atomic vectors:
 
 1.  Creating vectors with entries that have heterogeneous types and that keep their own type when grouped together in the vector;
-2.  Creating vectors with homogeneous entries that have more complex data types, such as matrices, data sets, results as output by R modeling functions or any other R object.
+2.  Creating vectors with homogeneous entries that have more complex data types, such as matrices, data sets, results as output by `R`{=html} modeling functions or any other `R`{=html} object.
 
 To create a list, use the function `list2()` from the [**rlang**](https://rlang.r-lib.org) package. For example, using `rlang::list2()` instead of `c()` in the previous examples allows you to preserve the original data types of the entries:
 
-```{r mix-list, exercise=TRUE}
+```{r mix-list}
 rlang::list2(1, 3, TRUE)
 rlang::list2(1, 3, TRUE, "a")
-
 ```
 
 Note however that, while for atomic vectors you use `c()` for both creation and concatenation, you cannot do that with `rlang::list2()`:
 
-```{r concat-list-wrong, exercise=TRUE}
+```{r concat-list-wrong}
 l <- rlang::list2(TRUE, "a")
 rlang::list2(1, 3, l)
-
 ```
 
 Instead, when working with lists, creation and concatenation are two different operations handled by two different functions: `rlang::list2()` for creation and the usual `c()` for concatenation:
 
-```{r concat-list-right, exercise=TRUE}
+```{r concat-list-right}
 l <- rlang::list2(TRUE, "a")
 c(1, 3, l)
-
 ```
 
 This actually means that `c()` is in fact the generic function for *concatenation*. Whenever it detects a list as one of its arguments, it automatically converts non-lists object into length-1 lists and produce a concatenated list. Following this logic, any atomic vector can be viewed as a list. Indeed, a numeric vector (such as `1:10`) is nothing but a list with only numeric entries.
 
 There are two operators for performing list subsetting: `[` and `[[`. For both operators, you can subset either by position using numeric vectors or by name using character vectors. The difference between the two operators is that
 
--   `[` always return a list even when a single element of the original list is requested while `[[` converts the result into the appropriate simpler R object;
+-   `[` always return a list even when a single element of the original list is requested while `[[` converts the result into the appropriate simpler `R`{=html} object;
 -   `[[` however works only for single-element subsetting.
 
 ```{r list-subset}
@@ -859,7 +882,7 @@ l[[1]]
 l[["a"]]
 ```
 
-List manipulation is handled by the [**purrr**](https://purrr.tidyverse.org) package. We invite you to see the webpage of the package for an in-depth presentation of all the operations you can perform on lists. We here focus on the family of functions with the `map` prefix. The `map` functions transform their input by applying a function to each element (or a subet of elements) and returning a list or a vector of the same length as the input. In particular:
+List manipulation is handled by the [**purrr**](https://purrr.tidyverse.org) package. We invite you to see the webpage of the package for an in-depth presentation of all the operations you can perform on lists. We here focus on the family of functions with the `map` prefix. The `map` functions transform their input by applying a function to each element (or a subset of elements) and returning a list or a vector of the same length as the input. In particular:
 
 -   `map()` always returns a list;
 -   `map_lgl()`, `map_int()`, `map_dbl()` and `map_chr()` return an atomic vector of the indicated type.
@@ -874,15 +897,15 @@ The first argument to these functions is the input list or atomic vector. The se
     -   For a two argument function, use `.x` and `.y`;
     -   For more arguments, use `..1`, `..2`, `..3`, etc.
 
--   A string or a number character vector, in which case it is converted to an *extractor* function. A string performs extraction by name while a number performs extraction by position. If a component is not found, the value of `.default` will be returned.
+-   A string or a number, in which case it is converted to an *extractor* function. A string performs extraction by name while a number performs extraction by position. If a component is not found, the value of `.default` will be returned.
 
-Let see a first example:
+Let see a first example, Say we want to compute the sample means of samples of size $10$ from the normal distribution with unit standard deviation but means varying from $1$ to $10$. We can solve this in a very compact and easy-to-read way using `purrr::map*()` functions:
 
 ```{r map-example}
-# Explicit function
+# Either using an explicit function
 set.seed(123)
 purrr::map_dbl(purrr::map(1:10, function(x) rnorm(10, x)), mean)
-# Lambda function
+# Or a lambda function
 set.seed(123)
 purrr::map_dbl(purrr::map(1:10, ~ rnorm(10, .)), mean)
 ```
