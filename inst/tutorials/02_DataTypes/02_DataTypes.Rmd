@@ -414,7 +414,7 @@ tibble(
 )
 ```
 
-In fact, the first two functions use [ALTREP](https://svn.r-project.org/R/branches/ALTREP/ALTREP.html) which stands for **ALT**ernative **REP**resentations and was introduced in `R 3.5`{=html}. Prior to R 3.5, `:` and `seq_len()` would compute all the requested integers and store the results into one big vector, e.g. `1:1000` would require around $4,000$ bytes. As of `R 3.5`{=html}, this sequence is instead represented by an ALTREP vector, so *none* of the values actually exist in memory. Instead, each time `R`{=html} accesses a particular value in the sequence, that value is computed on-the-fly. This saves memory and execution time, and allows users to use sequences which would otherwise be too big to fit in memory. The generic `seq()` function instead does not use ALTREP vector. Moreover, we need to be explicit about numbers being integers, e.g. using `1L`, otherwise memory allocation doubles because integers are being seen as real numbers.
+In fact, the first two functions use [ALTREP](https://svn.r-project.org/R/branches/ALTREP/ALTREP.html) which stands for **ALT**ernative **REP**resentations and was introduced in R 3.5. Prior to R 3.5, `:` and `seq_len()` would compute all the requested integers and store the results into one big vector, e.g. `1:1000` would require around $4,000$ bytes. As of R 3.5, this sequence is instead represented by an ALTREP vector, so *none* of the values actually exist in memory. Instead, each time R accesses a particular value in the sequence, that value is computed on-the-fly. This saves memory and execution time, and allows users to use sequences which would otherwise be too big to fit in memory. The generic `seq()` function instead does not use ALTREP vector. Moreover, we need to be explicit about numbers being integers, e.g. using `1L`, otherwise memory allocation doubles because integers are being seen as real numbers.
 
 #### Usual mathematical functions and operations
 
@@ -671,7 +671,7 @@ In the function `forcats::fct_recode()`, we only need to list the categories tha
 
 2.  What does it do? Did you expect such a result?
 
-3.  If you did not expect this result, what piece of `R`{=html} code would compute what you intended?
+3.  If you did not expect this result, what piece of R code would compute what you intended?
 
     ```{r exo1-length-str, exercise=TRUE}
     x <- c("a", "R for data science", NA)
@@ -830,7 +830,7 @@ update(datetime, hour = 400)
 
 ![purrr logo](https://github.com/tidyverse/purrr/raw/master/man/figures/logo.png){style="float: right; margin-left: 10 px; margin-right: 10px;" width="64"}
 
-Atomic vectors can only store booleans, numeric entries or strings and are required to contain only one type of these. In fact, `R`{=html} is very permissive and allows you to mix all types into a vector but results might be unexpected:
+Atomic vectors can only store booleans, numeric entries or strings and are required to contain only one type of these. In fact, R is very permissive and allows you to mix all types into a vector but results might be unexpected:
 
 ```{r mix-vector}
 c(1, 3, TRUE)
@@ -842,7 +842,7 @@ Did you expect this outcome?
 Lists are a special kind of vectors that provide a solution to $2$ major issues of atomic vectors:
 
 1.  Creating vectors with entries that have heterogeneous types and that keep their own type when grouped together in the vector;
-2.  Creating vectors with homogeneous entries that have more complex data types, such as matrices, data sets, results as output by `R`{=html} modeling functions or any other `R`{=html} object.
+2.  Creating vectors with homogeneous entries that have more complex data types, such as matrices, data sets, results as output by R modeling functions or any other R object.
 
 To create a list, use the function `list2()` from the [**rlang**](https://rlang.r-lib.org) package. For example, using `rlang::list2()` instead of `c()` in the previous examples allows you to preserve the original data types of the entries:
 
@@ -869,7 +869,7 @@ This actually means that `c()` is in fact the generic function for *concatenatio
 
 There are two operators for performing list subsetting: `[` and `[[`. For both operators, you can subset either by position using numeric vectors or by name using character vectors. The difference between the two operators is that
 
--   `[` always return a list even when a single element of the original list is requested while `[[` converts the result into the appropriate simpler `R`{=html} object;
+-   `[` always return a list even when a single element of the original list is requested while `[[` converts the result into the appropriate simpler R object;
 -   `[[` however works only for single-element subsetting.
 
 ```{r list-subset}
@@ -945,16 +945,16 @@ The `map2` and `pmap` families of functions are variants of the `map` family but
 
 ### What is a tibble ?
 
-Data sets are tables that store in each row an observation, such as an individual, and in each column a variable that is obersved for such an individual. Variables can be of various type: numerical, categorical, binary or date-time. Hence, a data set can be column-wise heterogeneous. There is a package called [**tibble**](https://tibble.tidyverse.org) that handles data set with the R object `tbl_df` that is called a *tibble*. Bottom line, tibbles are nothing but customized lists where:
+Data sets are tables that store in each row an observation, such as an individual, and in each column a variable that is observed for such an individual. Variables can be of various type: numerical, categorical, binary or date-time. Hence, a data set can be column-wise heterogeneous. There is a package called [**tibble**](https://tibble.tidyverse.org) that handles data set with the R object `tbl_df` that is called a *tibble*. Bottom line, tibbles are nothing but customized lists where:
 
 -   each element of the list has the same number of rows, accessible by calling the `nrow()` function on a tibble;
--   each elemenet of the list has a name; names are accessible and modifiable throught a `names` attribute that is a character vector the same length as the underlying list.
+-   each element of the list has a name; names are accessible and modifiable through a `names` attribute that is a character vector the same length as the underlying list.
 
 ### Behavior of a `tbl_df` object
 
 -   Column data is not coerced. A character vector is not turned into a factor, unless explicitly done by the user beforehand;
 -   List-columns can be included, allowing to include in tibbles variables that are more complex objects than atomic vectors;
--   Recycling only happens for a length $1$ input, in which case the single value is replicated to match the number of observations.
+-   Recycling only happens for a length-$1$ input, in which case the single value is replicated to match the number of observations.
 
 ### Creating tibbles
 
@@ -962,33 +962,38 @@ To create a tibble, use `tibble()` (column-wise creation) or `tribble()` (row-wi
 
 -   `tibble()` builds columns sequentially. When defining a column, you can refer to columns created earlier in the call. Only columns of length one are recycled.
 
-```{r tibble, exercise=TRUE}
-df1 <- tibble::tibble(x = 1:5, y = x * 2)
+    ```{r demo-tibble}
+    tibble::tibble(
+      x = 1:5, 
+      y = x * 2
+    )
+    ```
 
+```{=html}
+<!-- -->
 ```
-
 -   `tribble()` will create a list-column if the value in any cell is not a scalar:
 
-```{r tribble, exercise=TRUE}
-df2 <- tibble::tribble(
-  ~x,  ~y,
-  "a", 1:3,
-  "b", 4:6
-)
-
-```
+    ```{r demo-tribble}
+    tibble::tribble(
+      ~x,  ~y,
+      "a", 1:3,
+      "b", 4:6
+    )
+    ```
 
 To coerce a data set already imported as an R object different from `tbl_df` (currently supporting coercion from `data.frame`, `list`, `matrix` and `table`), use `as_tibble`:
 
-```{r as-tibble, exercise=TRUE}
+```{r demo-as-tibble}
 l <- rlang::list2(x = c("a", "b"), y = rlang::list2(1:3, 4:6))
-
+l
+tibble::as_tibble(l)
 ```
 
-Finally, if you want to have a compact summary of a data set, you can use `glimpse()`. Try it on the `iris` data set:
+Finally, if you want to have a compact view of a data set, you can use `glimpse()`. Try it on the `iris` data set:
 
-```{r glimpse, exercise=TRUE}
-
+```{r demo-glimpse}
+tibble::glimpse(iris)
 ```
 
 ### Subsetting
@@ -1189,7 +1194,7 @@ ex() %>% {
 
 **Exercice 3.** Simplify the following code using pipes:
 
-```{r code-wo-pipe}
+```{r code-wo-pipe, message=FALSE}
 a <- dplyr::filter(mtcars, carb > 1)
 b <- dplyr::group_by(a, cyl)
 c <- dplyr::summarise(b, Avg_mpg = mean(mpg))
@@ -1197,6 +1202,6 @@ d <- dplyr::arrange(c, dplyr::desc(Avg_mpg))
 d
 ```
 
-```{r code-w-pipe-simplify, exercise=TRUE}
+```{r code-w-pipe-simplify, message=FALSE, exercise=TRUE}
 
 ```
