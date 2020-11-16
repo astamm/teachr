@@ -15,6 +15,7 @@ library(magrittr)
 library(ggplot2)
 library(tibble)
 library(lobstr)
+library(microbenchmark)
 
 options(repos = "https://cloud.r-project.org")
 tutorial_options(
@@ -969,9 +970,8 @@ To create a tibble, use `tibble()` (column-wise creation) or `tribble()` (row-wi
     )
     ```
 
-```{=html}
 <!-- -->
-```
+
 -   `tribble()` will create a list-column if the value in any cell is not a scalar:
 
     ```{r demo-tribble}
@@ -1025,81 +1025,151 @@ iris_tbl$Sepal.Length
 
 It happens sometimes (especially in simulation setups) that you end up with a data set with only numerical variables. In this situation, it might be suitable to use a matrix representation instead of a tibble. There are basic functions for handling matrices in the **base** package.
 
+#### Useful functions to handle matrices
+
 To create a matrix from a vector, use `matrix()`:
 
-```{r matrix, exercise=TRUE, exercise.lines=5}
+```{r matrix}
 # Fill matrix by columns
 matrix(data = 1:6, nrow = 2, ncol = 3)
 # Fill matrix by rows
 matrix(data = 1:6, nrow = 2, ncol = 3, byrow = TRUE)
 ```
 
-To create a matrix by concatenating rows or columns, use`rbind()` and `cbind()` respectively:
+To create a matrix by concatenating rows or columns, use `rbind()` and `cbind()` respectively:
 
-```{r rcbind, exercise=TRUE, exercise.lines=5}
+```{r rcbind}
 # Concatenate vectors as rows
 rbind(1:3, 4:6)
 # Concatenate vectors as columns
 cbind(c(1, 4), c(2, 5), c(3, 6))
 ```
 
-To subset a matrix, the same subset operator `[` can be used with two arguments:
+To subset a matrix, the subset operator `[` can be used with two arguments:
 
 -   the first specifies the subset of rows;
 -   the second specifies the subset of columns.
 
-To create a matrix from a data set made of numerical variables, use `as.matrix()`. For example, the first $4$ variables in the `iris` data set are numeric. Coerce them into a matrix called $X$:
+To create a matrix from a data set made of numerical variables, use `as.matrix()`:
 
-```{r as-matrix, exercise=TRUE}
-
+```{r as-matrix}
+df <- tibble(
+  height = c(1.3, 4.7, 6.3, 7.1), 
+  weight = c(43, 65, 12, 78), 
+  width = c(34, 75, 23, 54)
+)
+X <- as.matrix(df)
+X
 ```
 
-```{r defs-matrix, echo=FALSE}
-tbl <- tibble::as_tibble(iris[, -5])
-X <- as.matrix(tbl)
-A <- t(X) %*% X
+Note that when converting a data set into a matrix, the column of the matrix are named after the variable names in the data set. You might want to change these names or even remove them. This can be done via the function `colnames()`. In particular, assigning a new character vector to `colnames(X)` redefines the column names, or assigning `NULL` removes them:
+
+```{r mat-colnames}
+colnames(X) <- NULL
+X
 ```
 
 To know the dimensions of the matrix (number of rows and columns), use `dim()`:
 
-```{r dim, exercise=TRUE, exercise.setup="defs-matrix"}
-
+```{r dim}
+dim(X)
 ```
 
 To transpose a matrix, use `t()`:
 
-```{r transpose, exercise=TRUE, exercise.setup="defs-matrix"}
-
+```{r transpose}
+t(X)
 ```
 
 Universal mathematical functions and operators `+`, `-`, `*` and `/` can be used without any problem. They just apply the function or the operator element-wise. For operations, matrix dimensions should match. An error will be thrown if it is not the case. The element-wise multiplication is not the usual matrix multiplication. The latter can be performed using the operator `%*%`. For example, compute $X^\top X$ and store it in matrix $A$:
 
-```{r matrix-product, exercise=TRUE, exercise.setup="defs-matrix"}
-
+```{r matrix-product}
+A <- t(X) %*% X
+A
 ```
 
 When we will learn about regression analysis, we will make extensive use of solving linear systems of the form $A x = b$. This is handled in an algorithmic efficient way by `solve(A, b)`, which is a far better solution than the intuitive $x = A^{-1} b$. If the `b` argument is not specified, the function provides the inverse of $A$ (which needs to be squared and invertible):
 
-```{r solve, exercise=TRUE, exercise.setup="defs-matrix", exercise.lines=5}
-# Solve Ax = b
-solve(A, rep(1, 4))
-# Find inverse of A
-solve(A)
+```{r solve}
+# Solve Ax = b with
+b <- rep(1, 3)
+# Either directly via:
+solve(A, b)
+# Or first by finding the inverse of A via:
+Ainv <- solve(A)
+# and then multiplying it with b:
+as.numeric(Ainv %*% b)
+```
+
+The first strategy is much more efficient both in terms of accuracy and computation time. We can for instance benchmark the computation time of the two approaches for a matrix $A$ of size $100 \times 100$:
+
+```{r bchk-solve, echo=FALSE}
+X <- matrix(rnorm(20000), nrow = 200, ncol = 100)
+A <- t(X) %*% X
+b <- rep(1, 100)
+mbm <- microbenchmark(
+  solve = solve(A, b), 
+  inv = as.numeric(solve(A) %*% b), 
+  check = "equal"
+)
+plot(mbm)
 ```
 
 To perform matrix exponential, logarithm or powering, use the **expm** package. It provides the functions `expm()`, `logm()` and the operator `%^%` for matrix powering.
 
-To perform the spectral decomposition of a square matrix, use `eigen()`.
+#### Use of matrices in statistics
 
-In statistics, a data set of $p$ numerical variables of which we observed $n$ realizations is often represented as an $n \times p$ matrix $X$ where variables are in columns and observations in rows. We can get easily the *sample mean* using `colMeans(X)` and the sample covariance matrix using `cov(X)`:
+In statistics, a data set of $p$ numerical variables of which we observed $n$ realizations is often represented as an $n \times p$ matrix $X$ where variables are in columns and observations in rows. We can get easily the *sample mean* using `colMeans(X)` and the *sample covariance matrix* using `cov(X)`:
 
-```{r mat-stat, exercise=TRUE, exercise.setup="defs-matrix"}
-colMeans(A)
-cov(A)
+```{r mat-stat}
+X <- as.matrix(cars)
+m <- colMeans(X)
+m
+S <- cov(X)
+S
+```
+
+To perform the spectral decomposition of a square matrix, use `eigen()`. Here for instance, we could need to compute the spectrum of the sample covariance matrix, i.e. its two eigenvalues and associated eigenvectors:
+
+```{r mat-eigen}
+eigen(S, symmetric = TRUE)
+eigen(S, symmetric = TRUE, only.values = TRUE)
+```
+
+When the number $p$ of variables (matrix columns) exceeds the number $n$ of observations (matrix rows), the sample covariance matrix is known to be a poor estimator of the true unknown covariance matrix. In particular it is not invertible. The [**corpcor**](https://www.strimmerlab.org/software/corpcor/) package provides a number of functions to perform shrinkage estimation of both the covariance and precision matrices.
+
+#### Exercise
+
+The `iris_tbl` data set gives the measurements in centimeters of the variables sepal length and width and petal length and width, respectively, for $50$ flowers from each of $3$ species of iris:
+
+```{r iris-setup, echo=FALSE}
+iris_tbl <- iris %>% 
+  as_tibble() %>% 
+  janitor::clean_names()
+iris_tbl
+```
+
+1.  Define a new tibble containing only `sepal_length`, `sepal_width` and `petal_length` and convert it into a matrix that you will call `X`.
+2.  Extract the variable `petal_width` and name it `y` and compute $\mathbf{b} = X^\top \mathbf{y}$.
+3.  Compute the spectrum of $A = X^\top X$ to prove that it is positive definite and not only semi-definite.
+4.  Compute $\widehat{\boldsymbol{\beta}} = \left( X^\top X \right)^{-1} X^\top \mathbf{y}$.
+
+```{r iris-matrix, exercise=TRUE, exercise.setup="iris-setup"}
 
 ```
 
-When the number $p$ of variables (matrix columns) exceeds the number $n$ of observations (matrix rows), the sample covariance matrix is known to be a poor estimator of the true unknown covariance matrix. In particular it is not invertible. The **corpcor** package provides a number of functions to perform shrinkage estimation of both the covariance and precision matrices.
+```{r iris-matrix-solution}
+X <- iris_tbl %>%
+  dplyr::select(1:3) %>%
+  as.matrix()
+X
+y <- iris_tbl$petal_width
+b <- t(X) %*% y
+A <- t(X) %*% X
+eigen(A, only.values = TRUE, symmetric = TRUE)
+beta <- solve(A, b)
+beta
+```
 
 ## The pipe operator
 
@@ -1107,7 +1177,7 @@ When the number $p$ of variables (matrix columns) exceeds the number $n$ of obse
 
 ### What is it?
 
-The tidyverse philosolphy adopts a coding style that relies on the pipe operator `%>%` available from the [**magrittr**](https://magrittr.tidyverse.org) package, which is part of the tidyverse as well (meaning that loading the [**tidyverse**](https://www.tidyverse.org) package into your R environment automatically makes the pipe operator available for use). The idea is that you start with an object you intend to modify through some function(s), and *pipe* it into a function using `%>%`. The object is then passed as the **first argument** of the function. Hence, the code
+The tidyverse philosophy adopts a coding style that relies on the pipe operator `%>%` available from the [**magrittr**](https://magrittr.tidyverse.org) package, which is part of the tidyverse as well (meaning that loading the [**tidyverse**](https://www.tidyverse.org) package into your R environment automatically makes the pipe operator available for use). The idea is that you start with an object you intend to modify through some function(s), and *pipe* it into a function using `%>%`. The object is then passed as the **first argument** of the function. Hence, the code
 
 ```{r pipe, echo=TRUE, results='hide'}
 iris %>% head()
