@@ -27,6 +27,8 @@ In order to get the best experience of this course, you are kindly asked to brin
 
 R (and RStudio) can be customized using external code bundled into so-called **packages** (we will come back to that in a few minutes).
 
+This course is a gentle introduction to R. If you want to go deeper, you can take a look at the [RStudio Education Website](https://education.rstudio.com).
+
 ### Material format
 
 #### Overview
@@ -44,26 +46,37 @@ All the tutorials for this course can be found on Github as [part of the **teach
 
 -   You can work directly in your browser without installing neither R nor RStudio using the [**teachr** web interface](https://shiny-stamm.apps.math.cnrs.fr/teachr/);
 
--   You can install both the [**learnr**](https://rstudio.github.io/learnr)and [**teachr**](https://astamm.github.io/teachr/) packages within your own RStudio session. The former is available on CRAN and installable via `install.packages("learnr")` while the latter is available on GitHub via `remotes::install_github("astamm/teachr")`; once both packages are installed, you can
+-   You can install both the [**learnr**](https://rstudio.github.io/learnr) and [**teachr**](https://astamm.github.io/teachr) packages within your own RStudio session. The former is available on CRAN and installable via `install.packages("learnr")` while the latter is available on GitHub via `remotes::install_github("astamm/teachr")`; once both packages are installed, you can
 
     -   see the list of available tutorials in the [**teachr**](https://astamm.github.io/teachr/) package by running `learnr::run_tutorial(package = "teachr")`;
 
     -   launch a specific tutorial such as `02_DataTypes` by running `learnr::run_tutorial("02_DataTypes", package = "teachr")`.
 
--   You can download a tutorial folder available as a sub-folder of the [inst/tutorials](https://github.com/astamm/teachr/tree/master/inst/tutorials) folder of the [**teachr**](https://astamm.github.io/teachr/)GitHub page and run it from your own RStudio session. See the next section for details about how to do so.
+-   You can download a tutorial folder available as a sub-folder of the [inst/tutorials](https://github.com/astamm/teachr/tree/master/inst/tutorials) folder of the [**teachr**](https://astamm.github.io/teachr) Github page and run it from your own RStudio session. See the next section for details about how to do so.
 
 #### Running tutorials manually from RStudio
 
 1.  Navigate in `File/Open File...`; or,
-2.  **[Recommended]** Go to the folder where you have an `.Rmd`, right click on the file and ask for opening it using RStudio.
+2.  **[Recommended]** Go to the folder where you have an `.Rmd`, right click on the file and ask for opening it using RStudio. This is the recommended way because it opens up in RStudio directly and sets up the working directory to the tutorial directory automatically.
 
 When you open an `Rmd` file within RStudio, a new window appears with some content. You can then start the tutorial by clicking on the `Run Document` button; the tutorial should appear either in a new window or in the viewer pane on the bottom-right panel. You can then click on the third icon in this panel above the tutorial to view it in your browser for simplicity. In this course, we provide for each tutorial the `.Rmd` and `.html` associated file.
 
-**Your turn:**
+#### R Markdown
 
--   Save the `.Rmd` and `.html` files to a **same** folder on your computer;
--   Open the `.Rmd` file with RStudio;
--   Make sure the current working directory in RStudio is the folder where you saved the files (`?setwd`);
+It is also of interest to dive into the structure of the `Rmd` file which is the extension of so-called R markdown documents. While you might know about Jupyter notebooks as an efficient way to create reports that mix texts, equations and Python code chunks, R markdown document are a more advanced alternative for such reproducible reporting. We recommend the following resources for learning R Markdown:
+
+-   A 1-hour recorded webinar from Garrett Grolemund to [get started with R Markdown](https://resources.rstudio.com/the-essentials-of-data-science/getting-started-with-r-markdown-60-02);
+-   The website of the [**rmarkdown**](https://rmarkdown.rstudio.com) package;
+-   An online [book](https://bookdown.org/yihui/rmarkdown) providing a great overview of what is possible within the R Markdown family of packages.
+-   A focus on the last R Markdown feature introduced in RStudio 1.4 called [visual markdown editing](https://rstudio.github.io/visual-markdown-editing/#/).
+
+::: {style="color: red"}
+**Our turn:**
+:::
+
+-   Download the `Rmd` file for this very tutorial [here](https://github.com/astamm/teachr/blob/master/inst/tutorials/01_Introduction/01_Introduction.Rmd);
+-   Open the `Rmd` file with RStudio (right-click on the file and open with RStudio);
+-   Make sure the current working directory in RStudio is the folder where you saved the file (`?setwd`);
 -   Click on the `Run Document` button above the space where the file shows up (top-left panel);
 -   Click on the third icon above the space where the tutorial shows up (bottom-right panel) to view it in your browser.
 
