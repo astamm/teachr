@@ -19,6 +19,17 @@ tutorial_options(
 knitr::opts_chunk$set(comment = NA)
 ```
 
+## Required packages
+
+| Package                                                   | Install Command                                |
+|-----------------------------------------------------------|------------------------------------------------|
+| [**rmarkdown**](https://rmarkdown.rstudio.com)            | `install.packages("rmarkdown")`                |
+| [**remotes**](https://remotes.r-lib.org)                  | `install.packages("remotes")`                  |
+| [**learnr**](https://rstudio.github.io/learnr/index.html) | `install.packages("learnr")`                   |
+| [**teachr**](https://astamm.github.io/teachr)             | `remotes::install_github("astamm/teachr")`     |
+| [**testwhat**](https://datacamp.github.io/testwhat)       | `remotes::install_github("datacamp/testwhat")` |
+| [**tidyverse**](https://www.tidyverse.org)                | `install.packages("tidyverse")`                |
+
 ## Material for this course {data-progressive="TRUE"}
 
 ### Softwares
