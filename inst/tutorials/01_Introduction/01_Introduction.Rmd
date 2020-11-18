@@ -81,9 +81,9 @@ It is also of interest to dive into the structure of the `Rmd` file which is the
 -   An online [book](https://bookdown.org/yihui/rmarkdown) providing a great overview of what is possible within the R Markdown family of packages.
 -   A focus on the last R Markdown feature introduced in RStudio 1.4 called [visual markdown editing](https://rstudio.github.io/visual-markdown-editing/#/).
 
-::: {style="color: red"}
+<div style="color: red">
 **Our turn:**
-:::
+</div>
 
 -   Download the `Rmd` file for this very tutorial [here](https://github.com/astamm/teachr/blob/master/inst/tutorials/01_Introduction/01_Introduction.Rmd);
 -   Open the `Rmd` file with RStudio (right-click on the file and open with RStudio);
@@ -102,7 +102,7 @@ You will be provided the opportunity to carry out a number of exercises by yours
 ```
 
 ::: {#code-box-example-hint}
-**Hint:** You just clicked on the `Hint` button. Come on, you could have given some more thoughts before asking for help...
+**Hint**: You just clicked on the Hint button. Come on, you could have given some more thoughts before asking for help...
 :::
 
 ```{r code-box-example-solution}
