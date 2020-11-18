@@ -11,11 +11,7 @@ author: Aymeric Stamm
 ```{r setup, include=FALSE}
 library(learnr)
 library(testwhat)
-library(magrittr)
-library(ggplot2)
-library(tibble)
-library(lobstr)
-library(microbenchmark)
+library(tidyverse)
 
 options(repos = "https://cloud.r-project.org")
 tutorial_options(
@@ -58,6 +54,32 @@ plot.microbenchmark <- function(object, ..., log = TRUE) {
   plt
 }
 ```
+
+## Required packages
+
++----------------------------------------------------------------------+------------------------------------------------+
+| Package                                                              | Install Command                                |
++======================================================================+================================================+
+| [**rmarkdown**](https://rmarkdown.rstudio.com)                       | `install.packages("rmarkdown")`                |
++----------------------------------------------------------------------+------------------------------------------------+
+| [**remotes**](https://remotes.r-lib.org)                             | `install.packages("remotes")`                  |
++----------------------------------------------------------------------+------------------------------------------------+
+| [**learnr**](https://rstudio.github.io/learnr/index.html)            | `install.packages("learnr")`                   |
++----------------------------------------------------------------------+------------------------------------------------+
+| [**teachr**](https://astamm.github.io/teachr)                        | `remotes::install_github("astamm/teachr")`     |
++----------------------------------------------------------------------+------------------------------------------------+
+| [**testwhat**](https://datacamp.github.io/testwhat)                  | `remotes::install_github("datacamp/testwhat")` |
++----------------------------------------------------------------------+------------------------------------------------+
+| [**tidyverse**](https://www.tidyverse.org)                           | `install.packages("tidyverse")`                |
++----------------------------------------------------------------------+------------------------------------------------+
+| [**rlang**](https://rlang.r-lib.org)                                 | `install.packages("rlang")`                    |
++----------------------------------------------------------------------+------------------------------------------------+
+| [**lobstr**](https://lobstr.r-lib.org)                               | `install.packages("lobstr")`                   |
++----------------------------------------------------------------------+------------------------------------------------+
+| [**microbenchmark**](https://github.com/joshuaulrich/microbenchmark) | `install.packages("microbenchmark")`           |
++----------------------------------------------------------------------+------------------------------------------------+
+| [**janitor**](https://sfirke.github.io/janitor)                      | `install.packages("janitor")`                  |
++----------------------------------------------------------------------+------------------------------------------------+
 
 ## Functions
 
@@ -431,11 +453,11 @@ You can find all the universal mathematical functions in the **base** package: `
 ```{r recycling, exercise=TRUE}
 x <- 1:5
 y <- 1:10
-x+y
+x + y
 
 x <- seq_len(5)
 y <- seq_len(11)
-x+y
+x + y
 
 ```
 
@@ -1107,7 +1129,7 @@ The first strategy is much more efficient both in terms of accuracy and computat
 X <- matrix(rnorm(20000), nrow = 200, ncol = 100)
 A <- t(X) %*% X
 b <- rep(1, 100)
-mbm <- microbenchmark(
+mbm <- microbenchmark::microbenchmark(
   solve = solve(A, b), 
   inv = as.numeric(solve(A) %*% b), 
   check = "equal"
