@@ -101,9 +101,9 @@ You will be provided the opportunity to carry out a number of exercises by yours
 
 ```
 
-::: {#code-box-example-hint}
+<div id="code-box-example-hint">
 **Hint**: You just clicked on the Hint button. Come on, you could have given some more thoughts before asking for help...
-:::
+</div>
 
 ```{r code-box-example-solution}
 ```
@@ -119,9 +119,9 @@ ex()
 
 When writing code in the provided boxes, code completion is enabled, meaning that, as you type, R will propose a list of functions or other objects that match the sequence of letters you are typing.
 
-::: {#caution-tuto style="color: red"}
+<div style="color: red">
 Note that the tutorial format has been chosen for you to work in almost complete autonomy. However, **we highly encourage you to try and replicate the things you learn in your own RStudio session**, because outside of this course, there will be no tutorial environment, you will be on your own. Plus, the practice of installing new packages to enrich your R experience cannot be done from within a tutorial. In effect, packages required to run a specific tutorial have been already installed and cannot be uninstalled and you cannot install new ones from the tutorial.
-:::
+</div>
 
 You will find at the beginning of each tutorial a list of all required packages to run that tutorial in case you choose to practice also on your own in RStudio when you are done with the tutorial.
 
