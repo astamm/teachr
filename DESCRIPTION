@@ -5,7 +5,7 @@ Authors@R:
     person(given = "Aymeric",
            family = "Stamm",
            role = c("aut", "cre"),
-           email = "aymeric.stamm@math.cnrs.fr",
+           email = "aymeric.stamm@cnrs.fr",
            comment = c(ORCID = "0000-0002-8725-3654"))
 Description: The goal of teachr is to provide a set of 
   introductory tutorials for teaching / learning R 
@@ -47,13 +47,11 @@ Imports:
     infer,
     yardstick,
     broom,
-    lindia (>= 0.9),
     ggcorrplot
 Suggests:
     learnr
 Remotes: 
-    datacamp/testwhat,
-    astamm/lindia@fix-residuals
+    datacamp/testwhat
 URL: https://astamm.github.io/teachr/, https://github.com/astamm/teachr
 BugReports: https://github.com/astamm/teachr/issues
 VignetteBuilder: knitr

@@ -379,69 +379,6 @@ $$ r_i = \frac{\widehat{\varepsilon}_i}{\sqrt{\widehat{\sigma^2} (1 - h_{ii})}}.
 
 $$ D_i = \frac{r_i^2}{k + 1} \frac{h_{ii}}{1 - h_{ii}}. $$
 
-### Third step: Model Diagnosis
-
-You must always remember that, **even though R facilitates computations, it does not verify for you that the assumptions required by the model are met by your data**!
-
-This is where *model diagnosis* comes into play. You can almost entirely diagnose your model graphically. Using the grammar of graphics in `ggplot2`, this can be achieved using the extension [**lindia**](https://github.com/astamm/lindia/tree/fix-residuals), that you can also find by borwsing [ggplot extensions](http://www.ggplot2-exts.org/gallery/). In particular, the function `lindia::gg_diagnose()` shows the relevant plots for diagnosis all at once.
-
-Let us diagnose the first model:
-
-```{r diagnose-mod1, fig.align='center'}
-lindia::gg_diagnose(fitted.lm = first_model, plot.all = FALSE)
-```
-
-**Summary: How to use the diagnosis plots?**
-
-- *Histogram of residuals* and *Normal QQ plot*: to check the normality of residuals;
-- *Residuals vs. predictors* and *Residuals vs. fitted values*: to check for non-linearity not accounted for;
-- *Scale-Location plot*: to check the homoskedasticity assumption (constant variance);
-- *Residuals vs. leverage*: to check the zero-mean assumption on the residuals and to spot potential outliers in the top and bottom right corners;
-- *Cook's distance plot*: to spot potential outliers as flagged using a variety of thresholds.
-
-**A note on Cook's distance threshold.** 
-
-Some texts recommend to flag as outliers observations with a Cook's distance greater than $1$. Other textbooks use the theshold $4/n$. John Fox, in his booklet on regression diagnostics is rather cautious when it comes to giving numerical thresholds. He advises the use of graphics and to examine in closer details the points with
-
-> values of D that are substantially larger than the rest (thresholds should just be used to enhance graphical displays), John Fox (1991), *Regression Diagnostics: An Introduction*, Sage Publications.
-
-A theoretically justified approach can be achieved by looking at the distributional properties. If the error vector $\boldsymbol{\varepsilon}$ follows a multivariate Gassian distribution:
-
-$$ \boldsymbol{\varepsilon} \sim \mathcal{N}_n(\mathbf{0}, \sigma^2 I_n), $$
-
-then it can be [proved](https://stats.stackexchange.com/questions/400217/squared-internally-studentized-residual-over-n-p-is-beta-distributed) that each squared standardized residual follows a *Beta distribution*:
-
-$$ \frac{r_i^2}{n - k - 1} \sim \mathcal{B}eta \left( \frac{1}{2}, \frac{n - k - 2}{2} \right). $$
-
-Thus we end up with the following distribution for Cook's distance:
-
-$$ \frac{k+1}{n - (k+1)} \frac{1 - h_{ii}}{h_{ii}} D_i \sim \mathcal{B}eta \left( \frac{1}{2}, \frac{n - k - 2}{2} \right). $$
-
-As a result, in average, we should not observe more than $n_\mathrm{authorized} = \alpha n$ observations having a Cook's distance that exceeds the quantile of order $1 - \alpha$ of the above Beta distribution. Let $n_\mathrm{beta}$ be the number of observations with a Cook's distance that *effectively* exceeds the quantile of order $1 - \alpha$ of the above Beta distribution. We can finally flag as outliers those $n_\mathrm{beta} - n_\mathrm{authorized}$ observations with highest Cook's distance, if any.
-
-```{r diagnose-mod1-cook, fig.align='center'}
-lindia::gg_cooksd(fitted.lm = first_model, threshold = "theoretical")
-```
-
-**Application of model diagnosis to the second data set.**
-
-We can now apply all of the above to the second simulated data to see what happens.
-
-```{r second-data-lm}
-second_model <- lm(second_data ~ x)
-broom::glance(second_model)
-broom::tidy(second_model)
-broom::augment(second_model)
-```
-
-```{r diagnose-mod2, fig.align='center'}
-lindia::gg_diagnose(fitted.lm = second_model, plot.all = FALSE)
-```
-
-```{r diagnose-mod2-cook, fig.align='center'}
-lindia::gg_cooksd(fitted.lm = second_model, threshold = "theoretical")
-```
-
 ## More complex models
 
 ### Model specification
